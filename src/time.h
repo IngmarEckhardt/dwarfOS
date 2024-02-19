@@ -6,6 +6,7 @@ extern          "C" {
 #endif
 #include <inttypes.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
@@ -87,8 +88,10 @@ time_t          mktime(const struct tm * timeptr);
 /**
  * @brief Returns the actual calendar time and if timer is not NULL store the value there.
  *
- * @param timer Pointer to a time_t object where the time is stored.
- * @return The value of the object as time_t.
+ * If no Callback Function is set it will return the value read from the timer, or return -1 if timer is NULL
+ *
+ * @param timer Pointer to a time_t object
+ * @return calendar time as time_t.
  */
 time_t          time(time_t *timer);
 /**
@@ -138,6 +141,14 @@ struct tm       *localtime(const time_t * timer);
  * @return Always returns zero in this implementation
  */
 size_t          strftime(char *s, size_t maxsize, const char *format, const struct tm *timeptr);
+
+/**
+ * @brief Setter for a Callback Function that will be used from time();
+ *
+ * Is connected to mcu_clock.getSystemClock() in this implementation.
+ * @param mcuClockCallback a function Pointer to a function that returns the calendar time in seconds.
+ */
+void setMcuClockCallback(uint32_t (*mcuClockCallback)());
 
 /* @} */
 #ifdef __cplusplus

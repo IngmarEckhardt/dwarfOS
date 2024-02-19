@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include "mcu_clock.h"
+#include "time.h"
 
 void setupMcu();
 void setCPUParamRegister();

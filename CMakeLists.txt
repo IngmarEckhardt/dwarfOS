@@ -19,7 +19,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
 # naming, versioning
 set(NAME "DwarfOS")
-set(VERSION "0.3.0")
+set(VERSION "0.4.0")
 set(PROJECT ${NAME}_${VERSION})
 project(${PROJECT} C)
 

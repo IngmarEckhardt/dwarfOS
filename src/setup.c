@@ -3,6 +3,7 @@
 void setupMcu() {
     // I/O
     setSystemClock(INIT_TIME);
+    setMcuClockCallback(&getSystemClock);
     setCPUParamRegister();
 }
 

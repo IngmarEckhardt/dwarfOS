@@ -1,7 +1,6 @@
-#include <stdio.h>
 #include "time.h"
-#include "mcu_clock.h"
 
+uint32_t (*takeTimeFromClock)() = NULL;
 
 //helper functions
 uint16_t calcYear(uint32_t *days);
@@ -65,10 +64,17 @@ uint8_t isLeapYear(uint16_t year) {
 }
 
 uint32_t time(uint32_t *timer) {
-    uint32_t timestamp = getSystemClock();
-    if(timer!=NULL){
-        (*timer) = timestamp;
+    uint32_t timestamp = -1;
+
+    if(takeTimeFromClock != NULL) {
+        timestamp = takeTimeFromClock();
+        if(timer!=NULL){
+            (*timer) = timestamp;
+        }
+    } else if(timer!=NULL) {
+        timestamp = (*timer);
     }
+
     return timestamp;
 }
 
@@ -162,6 +168,12 @@ uint32_t difftime_unsigned(uint32_t time1, uint32_t time0) {
     int64_t diff = (int64_t) time1 - (int64_t) time0;
     return (uint32_t) (diff >= 0 ? diff : -diff);
 }
+
+
+void setMcuClockCallback(uint32_t (*mcuClockCallback)()) {
+    takeTimeFromClock = mcuClockCallback;
+}
+
 
 // Returns the number of days in a given month of a given year
 uint8_t daysInMonth(uint16_t year, uint8_t month) {

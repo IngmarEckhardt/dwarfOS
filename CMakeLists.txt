@@ -29,8 +29,7 @@ add_subdirectory(${EXTERN_DIR} extern_build)
 # Define NDEBUG for release builds
 # add_compile_definitions(-DNDEBUG)
 
-# Include AVR-GCC specific header
-include_directories("C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/include")
+# Include AVR-GCC specific headerinclude_directories("C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/include")
 
 # AVR specific compiler options
 set(AVR_COMPILE_OPTIONS

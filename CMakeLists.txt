@@ -19,7 +19,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
 # naming, versioning
 set(NAME "DwarfOS")
-set(VERSION "0.1.0")
+set(VERSION "0.3.0")
 set(PROJECT ${NAME}_${VERSION})
 project(${PROJECT} C)
 
@@ -29,7 +29,8 @@ add_subdirectory(${EXTERN_DIR} extern_build)
 # Define NDEBUG for release builds
 # add_compile_definitions(-DNDEBUG)
 
-# Include AVR-GCC specific headerinclude_directories("C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/include")
+# Include AVR-GCC specific header
+include_directories("C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/include")
 
 # AVR specific compiler options
 set(AVR_COMPILE_OPTIONS
@@ -57,13 +58,30 @@ set(AVR_LINKER_FLAGS
 )
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${AVR_LINKER_FLAGS}")
 
-set(HEADER_FILES
+set(PROJECT_HEADER_FILES
 
 )
 
-set(SOURCE_FILES
-
+set(PROJECT_SOURCE_FILES
+        ${SRC_DIR}mcu_clock.c
+        ${SRC_DIR}setup.c
+        ${SRC_DIR}time.c
+        ${SRC_DIR}uart_helper.c
 )
+
+#files
+# Project Target
+add_executable(${PROJECT}
+        ${PROJECT_SOURCE_FILES}
+)
+target_link_libraries(${PROJECT}
+)
+target_include_directories(${PROJECT} PUBLIC
+       ${SRC_DIR}
+)
+
+
+
 #
 #add_library(time_lib STATIC ${SOURCE_FILES})
 #

@@ -82,15 +82,25 @@ int32_t         difftime(time_t time1, time_t time0);
  * @param timeptr Pointer to the `struct tm` object representing the time in UTC.
  * @return The calendar time value.
  */
-time_t          mktime(struct tm * timeptr);
+time_t          mktime(const struct tm * timeptr);
 
 /**
- * @brief Returns the time as value read from a pointer.
+ * @brief Returns the actual calendar time and if timer is not NULL store the value there.
  *
  * @param timer Pointer to a time_t object where the time is stored.
  * @return The value of the object as time_t.
  */
-time_t          time(const time_t *timer);
+time_t          time(time_t *timer);
+/**
+ * @brief Converts the calendar time value to a string representation in localtime and
+ * if timer is not NULL store the value of the calendar time there.
+ *
+ * Identically to asctime(localtime(uint32_t epochTime)).
+ *
+ * @param timer Pointer to the calendar time value.
+ * @return A string representing the calendar time.
+ */
+char            *ctime (time_t *timer);
 /**
  * @brief Converts a `struct tm` object to a string representation.
  *
@@ -98,15 +108,7 @@ time_t          time(const time_t *timer);
  * @return A string representing the time.
  */
 char            *asctime(const struct tm * timeptr);
-/**
- * @brief Converts a calendar time value to a string representation in localtime
- *
- * Identically to asctime(localtime(uint32_t epochTime)).
- *
- * @param timer Pointer to the calendar time value.
- * @return A string representing the calendar time.
- */
-char            *ctime (const time_t *timer);
+
 
 /**
  * @brief Converts a calendar time value to a UTC-based `struct tm` object.

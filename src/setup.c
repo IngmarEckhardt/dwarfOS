@@ -6,7 +6,8 @@ void setupMcu() {
     setCPUParamRegister();
 }
 
-void setCPUParamRegister() {//Energy saving
+void setCPUParamRegister() {
+
     // USART INIT
 
     // Set baud rate

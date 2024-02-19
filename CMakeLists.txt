@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.5)
-
 # configuration
 set(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_SYSTEM_VERSION 1)
@@ -8,10 +7,11 @@ set(CMAKE_C_STANDARD 99)
 # specific to CPU
 set(TARGET_CPU ATmega328P)
 add_compile_definitions("__AVR_${TARGET_CPU}__")
+set(CMAKE_C_COMPILER_TARGET "C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p")
+
+##disable conflicts with time.h
 add_definitions(-D_TIME_T_DEFINED)
 add_definitions(-DTIME_H)
-
-set(CMAKE_C_COMPILER_TARGET "C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p")
 
 # directories
 set(EXTERN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/")
@@ -24,7 +24,7 @@ set(PROJECT ${NAME}_${VERSION})
 project(${PROJECT} C)
 
 # initialize extern modules, has to be after declaration of the project
-add_subdirectory(${EXTERN_DIR} extern_build)
+add_subdirectory(${EXTERN_DIR}/unity extern_build)
 
 # Define NDEBUG for release builds
 # add_compile_definitions(-DNDEBUG)
@@ -75,9 +75,13 @@ add_executable(${PROJECT}
         ${PROJECT_SOURCE_FILES}
 )
 target_link_libraries(${PROJECT}
+        unity
 )
 target_include_directories(${PROJECT} PUBLIC
        ${SRC_DIR}
+)
+target_include_directories(${PROJECT} PRIVATE
+        ${EXTERN_DIR}/unity/src
 )
 
 

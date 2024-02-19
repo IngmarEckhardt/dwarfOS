@@ -14,17 +14,17 @@ add_definitions(-D_TIME_T_DEFINED)
 add_definitions(-DTIME_H)
 
 # directories
-set(EXTERN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/")
-set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/")
+set(EXTERN_DWARF_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/")
+set(SRC_DWARF_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
 # naming, versioning
 set(NAME "DwarfOS")
-set(VERSION "0.4.0")
+set(VERSION "0.5.0")
 set(PROJECT ${NAME}_${VERSION})
 project(${PROJECT} C)
 
 # initialize extern modules, has to be after declaration of the project
-add_subdirectory(${EXTERN_DIR}/unity extern_build)
+#add_subdirectory(${EXTERN_DWARF_DIR}unity extern_build)
 
 # Define NDEBUG for release builds
 # add_compile_definitions(-DNDEBUG)
@@ -63,27 +63,24 @@ set(PROJECT_HEADER_FILES
 )
 
 set(PROJECT_SOURCE_FILES
-        ${SRC_DIR}mcu_clock.c
-        ${SRC_DIR}setup.c
-        ${SRC_DIR}time.c
-        ${SRC_DIR}uart_helper.c
+        ${SRC_DWARF_DIR}mcu_clock.c
+        ${SRC_DWARF_DIR}setup.c
+        ${SRC_DWARF_DIR}time.c
+        ${SRC_DWARF_DIR}uart_helper.c
 )
 
 #files
 # Project Target
-add_executable(${PROJECT}
-        ${PROJECT_SOURCE_FILES}
-)
-target_link_libraries(${PROJECT}
+
+add_library(${NAME} STATIC ${PROJECT_SOURCE_FILES})
+
+target_link_libraries(${NAME}
         unity
 )
-target_include_directories(${PROJECT} PUBLIC
-       ${SRC_DIR}
+target_include_directories(${NAME} PUBLIC
+        ${SRC_DWARF_DIR}
+        ${EXTERN_DWARF_DIR}/unity/src
 )
-target_include_directories(${PROJECT} PRIVATE
-        ${EXTERN_DIR}/unity/src
-)
-
 
 
 #

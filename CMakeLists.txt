@@ -19,12 +19,9 @@ set(SRC_DWARF_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
 # naming, versioning
 set(NAME "DwarfOS")
-set(VERSION "0.5.0")
+set(VERSION "0.7.0")
 set(PROJECT ${NAME}_${VERSION})
 project(${PROJECT} C)
-
-# initialize extern modules, has to be after declaration of the project
-#add_subdirectory(${EXTERN_DWARF_DIR}unity extern_build)
 
 # Define NDEBUG for release builds
 # add_compile_definitions(-DNDEBUG)
@@ -61,7 +58,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${AVR_LINKER_FLAGS}")
 set(PROJECT_HEADER_FILES
 
 )
-
+#files
 set(PROJECT_SOURCE_FILES
         ${SRC_DWARF_DIR}mcu_clock.c
         ${SRC_DWARF_DIR}setup.c
@@ -69,17 +66,13 @@ set(PROJECT_SOURCE_FILES
         ${SRC_DWARF_DIR}uart_helper.c
 )
 
-#files
 # Project Target
-
 add_library(${NAME} STATIC ${PROJECT_SOURCE_FILES})
 
 target_link_libraries(${NAME}
-        unity
 )
 target_include_directories(${NAME} PUBLIC
         ${SRC_DWARF_DIR}
-        ${EXTERN_DWARF_DIR}/unity/src
 )
 
 

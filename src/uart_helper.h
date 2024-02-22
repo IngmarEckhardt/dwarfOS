@@ -1,7 +1,7 @@
 #ifndef UART_HELPER_H
 #define UART_HELPER_H
 
-#include <avr/io.h>
+#include "time.h"
 
 
 void USART_Transmit(unsigned char data);

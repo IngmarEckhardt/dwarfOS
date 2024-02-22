@@ -4,8 +4,6 @@
 
 uint32_t (* takeTimeFromClock)() = NULL;
 
-uint32_t cachedTimestamp = 0;
-struct tm* cachedLocalTime = NULL;
 
 //helper functions
 uint16_t calcYear(uint32_t* days);
@@ -21,6 +19,7 @@ uint8_t isDST(uint16_t year, uint8_t month, uint8_t day);
 uint8_t calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day);
 
 uint8_t isLeapYear(uint16_t year);
+
 
 //expecting no mcu library use this function, because it is per default unknown in a mcu environment without rtc
 //calculate this value with systemClock and CLOCKS_PER_SECOND or F_CPU in mcuClock if necessary and subtract the sleep times
@@ -88,11 +87,15 @@ char* ctime(uint32_t* timer) {
     if (timer != NULL) {
         (*timer) = timestamp;
     }
-    return asctime(localtime(timer));
+	struct tm* timePointer = localtime(timer);
+	char* result = asctime(timePointer);
+    free(timePointer);
+    return result;
 }
 
 char* asctime(struct tm* timeptr) {
     char* result;
+
 
     switch (timeptr->tm_isdst) {
         case 1: {
@@ -127,7 +130,6 @@ char* asctime(struct tm* timeptr) {
             break;
         }
     }
-    free(timeptr);
     return result;
 }
 
@@ -155,18 +157,13 @@ struct tm* gmtime(const uint32_t* timer) {
 }
 
 struct tm* localtime(const uint32_t* timer) {
-    if (cachedTimestamp == (*timer)) {
-        if (cachedLocalTime != NULL) { return cachedLocalTime; }
-    }
-    cachedTimestamp = (*timer);
-    uint32_t adjusted = cachedTimestamp;
+    uint32_t adjusted = (*timer);
     uint8_t UTC_offset = calcUTCOffset(adjusted);
     // Adjust for UTC offset
     adjusted += UTC_offset * ONE_HOUR;
     struct tm* timeToReturn = gmtime(&adjusted);
 
     timeToReturn->tm_isdst = UTC_offset;
-    cachedLocalTime = timeToReturn;
     return timeToReturn;
 }
 

@@ -8,4 +8,5 @@ LazyLoadingString cet;
 LazyLoadingString cest;
 LazyLoadingString catDetect;
 LazyLoadingString noCatDetect;
+
 #endif //STRING_STORAGE_H

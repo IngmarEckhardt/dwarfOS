@@ -33,7 +33,7 @@ void setSystemClock(uint32_t timestamp) {
     SREG = sreg;
 }
 
-void tickSecond() {
+void incrementClockOneSec() {
     uint8_t sreg;
     sreg = SREG;
     cli();

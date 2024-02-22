@@ -1,7 +1,6 @@
 #include "uart_helper.h"
-#include "time.h"
+#include <avr/io.h>
 
-char* localtimePointer;
 
 void USART_Transmit(unsigned char data) {
     // Wait for empty transmit buffer
@@ -11,15 +10,15 @@ void USART_Transmit(unsigned char data) {
     UDR0 = data;
 }
 
-void USART_TransmitString(char* str) {
+void USART_TransmitString(char *str) {
 
-    while (*str) {
-        USART_Transmit(*str++);
-    }
+	   while (*str) {
+		   USART_Transmit(*str++);
+	   }
 }
 
 char USART_Receive() {
-    while (!(UCSR0A & (1 << RXC0)));
+       while (!(UCSR0A & (1 << RXC0)));
     return UDR0;
 
 }
@@ -48,14 +47,14 @@ void USART_ReceiveLine(char* buffer, uint8_t buffer_size) {
     }
 }
 
-void sendMsgWithTimestamp(char* message) {
+void sendMsgWithTimestamp(char *message) {
 
-    uint32_t timeStamp = time(NULL);
-    localtimePointer = ctime(&timeStamp);
-    USART_TransmitString(localtimePointer);
+	uint32_t timeStamp = time(NULL);
+    char* localtimeStringpointer = ctime(&timeStamp);
+    USART_TransmitString(localtimeStringpointer);
     USART_Transmit(0x20);
     USART_TransmitString(message);
-    USART_Transmit(0x0d);
-    USART_Transmit(0x0a);
-
+	USART_Transmit(0x0d);
+	USART_Transmit(0x0a);
+    free(localtimeStringpointer);
 }

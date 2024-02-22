@@ -13,17 +13,18 @@ typedef struct {
     char* pointerToString;
 } LazyLoadingString;
 
-typedef struct {
-    LazyLoadingString** arrayOfManagedLazyStrings;
 
-    LazyLoadingString** (* addString)(LazyLoadingString* stringToAdd);
 
-    char* (* getString)(LazyLoadingString* stringToFetch);
 
-    int16_t (* freeMemoryUpTo)(int16_t minAcceptedFreeMemByte, int16_t freeMemoryUpToByte);
+LazyLoadingString** addString(LazyLoadingString* stringToAdd);
+char* getString(LazyLoadingString* stringToFetch);
+LazyLoadingString* freeString(LazyLoadingString* stringToKill);
+void freeMemoryRandom(uint8_t percentage);
+LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill);
+int16_t getFreeMemory();
 
-    int16_t (* getFreeMemory)();
-} DwarfDB;
 
-extern const DwarfDB dwarfDB;
+
+extern LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB];
+char* loadStringFromFlash(const char* PROGMEM flashString);
 #endif /* STRINGS_REPO_H_ */

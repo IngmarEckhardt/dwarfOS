@@ -6,6 +6,7 @@
 #include "string_storage.h"
 
 void setupStringDB();
+void setCPUParamRegister();
 
 void setupMcu() {
     setSystemClock(INIT_TIME);
@@ -15,11 +16,11 @@ void setupMcu() {
 }
 
 void setupStringDB() {
-    dwarfDB.addString(&initMsg);
-    dwarfDB.addString(&cet);
-    dwarfDB.addString(&cest);
-    dwarfDB.addString(&catDetect);
-    dwarfDB.addString(&noCatDetect);
+    addString(&initMsg);
+    addString(&cet);
+    addString(&cest);
+    addString(&catDetect);
+    addString(&noCatDetect);
 }
 
 void setCPUParamRegister() {

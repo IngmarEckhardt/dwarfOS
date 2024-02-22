@@ -27,6 +27,6 @@ uint32_t getSystemClock(void);
  * This function increases the system clock value by one second.
  * It is typically called in an interrupt routine that is invoked from a counter overflow counting a clock quartz.
  */
-void tickSecond(void);
+void incrementClockOneSec(void);
 
 #endif /* MCU_CLOCK_H_ */

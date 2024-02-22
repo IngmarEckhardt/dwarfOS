@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_STANDARD 99)
-
+set(CMAKE_C_COMPILER "C:/Program Files (x86)/Atmel/Studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/avr-gcc.exe")
 # specific to CPU
 set(TARGET_CPU ATmega328P)
 add_compile_definitions("__AVR_${TARGET_CPU}__")
@@ -34,29 +34,40 @@ set(AVR_COMPILE_OPTIONS
         -x c
         -funsigned-char
         -funsigned-bitfields
+        -DNDEBUG
+        -I "C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/include"
         -O2
         -ffunction-sections
         -fdata-sections
         -fpack-struct
         -fshort-enums
         -Wall
+        -B "C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p"
         -c
+        -std=gnu99
         -MD
         -MP
         -MF "$(@:%.o=%.d)"
         -MT "$(@:%.o=%.d)"
         -MT "$(@:%.o=%.o)"
 )
+#add_link_options(-Wl,--print-memory-usage )
 add_compile_options(${AVR_COMPILE_OPTIONS})
-
+# Generate ELF file
+#set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map=my_project.map")
+#set(CMAKE_C_OUTPUT_EXTENSION ".elf")
 # Add linker flags for AVR
 set(AVR_LINKER_FLAGS
         -Wl,--gc-sections
+        -Wl,--print-memory-usage
 )
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${AVR_LINKER_FLAGS}")
 
 set(PROJECT_HEADER_FILES
-
+        ${SRC_DWARF_DIR}mcu_clock.h
+        ${SRC_DWARF_DIR}setup.h
+        ${SRC_DWARF_DIR}time.h
+        ${SRC_DWARF_DIR}uart_helper.h
 )
 #files
 set(PROJECT_SOURCE_FILES
@@ -67,13 +78,14 @@ set(PROJECT_SOURCE_FILES
 )
 
 # Project Target
-add_library(${NAME} STATIC ${PROJECT_SOURCE_FILES})
+add_library(${NAME} STATIC ${PROJECT_SOURCE_FILES}  ${PROJECT_HEADER_FILES})
 
 target_link_libraries(${NAME}
 )
 target_include_directories(${NAME} PUBLIC
         ${SRC_DWARF_DIR}
 )
+
 
 
 #

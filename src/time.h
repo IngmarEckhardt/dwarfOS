@@ -4,9 +4,9 @@
 #ifdef __cplusplus
 extern          "C" {
 #endif
-#include <inttypes.h>
+
+#include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
@@ -46,25 +46,26 @@ typedef uint32_t time_t;
  * components.
  */
 struct tm {
-    uint8_t  tm_sec;    /**< Seconds [0,59] */
-    uint8_t  tm_min;    /**< Minutes [0,59] */
-    uint8_t  tm_hour;   /**< Hours [0,23] */
-    uint8_t  tm_mday;   /**< Day of the month [1,31] */
-    uint8_t  tm_mon;    /**< Month [1,12] */
+    uint8_t tm_sec;    /**< Seconds [0,59] */
+    uint8_t tm_min;    /**< Minutes [0,59] */
+    uint8_t tm_hour;   /**< Hours [0,23] */
+    uint8_t tm_mday;   /**< Day of the month [1,31] */
+    uint8_t tm_mon;    /**< Month [1,12] */
     uint16_t tm_year;   /**< Year */
-    uint8_t  tm_wday;   /**< Day of the week [0,6] (Sunday = 0) not used */
+    uint8_t tm_wday;   /**< Day of the week [0,6] (Sunday = 0) not used */
     uint16_t tm_yday;   /**< Day of the year [0,365] not used */
-    uint8_t  tm_isdst;  /**< Daylight Saving Time flag, used as:
+    uint8_t tm_isdst;  /**< Daylight Saving Time flag, used as:
                              - 0 for UTC
                              - 1 for CET (Central European Time)
                              - 2 for CEST (Central European Summer Time) */
 };
+
 /**
  * @brief Returns the processor time used by the program.
  *
  * @return (clock_t) -1 because per default unknown in a environment without rtc.
  */
-clock_t         clock(void);
+clock_t clock(void);
 
 /**
  * @brief Computes the difference between two calendar times.
@@ -75,7 +76,7 @@ clock_t         clock(void);
  * @param time0 The second time value.
  * @return The difference between time1 and time0 in seconds.
  */
-int32_t         difftime(time_t time1, time_t time0);
+int32_t difftime(time_t time1, time_t time0);
 
 /**
  * @brief Converts a `struct tm` object to calendar time.
@@ -83,7 +84,7 @@ int32_t         difftime(time_t time1, time_t time0);
  * @param timeptr Pointer to the `struct tm` object representing the time in UTC.
  * @return The calendar time value.
  */
-time_t          mktime(const struct tm * timeptr);
+time_t mktime(const struct tm* timeptr);
 
 /**
  * @brief Returns the actual calendar time and if timer is not NULL store the value there.
@@ -93,7 +94,8 @@ time_t          mktime(const struct tm * timeptr);
  * @param timer Pointer to a time_t object
  * @return calendar time as time_t.
  */
-time_t          time(time_t *timer);
+time_t time(time_t* timer);
+
 /**
  * @brief Converts the calendar time value to a string representation in localtime and
  * if timer is not NULL store the value of the calendar time there.
@@ -103,14 +105,15 @@ time_t          time(time_t *timer);
  * @param timer Pointer to the calendar time value.
  * @return A string representing the calendar time.
  */
-char            *ctime (time_t *timer);
+char* ctime(time_t* timer);
+
 /**
  * @brief Converts a `struct tm` object to a string representation.
  *
  * @param timeptr Pointer to the `struct tm` object representing the time.
  * @return A string representing the time.
  */
-char            *asctime(const struct tm * timeptr);
+char* asctime(struct tm* timeptr);
 
 
 /**
@@ -119,7 +122,7 @@ char            *asctime(const struct tm * timeptr);
  * @param timer Pointer to the calendar time value.
  * @return Pointer to a `struct tm` object representing the time in UTC.
  */
-struct tm       *gmtime(const time_t * timer);
+struct tm* gmtime(const time_t* timer);
 
 /**
  * @brief Converts a calendar time value to a local time-based `struct tm` object.
@@ -127,7 +130,7 @@ struct tm       *gmtime(const time_t * timer);
  * @param timer Pointer to the calendar time value.
  * @return Pointer to a `struct tm` object representing the local time.
  */
-struct tm       *localtime(const time_t * timer);
+struct tm* localtime(const time_t* timer);
 
 /**
  * @brief Formats a time as a string according to a format string.
@@ -140,7 +143,7 @@ struct tm       *localtime(const time_t * timer);
  * @param timeptr  Pointer to the `struct tm` object representing the time.
  * @return Always returns zero in this implementation
  */
-size_t          strftime(char *s, size_t maxsize, const char *format, const struct tm *timeptr);
+size_t strftime(char* s, size_t maxsize, const char* format, const struct tm* timeptr);
 
 /**
  * @brief Setter for a Callback Function that will be used from time();
@@ -148,7 +151,7 @@ size_t          strftime(char *s, size_t maxsize, const char *format, const stru
  * Is connected to mcu_clock.getSystemClock() in this implementation.
  * @param mcuClockCallback a function Pointer to a function that returns the calendar time in seconds.
  */
-void setMcuClockCallback(uint32_t (*mcuClockCallback)());
+void setMcuClockCallback(uint32_t (* mcuClockCallback)());
 
 /* @} */
 #ifdef __cplusplus

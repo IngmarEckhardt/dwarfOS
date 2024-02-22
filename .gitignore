@@ -6,3 +6,9 @@ simple_date_time.cppproj
 /test/cmake*
 /extern/unity/
 .private
+.idea
+.vs
+DwarfOS.dir
+Release
+Debug
+x64

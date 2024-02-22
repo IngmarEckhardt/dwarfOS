@@ -1,6 +1,8 @@
 #include "uart_helper.h"
 #include "time.h"
 
+char* localtimePointer;
+
 void USART_Transmit(unsigned char data) {
     // Wait for empty transmit buffer
     while (!(UCSR0A & (1 << UDRE0)));
@@ -9,18 +11,17 @@ void USART_Transmit(unsigned char data) {
     UDR0 = data;
 }
 
-void USART_TransmitString(const char *str) {
+void USART_TransmitString(char* str) {
+
     while (*str) {
         USART_Transmit(*str++);
     }
 }
 
 char USART_Receive() {
-    // Wait for data to be received
     while (!(UCSR0A & (1 << RXC0)));
-
-    // Get and return received data from buffer
     return UDR0;
+
 }
 
 void USART_ReceiveLine(char* buffer, uint8_t buffer_size) {
@@ -29,28 +30,32 @@ void USART_ReceiveLine(char* buffer, uint8_t buffer_size) {
 
     while (1) {
         if (i >= buffer_size - 1) {
-            buffer[i] = '\0';
+            buffer[i] = 0x00;
             break;
         }
         received_char = USART_Receive();
 
-        // Check if buffer is full or line terminator is received
-        if (received_char != '\r') {
+
+        if (received_char != 0x0d) {
             buffer[i++] = received_char;
         } else {
-            // Null-terminate the string
-            buffer[i] = '\0';
-            //consume \n
+
+            buffer[i] = 0x00;
+
             received_char = USART_Receive();
             break;
         }
     }
 }
 
-void sendMsgWithTimestamp(const char *message) {
+void sendMsgWithTimestamp(char* message) {
+
     uint32_t timeStamp = time(NULL);
-    USART_TransmitString(ctime(&timeStamp));
-    USART_TransmitString(" ");
+    localtimePointer = ctime(&timeStamp);
+    USART_TransmitString(localtimePointer);
+    USART_Transmit(0x20);
     USART_TransmitString(message);
-    USART_TransmitString("\r\n");
+    USART_Transmit(0x0d);
+    USART_Transmit(0x0a);
+
 }

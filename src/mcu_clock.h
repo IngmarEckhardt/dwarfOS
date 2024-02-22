@@ -1,8 +1,7 @@
 #ifndef MCU_CLOCK_H_
 #define MCU_CLOCK_H_
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include <stdint.h>
 
 /**
  * @brief Initializes the system clock with the given timestamp.

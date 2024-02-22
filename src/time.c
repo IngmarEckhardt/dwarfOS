@@ -1,15 +1,20 @@
 #include "time.h"
+#include <stdio.h>
 
-uint32_t (*takeTimeFromClock)() = NULL;
+
+uint32_t (* takeTimeFromClock)() = NULL;
+
+uint32_t cachedTimestamp = 0;
+struct tm* cachedLocalTime = NULL;
 
 //helper functions
-uint16_t calcYear(uint32_t *days);
+uint16_t calcYear(uint32_t* days);
 
 uint8_t daysInMonth(uint16_t year, uint8_t month);
 
 uint8_t calcUTCOffset(uint32_t epochTimeY2K);
 
-uint8_t calcMonth(uint32_t *days, uint16_t year);
+uint8_t calcMonth(uint32_t* days, uint16_t year);
 
 uint8_t isDST(uint16_t year, uint8_t month, uint8_t day);
 
@@ -34,7 +39,7 @@ int32_t difftime(uint32_t time1, uint32_t time0) {
 }
 
 // Converts the given year, month, day, hour, minute, and second into seconds since the epoch
-uint32_t mktime(const struct tm *timeptr) {
+uint32_t mktime(const struct tm* timeptr) {
     const struct tm time = (*timeptr);
 
     // Calculate number of days since the epoch
@@ -63,35 +68,36 @@ uint8_t isLeapYear(uint16_t year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-uint32_t time(uint32_t *timer) {
+uint32_t time(uint32_t* timer) {
     uint32_t timestamp = -1;
 
-    if(takeTimeFromClock != NULL) {
+    if (takeTimeFromClock != NULL) {
         timestamp = takeTimeFromClock();
-        if(timer!=NULL){
+        if (timer != NULL) {
             (*timer) = timestamp;
         }
-    } else if(timer!=NULL) {
+    } else if (timer != NULL) {
         timestamp = (*timer);
     }
 
     return timestamp;
 }
 
-char *ctime(uint32_t *timer) {
+char* ctime(uint32_t* timer) {
     uint32_t timestamp = time(NULL);
-    if(timer!=NULL){
+    if (timer != NULL) {
         (*timer) = timestamp;
     }
     return asctime(localtime(timer));
 }
 
-char *asctime(const struct tm *timeptr) {
-    char *result;
+char* asctime(struct tm* timeptr) {
+    char* result;
 
     switch (timeptr->tm_isdst) {
         case 1: {
-            result = (char *) malloc(CET_STRING_SIZE * sizeof(char));
+
+            result = (char*) malloc(CET_STRING_SIZE);
             if (result == NULL) {
                 return NULL;
             }
@@ -101,7 +107,7 @@ char *asctime(const struct tm *timeptr) {
             break;
         }
         case 2: {
-            result = (char *) malloc(CEST_STRING_SIZE * sizeof(char));
+            result = (char*) malloc(CEST_STRING_SIZE);
             if (result == NULL) {
                 return NULL;
             }
@@ -111,7 +117,7 @@ char *asctime(const struct tm *timeptr) {
             break;
         }
         default: {
-            result = (char *) malloc(UTC_STRING_SIZE * sizeof(char));
+            result = (char*) malloc(UTC_STRING_SIZE);
             if (result == NULL) {
                 return NULL;
             }
@@ -121,12 +127,13 @@ char *asctime(const struct tm *timeptr) {
             break;
         }
     }
+    free(timeptr);
     return result;
 }
 
-struct tm *gmtime(const uint32_t *timer) {
+struct tm* gmtime(const uint32_t* timer) {
     // Allocate memory for a struct time structure
-    struct tm *constructedTime = (struct tm *) malloc(sizeof(struct tm));
+    struct tm* constructedTime = (struct tm*) malloc(sizeof(struct tm));
     if (constructedTime == NULL) {
         return NULL;
     }
@@ -147,18 +154,23 @@ struct tm *gmtime(const uint32_t *timer) {
     return constructedTime;
 }
 
-struct tm *localtime(const uint32_t *timer) {
-    uint32_t timeValue = (*timer);
-    uint8_t UTC_offset = calcUTCOffset((*timer));
+struct tm* localtime(const uint32_t* timer) {
+    if (cachedTimestamp == (*timer)) {
+        if (cachedLocalTime != NULL) { return cachedLocalTime; }
+    }
+    cachedTimestamp = (*timer);
+    uint32_t adjusted = cachedTimestamp;
+    uint8_t UTC_offset = calcUTCOffset(adjusted);
     // Adjust for UTC offset
-    timeValue += UTC_offset * ONE_HOUR;
-    struct tm *timeToReturn = gmtime(&timeValue);
+    adjusted += UTC_offset * ONE_HOUR;
+    struct tm* timeToReturn = gmtime(&adjusted);
 
     timeToReturn->tm_isdst = UTC_offset;
+    cachedLocalTime = timeToReturn;
     return timeToReturn;
 }
 
-size_t strftime(char *s, size_t maxsize, const char *format, const struct tm *timeptr) {
+size_t strftime(char* s, size_t maxsize, const char* format, const struct tm* timeptr) {
     return 0; // Always return 0 as per your requirement
 }
 
@@ -170,7 +182,7 @@ uint32_t difftime_unsigned(uint32_t time1, uint32_t time0) {
 }
 
 
-void setMcuClockCallback(uint32_t (*mcuClockCallback)()) {
+void setMcuClockCallback(uint32_t (* mcuClockCallback)()) {
     takeTimeFromClock = mcuClockCallback;
 }
 
@@ -225,7 +237,7 @@ uint8_t isDST(uint16_t year, uint8_t month, uint8_t day) {
     return 0;
 }
 
-uint16_t calcYear(uint32_t *days) {
+uint16_t calcYear(uint32_t* days) {
     uint16_t year = EPOCH_YEAR;
     while ((*days) >= 365 + isLeapYear(year)) {
         if (isLeapYear(year)) {
@@ -239,7 +251,7 @@ uint16_t calcYear(uint32_t *days) {
     return year;
 }
 
-uint8_t calcMonth(uint32_t *days, uint16_t year) {
+uint8_t calcMonth(uint32_t* days, uint16_t year) {
     uint8_t month = 1;
     while ((*days) >= daysInMonth(year, month)) {
         (*days) -= daysInMonth(year, month);

@@ -1,4 +1,5 @@
 #include "mcu_clock.h"
+#include <avr/interrupt.h>
 
 volatile uint32_t systemClock;
 
@@ -20,7 +21,7 @@ uint32_t getSystemClock() {
     return ret;
 }
 
-void setSystemTime(uint32_t timestamp) {
+void setSystemClock(uint32_t timestamp) {
     uint8_t sreg;
     // Disable interrupts and save the previous state
     sreg = SREG;
@@ -32,7 +33,7 @@ void setSystemTime(uint32_t timestamp) {
     SREG = sreg;
 }
 
-void tickSecond(){
+void tickSecond() {
     uint8_t sreg;
     sreg = SREG;
     cli();

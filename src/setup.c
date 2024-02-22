@@ -1,10 +1,25 @@
 #include "setup.h"
+#include "mcu_clock.h"
+#include "time.h"
+#include <avr/io.h>
+#include "string_repository.h"
+#include "string_storage.h"
+
+void setupStringDB();
 
 void setupMcu() {
-    // I/O
     setSystemClock(INIT_TIME);
     setMcuClockCallback(&getSystemClock);
+    setupStringDB();
     setCPUParamRegister();
+}
+
+void setupStringDB() {
+    dwarfDB.addString(&initMsg);
+    dwarfDB.addString(&cet);
+    dwarfDB.addString(&cest);
+    dwarfDB.addString(&catDetect);
+    dwarfDB.addString(&noCatDetect);
 }
 
 void setCPUParamRegister() {
@@ -12,8 +27,8 @@ void setCPUParamRegister() {
     // USART INIT
 
     // Set baud rate
-    UBRR0H = (unsigned char)(UBRR_VAL >> 8);
-    UBRR0L = (unsigned char)UBRR_VAL;
+    UBRR0H = (unsigned char) (UBRR_VAL >> 8);
+    UBRR0L = (unsigned char) UBRR_VAL;
 
     // Enable receiver and transmitter
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
@@ -34,16 +49,16 @@ void setCPUParamRegister() {
 
     //Counter
     //Using asynchronous timer with low frequency crystal
-    ASSR |= (1 << AS2);
+    //ASSR |= (1 << AS2);
 
     //Prescaler 128 (256x128 = 32768 until overflow interrupt))
-    TCCR2B |= (1 << CS22) | (1 << CS20);
+    //TCCR2B |= (1 << CS22) | (1 << CS20);
+    TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
 
     //Overflow-Counter 2 Interrupt on -> overflow every 1sec precisly with 32kHz watch quartz
     TIMSK2 |= (1 << TOIE2);
 
     //External Standby Sleep Mode, Counter 2 is the only clock that stays active
     SMCR |= (1 << SM2) | (1 << SM1) | (1 << SM0);
-    //global interrupts on
-    sei();
+
 }

@@ -1,29 +1,31 @@
-#include "setup.h"
-#include "mcu_clock.h"
-#include "time.h"
 #include <avr/io.h>
-#include "string_repository.h"
-#include "string_storage.h"
+#include <setup.h>
+#include <mcu_clock.h>
+#include <time.h>
+#include <string_repository.h>
+#include <string_storage.h>
+#include <uart_helper.h>
+#include <version.h>
 
-void setupStringDB();
-void setCPUParamRegister();
+void setupStringDb(void);
 
-void setupMcu() {
+void setCpuParamRegister(void);
+
+void setupMcu(void) {
     setSystemClock(INIT_TIME);
     setMcuClockCallback(&getSystemClock);
-    setupStringDB();
-    setCPUParamRegister();
+    setupStringDb();
+    setCpuParamRegister();
+
+    sendMsgWithTimestamp(PROJECT_VERSION);
+    sendMsgWithTimestamp(getString(&initMsg));
 }
 
-void setupStringDB() {
+void setupStringDb(void) {
     addString(&initMsg);
-    addString(&cet);
-    addString(&cest);
-    addString(&catDetect);
-    addString(&noCatDetect);
 }
 
-void setCPUParamRegister() {
+void setCpuParamRegister(void) {
 
     // USART INIT
 

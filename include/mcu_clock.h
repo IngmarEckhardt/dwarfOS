@@ -1,5 +1,5 @@
-#ifndef MCU_CLOCK_H_
-#define MCU_CLOCK_H_
+#ifndef CAT_FOUNTAIN_MCU_CLOCK_H
+#define CAT_FOUNTAIN_MCU_CLOCK_H
 
 #include <stdint.h>
 
@@ -29,4 +29,4 @@ uint32_t getSystemClock(void);
  */
 void incrementClockOneSec(void);
 
-#endif /* MCU_CLOCK_H_ */
+#endif /* CAT_FOUNTAIN_MCU_CLOCK_H */

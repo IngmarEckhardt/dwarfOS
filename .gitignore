@@ -1,14 +1,3 @@
-simple_date_time.componentinfo.xml
-simple_date_time.cppproj
 /cmake-*
-/build-chain/cmake-*
-/src/cmake*
-/test/cmake*
-/extern/unity/
-.private
-.idea
-.vs
-DwarfOS.dir
-Release
-Debug
-x64
+.*
+/include/version.h

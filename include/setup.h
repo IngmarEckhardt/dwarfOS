@@ -1,5 +1,5 @@
-#ifndef MCU_SETUP_H
-#define MCU_SETUP_H
+#ifndef CAT_FOUNTAIN_SETUP_H
+#define CAT_FOUNTAIN_SETUP_H
 
 
 
@@ -18,6 +18,6 @@
 #define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1)
 
 
-void setupMcu();
+void setupMcu(void);
 
-#endif // MCU_SETUP_H
+#endif // CAT_FOUNTAIN_SETUP_H

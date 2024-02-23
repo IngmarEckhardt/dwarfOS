@@ -1,9 +1,10 @@
-#include "string_repository.h"
+#include <string_repository.h>
 
 uint8_t getHash(LazyLoadingString* stringToAdd);
-int8_t findStringInDB(LazyLoadingString* stringToFetch);
 
-LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB]= {};
+int8_t findStringInDb(LazyLoadingString* stringToFetch);
+
+LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB] = {};
 
 
 LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
@@ -34,7 +35,7 @@ LazyLoadingString* freeString(LazyLoadingString* stringToKill) {
 
 LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 
-    int8_t index = findStringInDB(stringToKill);
+    int8_t index = findStringInDb(stringToKill);
     if (index >= 0) {
         freeString(stringToKill);
         arrayOfManagedLazyStringPointers[index] = NULL;
@@ -54,6 +55,7 @@ void freeMemoryRandom(uint8_t percentage) {
         }
     }
 }
+
 //Hashing will only work until 255 managed strings
 uint8_t getHash(LazyLoadingString* stringToAdd) {
     return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
@@ -71,12 +73,12 @@ char* loadStringFromFlash(const char* PROGMEM flashString) {
 }
 
 
-int16_t getFreeMemory() {
+int16_t getFreeMemory(void) {
     return __brkval ? ((int16_t) SP) - ((int16_t) __brkval) : ((int16_t) SP) - ((int16_t) &__malloc_heap_start);
 }
 
 
-int8_t findStringInDB(LazyLoadingString* stringToFetch) {
+int8_t findStringInDb(LazyLoadingString* stringToFetch) {
     uint8_t placement = getHash(stringToFetch);
     for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
         placement = (placement + i) % MAX_SIZE_STRING_DB;

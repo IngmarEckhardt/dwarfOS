@@ -1,5 +1,5 @@
-#ifndef SIMPLE_TIME_H
-#define SIMPLE_TIME_H
+#ifndef CAT_FOUNTAIN_TIME_H
+#define CAT_FOUNTAIN_TIME_H
 
 #ifdef __cplusplus
 extern          "C" {
@@ -11,10 +11,6 @@ extern          "C" {
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
 #define EPOCH_YEAR 2000
-#define UTC_STRING_SIZE 20
-#define CET_STRING_SIZE 25
-#define CEST_STRING_SIZE 26
-
 
 /**
 * @brief Represents the number of clock ticks since an implementation-defined
@@ -151,11 +147,11 @@ size_t strftime(char* s, size_t maxsize, const char* format, const struct tm* ti
  * Is connected to mcu_clock.getSystemClock() in this implementation.
  * @param mcuClockCallback a function Pointer to a function that returns the calendar time in seconds.
  */
-void setMcuClockCallback(uint32_t (* mcuClockCallback)());
+void setMcuClockCallback(uint32_t (* mcuClockCallback)(void));
 
 /* @} */
 #ifdef __cplusplus
 }
 #endif
 
-#endif              /* SIMPLE_TIME_H  */
+#endif              /* CAT_FOUNTAIN_TIME_H  */

@@ -46,13 +46,9 @@ LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 
 
 void freeMemoryRandom(uint8_t percentage) {
-
-    int moduloValue = (percentage * MAX_SIZE_STRING_DB) / 100;
-
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        if (i % moduloValue == 0) {
+    uint8_t step = MAX_SIZE_STRING_DB * percentage / 100;
+    for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
             freeString(arrayOfManagedLazyStringPointers[i]);
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <uart_helper.h>
+#include <time.h>
 
 void usartTransmit(unsigned char data) {
     // Wait for empty transmit buffer
@@ -48,12 +49,14 @@ void usartReceiveLine(char* buffer, uint8_t bufferSize) {
 
 void sendMsgWithTimestamp(char* message) {
 
+#ifdef DWARFOS_TIME_H
     uint32_t timeStamp = time(NULL);
     char* localtimeStringpointer = ctime(&timeStamp);
     usartTransmitString(localtimeStringpointer);
     usartTransmit(0x20);
+    free(localtimeStringpointer);
+#endif /*DWARFOS_TIME_H */
     usartTransmitString(message);
     usartTransmit(0x0d);
     usartTransmit(0x0a);
-    free(localtimeStringpointer);
 }

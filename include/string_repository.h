@@ -1,5 +1,5 @@
-#ifndef CAT_FOUNTAIN_STRING_REPOSITORY_H
-#define CAT_FOUNTAIN_STRING_REPOSITORY_H
+#ifndef DWARFOS_STRING_REPOSITORY_H
+#define DWARFOS_STRING_REPOSITORY_H
 
 #include <avr/pgmspace.h>
 #include <stdlib.h>
@@ -32,4 +32,4 @@ extern LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB];
 
 char* loadStringFromFlash(const char* PROGMEM flashString);
 
-#endif /* CAT_FOUNTAIN_STRING_REPOSITORY_H */
+#endif /* DWARFOS_STRING_REPOSITORY_H */

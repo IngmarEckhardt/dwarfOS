@@ -1,5 +1,5 @@
-#ifndef CAT_FOUNTAIN_SETUP_H
-#define CAT_FOUNTAIN_SETUP_H
+#ifndef DWARFOS_SETUP_H
+#define DWARFOS_SETUP_H
 
 
 
@@ -20,4 +20,4 @@
 
 void setupMcu(void);
 
-#endif // CAT_FOUNTAIN_SETUP_H
+#endif //DWARFOS_SETUP_H

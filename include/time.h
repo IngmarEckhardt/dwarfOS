@@ -1,12 +1,14 @@
-#ifndef CAT_FOUNTAIN_TIME_H
-#define CAT_FOUNTAIN_TIME_H
+#include <stdint.h>
+#include <stdlib.h>
+
+#ifdef DWARF_TIME
+#ifndef DWARFOS_TIME_H
+#define DWARFOS_TIME_H
 
 #ifdef __cplusplus
 extern          "C" {
 #endif
 
-#include <stdint.h>
-#include <stdlib.h>
 
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
@@ -154,4 +156,6 @@ void setMcuClockCallback(uint32_t (* mcuClockCallback)(void));
 }
 #endif
 
-#endif              /* CAT_FOUNTAIN_TIME_H  */
+#endif              /* DWARFOS_TIME_H  */
+
+#endif /* DWARF_TIME */

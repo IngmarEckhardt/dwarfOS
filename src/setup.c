@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <setup.h>
-#include <mcu_clock.h>
 #include <time.h>
+#include <mcu_clock.h>
 #include <string_repository.h>
 #include <string_storage.h>
 #include <uart_helper.h>
@@ -13,11 +13,13 @@ void setCpuParamRegister(void);
 
 void setupMcu(void) {
     setSystemClock(INIT_TIME);
+#ifdef DWARFOS_TIME_H
     setMcuClockCallback(&getSystemClock);
+#endif /* DWARFOS_TIME_H */
     setupStringDb();
     setCpuParamRegister();
 
-    sendMsgWithTimestamp(PROJECT_VERSION);
+    sendMsgWithTimestamp(DWARFOS_IDENTSTRING);
     sendMsgWithTimestamp(getString(&initMsg));
 }
 
@@ -63,5 +65,4 @@ void setCpuParamRegister(void) {
 
     //External Standby Sleep Mode, Counter 2 is the only clock that stays active
     SMCR |= (1 << SM2) | (1 << SM1) | (1 << SM0);
-
 }

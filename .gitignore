@@ -1,3 +1,4 @@
 /cmake-*
 .*
 /include/version.h
+/tests/cmake-*

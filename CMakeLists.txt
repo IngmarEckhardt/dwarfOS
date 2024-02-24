@@ -12,6 +12,8 @@ project(${NAME} LANGUAGES C)
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
 option(DWARF_TIME "Build ${PROJECT_NAME} without own time.h/.c" ON)
 
+
+
 set(CSTANDARD "-std=gnu99")
 set(CWARN "-Wall -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
 set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
@@ -62,6 +64,9 @@ endif ()
 
 if (BUILD_DWARFOS_AS_LIBRARY)
     add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${HEADER_FILES})
+    target_include_directories(${PROJECT_NAME} PUBLIC
+            ${INCL_PATH}
+    )
 else ()
 
     set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/main.c")
@@ -77,6 +82,7 @@ else ()
     add_custom_target(size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
 
 endif ()
+
 
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")

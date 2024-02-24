@@ -46,7 +46,6 @@ set(HEADER_FILES
         "${INCL_PATH}/string_repository.h"
         "${INCL_PATH}/string_storage.h"
         "${INCL_PATH}/uart_helper.h"
-        "${INCL_PATH}/time.h"
 )
 
 # generates the version.h in the include folder, containing the String with ProjectName and Version, as in version.h.in

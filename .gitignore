@@ -2,3 +2,5 @@
 .*
 /include/version.h
 /tests/cmake-*
+Debug
+Release

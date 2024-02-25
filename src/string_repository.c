@@ -1,4 +1,7 @@
 #include <string_repository.h>
+#include <string_storage.h>
+#include <stdlib.h>
+
 
 uint8_t getHash(LazyLoadingString* stringToAdd);
 
@@ -11,86 +14,71 @@ LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB] = {};
 // the freeMemoryRandom function. Of course, you can do this also by yourself and using just the datastructures.
 LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
 
-    uint8_t placement = getHash(stringToAdd);
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        placement = (placement + i) % MAX_SIZE_STRING_DB;
-        if (arrayOfManagedLazyStringPointers[placement] == NULL) {
-            arrayOfManagedLazyStringPointers[placement] = stringToAdd;
-            return &arrayOfManagedLazyStringPointers[placement];
-        }
-    }
-    return NULL;
+	uint8_t placement = getHash(stringToAdd);
+	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+		placement = (placement + i) % MAX_SIZE_STRING_DB;
+		if (arrayOfManagedLazyStringPointers[placement] == NULL) {
+			arrayOfManagedLazyStringPointers[placement] = stringToAdd;
+			return &arrayOfManagedLazyStringPointers[placement];
+		}
+	}
+	return NULL;
 }
 
 // return the string from the ram, will load copy it from flash into ram if it's not present there
 char* getString(LazyLoadingString* stringToFetch) {
-    if (stringToFetch->pointerToString == NULL) {
-        stringToFetch->pointerToString = loadStringFromFlash(stringToFetch->flashString);
-    }
-    return stringToFetch->pointerToString;
+	if (stringToFetch->pointerToString == NULL) {
+		stringToFetch->pointerToString = loadStringFromFlash(stringToFetch->flashString);
+	}
+	return stringToFetch->pointerToString;
 }
 
 //free Memory of a single string, but will keep it in the management and allow lazy loading from flash again if needed
 LazyLoadingString* freeString(LazyLoadingString* stringToKill) {
-    free(stringToKill->pointerToString);
-    stringToKill->pointerToString = NULL;
-    return stringToKill;
+	free(stringToKill->pointerToString);
+	stringToKill->pointerToString = NULL;
+	return stringToKill;
 }
 
 //remove Strings from the array of managed strings with this function to be safe that memory is freed
 LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 
-    int8_t index = findStringInDb(stringToKill);
-    if (index >= 0) {
-        freeString(stringToKill);
-        arrayOfManagedLazyStringPointers[index] = NULL;
-        return stringToKill;
-    }
-    return NULL;
+	int8_t index = findStringInDb(stringToKill);
+	if (index >= 0) {
+		freeString(stringToKill);
+		arrayOfManagedLazyStringPointers[index] = NULL;
+		return stringToKill;
+	}
+	return NULL;
 }
 
 //it will round up the percentage until it can free at least one element
 void freeMemoryRandom(uint8_t percentage) {
-    uint8_t step = 100 / percentage;
-    //we delete at least one element
-    if (step > (MAX_SIZE_STRING_DB - 1)) {
-        step = MAX_SIZE_STRING_DB - 1;
-    }
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
-        freeString(arrayOfManagedLazyStringPointers[i]);
-    }
+	uint8_t step = 100 / percentage;
+	//we delete at least one element
+	if (step > (MAX_SIZE_STRING_DB - 1)) {
+		step = MAX_SIZE_STRING_DB - 1;
+	}
+	for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
+		freeString(arrayOfManagedLazyStringPointers[i]);
+	}
 }
 
 //Hashing will only work until 255 managed strings
 uint8_t getHash(LazyLoadingString* stringToAdd) {
-    return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
+	return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
 }
 
-char* loadStringFromFlash(const char* PROGMEM flashString) {
-    uint16_t length = strlen_P(flashString) + 1;
-    char* result;
-    result = (char*) calloc(length, 1);
-    if (result == NULL) {
-        return NULL;
-    }
-    strcpy_P(result, flashString);
-    return result;
-}
-
-
-int16_t getFreeMemory(void) {
-    return __brkval ? ((int16_t) SP) - ((int16_t) __brkval) : ((int16_t) SP) - ((int16_t) &__malloc_heap_start);
-}
 
 
 int8_t findStringInDb(LazyLoadingString* stringToFetch) {
-    uint8_t placement = getHash(stringToFetch);
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        placement = (placement + i) % MAX_SIZE_STRING_DB;
-        
-        if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
-            return (int8_t) placement;
-        }
-    }
-    return -1;
+	uint8_t placement = getHash(stringToFetch);
+	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+		placement = (placement + i) % MAX_SIZE_STRING_DB;
+
+		if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
+			return (int8_t) placement;
+		}
+	}
+	return -1;
 }

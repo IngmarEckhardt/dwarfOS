@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdlib.h>
-
 #ifdef DWARF_TIME
 #ifndef DWARFOS_TIME_H
 #define DWARFOS_TIME_H

@@ -4,7 +4,7 @@
 
 void usartTransmit(unsigned char data);
 
-void usartTransmitString(char* str);
+void usartTransmitString(volatile char* str);
 
 void usartReceiveLine(char* buffer, uint8_t bufferSize);
 

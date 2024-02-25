@@ -3,64 +3,64 @@
 #include <time.h>
 
 void usartTransmit(unsigned char data) {
-	if (data == 0) {
-		return;
-	}
-	// Wait for empty transmit buffer
-	while (!(UCSR0A & (1 << UDRE0)));
+    if (data == 0) {
+        return;
+    }
+    // Wait for empty transmit buffer
+    while (!(UCSR0A & (1 << UDRE0)));
 
-	// Put data into buffer, sends the data
-	UDR0 = data;
+    // Put data into buffer, sends the data
+    UDR0 = data;
 }
 
-void usartTransmitString(char* str) {
+void usartTransmitString(volatile char* str) {
 
-	while (*str) {
-		usartTransmit(*str++);
-	}
+    while (*str) {
+        usartTransmit(*str++);
+    }
 }
 
 char usartReceive(void) {
-	while (!(UCSR0A & (1 << RXC0)));
-	return UDR0;
+    while (!(UCSR0A & (1 << RXC0)));
+    return UDR0;
 
 }
 
 void usartReceiveLine(char* buffer, uint8_t bufferSize) {
-	uint8_t i = 0;
-	char receivedChar;
+    uint8_t i = 0;
+    char receivedChar;
 
-	while (1) {
-		if (i >= bufferSize - 1) {
-			buffer[i] = 0x00;
-			break;
-		}
-		receivedChar = usartReceive();
+    while (1) {
+        if (i >= bufferSize - 1) {
+            buffer[i] = 0x00;
+            break;
+        }
+        receivedChar = usartReceive();
 
 
-		if (receivedChar != 0x0d) {
-			buffer[i++] = receivedChar;
-			} else {
+        if (receivedChar != 0x0d) {
+            buffer[i++] = receivedChar;
+        } else {
 
-			buffer[i] = 0x00;
+            buffer[i] = 0x00;
 
-			receivedChar = usartReceive();
-			break;
-		}
-	}
+            receivedChar = usartReceive();
+            break;
+        }
+    }
 }
 
 void sendMsgWithTimestamp(char* message) {
 
-	#ifdef DWARFOS_TIME_H
-	uint32_t timeStamp = time(NULL);
-	char* localtimeStringpointer = ctime(&timeStamp);
+#ifdef DWARFOS_TIME_H
+    uint32_t timeStamp = time(NULL);
+	volatile char* localtimeStringpointer = ctime(&timeStamp);
 	usartTransmitString(localtimeStringpointer);
 	usartTransmit(0x20);
-	free(localtimeStringpointer);
-	#endif /*DWARFOS_TIME_H */
-	usartTransmitString(message);
-	usartTransmit(0x20);
-	usartTransmit(0x0d);
-	usartTransmit(0x0a);
+	free((void*)localtimeStringpointer);
+#endif /*DWARFOS_TIME_H */
+    usartTransmitString(message);
+    usartTransmit(0x20);
+    usartTransmit(0x0d);
+    usartTransmit(0x0a);
 }

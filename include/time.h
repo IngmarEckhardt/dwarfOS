@@ -102,7 +102,7 @@ time_t time(time_t* timer);
  * @param timer Pointer to the calendar time value.
  * @return A string representing the calendar time.
  */
-char* ctime(time_t* timer);
+volatile char* ctime(time_t* timer);
 
 /**
  * @brief Converts a `struct tm` object to a string representation.
@@ -110,7 +110,7 @@ char* ctime(time_t* timer);
  * @param timeptr Pointer to the `struct tm` object representing the time.
  * @return A string representing the time.
  */
-char* asctime(struct tm* timeptr);
+volatile char* asctime(volatile struct tm* timeptr);
 
 
 /**

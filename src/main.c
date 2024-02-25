@@ -8,34 +8,23 @@
 #include <uart_helper.h>
 #include <ascii_helper.h>
 #include <string_repository.h>
+#include <string_storage.h>
 #include "time.h"
 
-volatile uint8_t adJust16MhzToSecond = 0;
-int16_t memory;
- char memoryArray[5];
- volatile uint8_t sended = 0;
 
- char timeStampArray[12];
+volatile uint8_t adJust16MhzToSecond = 0;
+uint32_t lastTime;
 
 int main(void) {
-	memoryArray[4] = 0x00;
-	timeStampArray[11] = 0x00;
-
+	
 	setupMcu();
-	memory = getFreeMemory();
-	sendMsgWithTimestamp("free Memory is");
-	if (memory < 0) {
-		memory = -(memory);
-		sendMsgWithTimestamp("minus");
-	}
-	integerToAscii(memoryArray, memory, 4, 0);
-	sendMsgWithTimestamp(memoryArray);
+	sendMsgWithTimestamp(getString(&initMsg));
 	sei();
 	while (1) {
-		
-		sleep_mode();
-		
-		
+		if (time(NULL) != lastTime) {
+			sendMsgWithTimestamp(getString(&initMsg));
+			lastTime = time(NULL);
+		}	
 	}
 }
 

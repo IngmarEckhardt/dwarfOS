@@ -33,42 +33,8 @@ int main(void) {
 	sei();
 	while (1) {
 		
-		//sleep_mode();
-		if(!(time(NULL)%5)){
-			if(!sended) {
-						sendMsgWithTimestamp("sended was");
-						integerToAscii(memoryArray,sended,1,0);
-						sendMsgWithTimestamp(memoryArray);
-				
-						memory = getFreeMemory();
-						sendMsgWithTimestamp("free Memory is");
-						if (memory < 0) {
-							memory = -(memory);
-							sendMsgWithTimestamp("minus");
-						}
-						integerToAscii(memoryArray, memory, 4, 0);
-						sendMsgWithTimestamp(memoryArray);
-						memoryArray[0] = 	memoryArray[1] = 	memoryArray[2] = 	memoryArray[3] = 	memoryArray[4] = 0;
-						sendMsgWithTimestamp("sended was");
-						integerToAscii(memoryArray,sended,1,0);
-						sendMsgWithTimestamp(memoryArray);
-						
-						
-						
-							sendMsgWithTimestamp("pin D was");
-							DDRD &= ~(PIND2);
-							uint8_t result = PIND & (1 << PIND2);
-							integerToAscii(memoryArray,result,1,0);
-							sendMsgWithTimestamp(memoryArray);
-						sended = 1;
-						
-			}
-			
-			
-
-		} else {
-			sended = 0;
-		}
+		sleep_mode();
+		
 		
 	}
 }

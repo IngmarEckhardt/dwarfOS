@@ -53,11 +53,11 @@ LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 void freeMemoryRandom(uint8_t percentage) {
     uint8_t step = 100 / percentage;
     //we delete at least one element
-    if (step > (MAX_SIZE_STRING_DB-1)){
-        step = MAX_SIZE_STRING_DB-1;
+    if (step > (MAX_SIZE_STRING_DB - 1)) {
+        step = MAX_SIZE_STRING_DB - 1;
     }
     for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
-            freeString(arrayOfManagedLazyStringPointers[i]);
+        freeString(arrayOfManagedLazyStringPointers[i]);
     }
 }
 
@@ -87,11 +87,9 @@ int8_t findStringInDb(LazyLoadingString* stringToFetch) {
     uint8_t placement = getHash(stringToFetch);
     for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
         placement = (placement + i) % MAX_SIZE_STRING_DB;
+        
         if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
-
-            if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
-                return (int8_t) placement;
-            }
+            return (int8_t) placement;
         }
     }
     return -1;

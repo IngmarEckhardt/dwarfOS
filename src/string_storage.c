@@ -3,9 +3,9 @@
 
 
 char* loadStringFromFlash(const char* PROGMEM flashString) {
-	uint16_t length = strlen_P(flashString) + 1;
-	char* result;
-	result = (char*) calloc(length, 1);
+
+    char* result;
+    result = (char*) malloc((strlen_P(flashString) + 1) * sizeof(char));
 	if (result == NULL) {
 		return NULL;
 	}
@@ -13,5 +13,5 @@ char* loadStringFromFlash(const char* PROGMEM flashString) {
 	return result;
 }
 
-const char initMsgOnFlash[] PROGMEM = " setup complete ";
+const char initMsgOnFlash[] PROGMEM = " setup complete.";
 LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};

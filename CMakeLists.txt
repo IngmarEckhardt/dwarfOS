@@ -15,7 +15,7 @@ option(DWARF_TIME "Build ${PROJECT_NAME} without own time.h/.c" ON)
 
 
 set(CSTANDARD "-std=gnu99")
-set(CWARN "-Wall -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
+set(CWARN "-Wall -Wextra -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
 set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
 #use Optimization level -O2 if you have the space, it add 600bytes to program memory, but is optimized for more speed
 set(COPT "-Os -lm ")
@@ -29,12 +29,12 @@ set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(SRC_FILES
         "${SRC_PATH}/ascii_helper.c"
+        "${SRC_PATH}/heap_management_helper.c"
         "${SRC_PATH}/mcu_clock.c"
         "${SRC_PATH}/setup.c"
         "${SRC_PATH}/string_repository.c"
         "${SRC_PATH}/string_storage.c"
         "${SRC_PATH}/uart_helper.c"
-
 )
 
 if (!USE_STD_TIME_H)
@@ -43,6 +43,7 @@ endif ()
 
 set(HEADER_FILES
         "${INCL_PATH}/ascii_helper.h"
+        "${INCL_PATH}/heap_management_helper.c"
         "${INCL_PATH}/mcu_clock.h"
         "${INCL_PATH}/setup.h"
         "${INCL_PATH}/string_repository.h"

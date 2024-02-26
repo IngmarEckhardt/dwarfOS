@@ -6,23 +6,25 @@
 #include <setup.h>
 #include <mcu_clock.h>
 #include <uart_helper.h>
-#include <ascii_helper.h>
 #include <string_repository.h>
 #include <string_storage.h>
 #include "time.h"
 
+McuClock * mcuClock;
+StringRepository * stringRepository;
 
 volatile uint8_t adJust16MhzToSecond = 0;
 uint32_t lastTime;
 
 int main(void) {
 	
-	setupMcu();
-	sendMsgWithTimestamp(getString(&initMsg));
-	sei();
+	setupMcu(mcuClock, stringRepository);
+    sei();
+
 	while (1) {
+        sleep_mode();
 		if (time(NULL) != lastTime) {
-			sendMsgWithTimestamp(getString(&initMsg));
+			sendMsgWithTimestamp(1,stringRepository->getString(&initMsg));
 			lastTime = time(NULL);
 		}	
 	}
@@ -33,7 +35,7 @@ int main(void) {
 ISR(TIMER2_OVF_vect) {
 	    adJust16MhzToSecond++;
 	    if (adJust16MhzToSecond == 61) {
-		    incrementClockOneSec();
+		    mcuClock->incrementClockOneSec();
 		    adJust16MhzToSecond = 0;
 	    }
 }

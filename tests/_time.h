@@ -1,5 +1,5 @@
-#ifndef SIMPLE_TIME_LIBRARY_TEST_MCU_TIME_TEST_H
-#define SIMPLE_TIME_LIBRARY_TEST_MCU_TIME_TEST_H
+#ifndef DWARFOS_TEST__TIME_H
+#define DWARFOS_TEST__TIME_H
 #include <unity.h>
 #include <time.h>
 
@@ -48,4 +48,4 @@ const uint32_t      julyThirtieth2021Time_T = 679449600;
 //reference with purpose to free the allocated memory in the tearDown function
 struct tm         *result;
 char                *resultString;
-#endif //SIMPLE_TIME_LIBRARY_TEST_MCU_TIME_TEST_H
+#endif //DWARFOS_TEST__TIME_H

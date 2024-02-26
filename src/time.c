@@ -4,13 +4,13 @@
 uint32_t (* takeTimeFromClock)(void) = NULL;
 
 //helper functions
-uint16_t calcYear(uint32_t* days);
+uint16_t calcYear(uint32_t * days);
 
 uint8_t daysInMonth(uint16_t year, uint8_t month);
 
 uint8_t calcUtcOffset(uint32_t epochTimeY2K);
 
-uint8_t calcMonth(uint32_t* days, uint16_t year);
+uint8_t calcMonth(uint32_t * days, uint16_t year);
 
 uint8_t isDst(uint16_t year, uint8_t month, uint8_t day);
 
@@ -19,9 +19,9 @@ uint8_t calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day);
 uint8_t isLeapYear(uint16_t year);
 
 
-void formatString(volatile char* resultString,volatile struct tm* timeStructPtr);
+void formatString(char * resultString, struct tm * timeStructPtr);
 
-void addTimezone(volatile char* result, uint8_t timezoneFlag);
+void addTimezone(char * result, uint8_t timezoneFlag);
 
 //expecting no mcu library use this function, because it is per default unknown in a mcu environment without rtc
 //calculate this value with systemClock and CLOCKS_PER_SECOND or F_CPU in mcuClock if necessary and subtract the sleep times
@@ -40,7 +40,7 @@ int32_t difftime(uint32_t time1, uint32_t time0) {
 }
 
 // Converts the given year, month, day, hour, minute, and second into seconds since the epoch
-uint32_t mktime(const struct tm* timeptr) {
+uint32_t mktime(const struct tm * timeptr) {
     const struct tm time = (*timeptr);
 
     // Calculate number of days since the epoch
@@ -69,7 +69,7 @@ uint8_t isLeapYear(uint16_t year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-uint32_t time(uint32_t* timer) {
+uint32_t time(uint32_t * timer) {
     uint32_t timestamp = 0;
 
     if (takeTimeFromClock != NULL) {
@@ -84,20 +84,20 @@ uint32_t time(uint32_t* timer) {
     return timestamp;
 }
 
-volatile char* ctime(uint32_t* timer) {
-    uint32_t timestamp = time(NULL);
+char * ctime(uint32_t * timer) {
+    uint32_t volatile timestamp = time(NULL);
     if (timer != NULL) {
         (*timer) = timestamp;
     }
-    volatile struct tm* timePointer = localtime(timer);
-    volatile char* result = asctime(timePointer);
-    free((void*)timePointer);
+    struct tm  * volatile timePointer = localtime(timer);
+    char * volatile result = asctime(timePointer);
+    free(timePointer);
     return result;
 }
 
-volatile char* asctime(volatile struct tm* timeptr) {
-    volatile char* result;
-    result = (char*) malloc(26);
+char * asctime(struct tm * timeptr) {
+    char * result;
+    result = (char *) malloc(TIMESTAMP_LENGTH * sizeof(char));
     if (result == NULL) {
         return NULL;
     }
@@ -123,7 +123,7 @@ volatile char* asctime(volatile struct tm* timeptr) {
 }
 
 // CAVE: The meaning is now shifted for more efficient bit operation, flag 0 still UTC, but Flag 1 CEST now, Flag 2 CEST
-void addTimezone(volatile char* result, uint8_t timezoneFlag) {
+void addTimezone(char * result, uint8_t timezoneFlag) {
     uint8_t adjustment = timezoneFlag & 1;
     uint8_t index = 20 - adjustment; //will shift the position on to the left for CEST
 
@@ -148,26 +148,29 @@ void addTimezone(volatile char* result, uint8_t timezoneFlag) {
     result[index++] = 0x29;
 }
 
-void formatString(volatile char* resultString,volatile struct tm* timeStructPtr) {
-    integerToAscii(resultString, timeStructPtr->tm_year, 4, 0);
-    integerToAscii(resultString, timeStructPtr->tm_mon, 2, 5);
-    integerToAscii(resultString, timeStructPtr->tm_mday, 2, 8);
-    integerToAscii(resultString, timeStructPtr->tm_hour, 2, 11);
-    integerToAscii(resultString, timeStructPtr->tm_min, 2, 14);
-    integerToAscii(resultString, timeStructPtr->tm_sec, 2, 17);
-    // -
-    resultString[4] = resultString[7] = 0x2d;
-    //whitespace
-    resultString[10] = 0x20;
-    // :
-    resultString[13] = resultString[16] = 0x3a;
-    //whitespace
-    resultString[19] = 0x20;
+void formatString(char * resultString, struct tm * timeStructPtr) {
+    AsciiHelper * helper = dOS_initAsciiHelper();
+    if (helper != NULL) {
+        helper->integerToAscii(resultString, timeStructPtr->tm_year, 4, 0);
+        helper->integerToAscii(resultString, timeStructPtr->tm_mon, 2, 5);
+        helper->integerToAscii(resultString, timeStructPtr->tm_mday, 2, 8);
+        helper->integerToAscii(resultString, timeStructPtr->tm_hour, 2, 11);
+        helper->integerToAscii(resultString, timeStructPtr->tm_min, 2, 14);
+        helper->integerToAscii(resultString, timeStructPtr->tm_sec, 2, 17);
+        // -
+        resultString[4] = resultString[7] = 0x2d;
+        //whitespace
+        resultString[10] = 0x20;
+        // :
+        resultString[13] = resultString[16] = 0x3a;
+        //whitespace
+        resultString[19] = 0x20;
+    }
 }
 
-struct tm* gmtime(const uint32_t* timer) {
+struct tm * gmtime(const uint32_t * timer) {
     // Allocate memory for a struct time structure
-    struct tm* constructedTime = (struct tm*) malloc(sizeof(struct tm));
+    struct tm * constructedTime = (struct tm *) malloc(sizeof(struct tm));
     if (constructedTime == NULL) {
         return NULL;
     }
@@ -188,18 +191,18 @@ struct tm* gmtime(const uint32_t* timer) {
     return constructedTime;
 }
 
-struct tm* localtime(const uint32_t* timer) {
+struct tm * localtime(const uint32_t * timer) {
     uint32_t adjusted = (*timer);
     uint8_t utcOffset = calcUtcOffset(adjusted);
     // Adjust for UTC offset
     adjusted += utcOffset * ONE_HOUR;
-    struct tm* timeToReturn = gmtime(&adjusted);
+    struct tm * timeToReturn = gmtime(&adjusted);
 
     timeToReturn->tm_isdst = utcOffset;
     return timeToReturn;
 }
 
-size_t strftime(char* s, size_t maxsize, const char* format, const struct tm* timeptr) {
+size_t strftime(char * s, size_t maxsize, const char * format, const struct tm * timeptr) {
     return 0;
 }
 
@@ -266,9 +269,9 @@ uint8_t isDst(uint16_t year, uint8_t month, uint8_t day) {
     return 0;
 }
 
-uint16_t calcYear(uint32_t* days) {
+uint16_t calcYear(uint32_t * days) {
     uint16_t year = EPOCH_YEAR;
-    while ((*days) >= 365 + isLeapYear(year)) {
+    while ((*days) >= (uint16_t)365 + isLeapYear(year)) {
         if (isLeapYear(year)) {
             (*days) -= 366;
             year++;
@@ -280,7 +283,7 @@ uint16_t calcYear(uint32_t* days) {
     return year;
 }
 
-uint8_t calcMonth(uint32_t* days, uint16_t year) {
+uint8_t calcMonth(uint32_t * days, uint16_t year) {
     uint8_t month = 1;
     while ((*days) >= daysInMonth(year, month)) {
         (*days) -= daysInMonth(year, month);

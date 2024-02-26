@@ -1,13 +1,14 @@
 #ifndef DWARFOS_UART_HELPER_H
 #define DWARFOS_UART_HELPER_H
+
 #include <stdint.h>
 
-void usartTransmit(unsigned char data);
+void usartTransmitChar(unsigned char byte);
 
-void usartTransmitString(volatile char* str);
+void usartTransmitString(char * str);
 
-void usartReceiveLine(char* buffer, uint8_t bufferSize);
+void usartReceiveLine(char * buffer, uint8_t bufferSize);
 
-void sendMsgWithTimestamp(char* message);
+void sendMsgWithTimestamp(int amountOfStrings, ...);
 
 #endif /* DWARFOS_UART_HELPER_H */

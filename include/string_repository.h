@@ -1,12 +1,10 @@
 #ifndef DWARFOS_STRING_REPOSITORY_H
 #define DWARFOS_STRING_REPOSITORY_H
+
 #include <stdint.h>
 
 
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
-
-
-extern char* __brkval;
 
 
 /**
@@ -26,27 +24,63 @@ extern char* __brkval;
  * as priority for a low overhead of management
  * */
 typedef struct {
-    const char* flashString;
-    char* pointerToString;
+    const char * flashString;
+    char * pointerToString;
 } LazyLoadingString;
 
+typedef struct {
+    LazyLoadingString * arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB];
 
-LazyLoadingString** addString(LazyLoadingString* stringToAdd);
+    /**
+    * @brief Adds a string to the repository for lazy loading.
+    *
+    * This function adds a string to the repository for lazy loading.
+    *
+    * @param stringToAdd The string to add.
+    * @return An array of pointers to managed LazyLoadingString structures.
+    */
+    LazyLoadingString ** (* addString)(LazyLoadingString * stringToAdd);
 
-char* getString(LazyLoadingString* stringToFetch);
+    /**
+    * @brief Retrieves a string from the repository.
+    *
+    * This function retrieves a string from the repository.
+    *
+    * @param stringToFetch The string to fetch.
+    * @return A pointer to the fetched string.
+    */
+    char * (* getString)(LazyLoadingString * stringToFetch);
 
-LazyLoadingString* freeString(LazyLoadingString* stringToKill);
+    /**
+    * @brief Frees a string from the repository.
+    *
+    * This function frees a string from the repository.
+    *
+    * @param stringToKill The string to free.
+    * @return A pointer to the freed LazyLoadingString structure.
+    */
+    LazyLoadingString * (* freeString)(LazyLoadingString * stringToKill);
 
-void freeMemoryRandom(uint8_t percentage);
+    /**
+    * @brief Frees a random percentage of memory.
+    *
+    * This function frees a random percentage of memory.
+    *
+    * @param percentage The percentage of memory to free.
+    */
+    void (* freeMemoryRandom)(uint8_t percentage);
 
-int16_t getFreeMemory(void);
+    /**
+    * @brief Removes a string from management.
+    *
+    * This function removes a string from management.
+    *
+    * @param stringToKill The string to remove from management.
+    * @return A pointer to the removed LazyLoadingString structure.
+    */
+    LazyLoadingString * (* removeStringFromManagement)(LazyLoadingString * stringToKill);
+} StringRepository;
 
-LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill);
-
-
-//debugging purpose
-extern LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB];
-
-
+StringRepository * dOS_initStringRepository(void);
 
 #endif /* DWARFOS_STRING_REPOSITORY_H */

@@ -30,21 +30,38 @@ set(HEADER_FILES
 add_library(${PROJECT_NAME}Lib STATIC
         ${SRC_FILES} ${HEADER_FILES}
 )
-
 target_include_directories(${PROJECT_NAME}Lib PUBLIC
         ${INCL_PATH}
 )
 
-add_executable(${PROJECT_NAME}Test_Time
-        time_test.c
+
+add_executable(${PROJECT_NAME}_Time
+        _time.c
 )
-target_include_directories(${PROJECT_NAME}Test_Time PRIVATE
+target_include_directories(${PROJECT_NAME}_Time PRIVATE
         ${INCL_PATH}
 )
 
-target_link_libraries(${PROJECT_NAME}Test_Time
+target_link_libraries(${PROJECT_NAME}_Time
         ${PROJECT_NAME}Lib
         Unity
 )
+
+
+add_executable(${PROJECT_NAME}_AsciiHelper
+        _ascii_helper.c
+)
+target_include_directories(${PROJECT_NAME}_AsciiHelper PRIVATE
+        ${INCL_PATH}
+)
+
+target_link_libraries(${PROJECT_NAME}_AsciiHelper
+        ${PROJECT_NAME}Lib
+        Unity
+)
+
+
+
 include(CTest)
-add_test(DwarfOSTimeComponents ${PROJECT_NAME}Test_Time)
+add_test(Time ${PROJECT_NAME}_Time)
+add_test(AsciiHelper ${PROJECT_NAME}_AsciiHelper)

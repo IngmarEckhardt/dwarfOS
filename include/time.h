@@ -12,6 +12,7 @@ extern          "C" {
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
 #define EPOCH_YEAR 2000
+#define TIMESTAMP_LENGTH 26
 
 /**
 * @brief Represents the number of clock ticks since an implementation-defined
@@ -35,6 +36,8 @@ typedef uint32_t time_t;
 #else
 #define CLOCKS_PER_SEC ((clock_t)-1)
 #endif
+
+
 
 /**
  * @brief Structure representing the broken-down time.
@@ -102,7 +105,7 @@ time_t time(time_t* timer);
  * @param timer Pointer to the calendar time value.
  * @return A string representing the calendar time.
  */
-volatile char* ctime(time_t* timer);
+char* ctime(time_t* timer);
 
 /**
  * @brief Converts a `struct tm` object to a string representation.
@@ -110,7 +113,7 @@ volatile char* ctime(time_t* timer);
  * @param timeptr Pointer to the `struct tm` object representing the time.
  * @return A string representing the time.
  */
-volatile char* asctime(volatile struct tm* timeptr);
+char* asctime(struct tm* timeptr);
 
 
 /**

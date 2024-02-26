@@ -7,7 +7,7 @@ uint8_t getHash(LazyLoadingString* stringToAdd);
 
 int8_t findStringInDb(LazyLoadingString* stringToFetch);
 
-LazyLoadingString* arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB] = {};
+StringRepository * stringRepository;
 
 
 // add a string to database of managed string to allow automatically lazy loading and make them available to
@@ -17,9 +17,9 @@ LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
 	uint8_t placement = getHash(stringToAdd);
 	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
 		placement = (placement + i) % MAX_SIZE_STRING_DB;
-		if (arrayOfManagedLazyStringPointers[placement] == NULL) {
-			arrayOfManagedLazyStringPointers[placement] = stringToAdd;
-			return &arrayOfManagedLazyStringPointers[placement];
+		if (stringRepository->arrayOfManagedLazyStringPointers[placement] == NULL) {
+            stringRepository->arrayOfManagedLazyStringPointers[placement] = stringToAdd;
+			return &stringRepository->arrayOfManagedLazyStringPointers[placement];
 		}
 	}
 	return NULL;
@@ -46,7 +46,7 @@ LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 	int8_t index = findStringInDb(stringToKill);
 	if (index >= 0) {
 		freeString(stringToKill);
-		arrayOfManagedLazyStringPointers[index] = NULL;
+        stringRepository->arrayOfManagedLazyStringPointers[index] = NULL;
 		return stringToKill;
 	}
 	return NULL;
@@ -60,9 +60,28 @@ void freeMemoryRandom(uint8_t percentage) {
 		step = MAX_SIZE_STRING_DB - 1;
 	}
 	for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
-		freeString(arrayOfManagedLazyStringPointers[i]);
+		freeString(stringRepository->arrayOfManagedLazyStringPointers[i]);
 	}
 }
+
+StringRepository * dOS_initStringRepository(void) {
+    StringRepository * repository = malloc(sizeof(StringRepository));
+    if (repository == NULL) {
+        return NULL;
+    } else {
+        repository->getString = getString;
+        repository->addString = addString;
+        repository->freeString = freeString;
+        repository->removeStringFromManagement = removeStringFromManagement;
+        repository->freeMemoryRandom = freeMemoryRandom;
+        stringRepository = repository;
+        return repository;
+    }
+}
+
+
+
+
 
 //Hashing will only work until 255 managed strings
 uint8_t getHash(LazyLoadingString* stringToAdd) {

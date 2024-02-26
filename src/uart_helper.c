@@ -87,11 +87,12 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
     for (int i = 0; i < amountOfStrings; i++) {
         sortedStrings[i + 1] = strings[i];
     }
+	
 
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
     char * concatenated = asciiHelper->concatStrings(amountOfStrings + 1, sortedStrings);
-
+	free(asciiHelper);
     if (concatenated == NULL) {
 #ifdef DWARFOS_TIME_H
         free(localtimeStringpointer);

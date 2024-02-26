@@ -22,7 +22,6 @@
 #define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1)
 
 
-void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer,
-              StringStorage ** stringStoragePointer, UartHelper ** uartHelperPointer);
+void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, UartHelper ** uartHelperPointer);
 
 #endif //DWARFOS_SETUP_H

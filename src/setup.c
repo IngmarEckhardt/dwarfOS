@@ -8,7 +8,7 @@ void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * s
 
 void setCpuParamRegister(void);
 
-void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, StringStorage ** stringStoragePointer, UartHelper ** uartHelperPointer) {
+void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, UartHelper ** uartHelperPointer) {
     *mcuClockPointer = (McuClock *)dOS_initMcuClock(INIT_TIME);
 #ifdef DWARFOS_TIME_H
     setMcuClockCallback((*mcuClockPointer)->getSystemClock);
@@ -17,13 +17,16 @@ void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryP
     *stringRepositoryPointer = dOS_initStringRepository();
 
 
-    *stringStoragePointer = dOS_initStringStorage();
-    setupStringDb(*stringRepositoryPointer, *stringStoragePointer);
+    StringStorage * stringStoragePointer = dOS_initStringStorage();
+    setupStringDb(*stringRepositoryPointer, stringStoragePointer);
 
     setCpuParamRegister();
 
     *uartHelperPointer = dOS_initUartHelper();
-    (*uartHelperPointer)->sendMsgWithTimestamp(2, (char * []){DWARFOS_IDENTSTRING, (*stringRepositoryPointer)->getString(&(*stringStoragePointer)->initMsg, (*stringStoragePointer))});
+    (*uartHelperPointer)->sendMsgWithTimestamp(2, (char * []){DWARFOS_IDENTSTRING, (*stringRepositoryPointer)->getString(&stringStoragePointer->initMsg, stringStoragePointer)});
+	free(stringStoragePointer);	
+	//make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
+	(*uartHelperPointer)->usartTransmitChar('\0');
 }
 
 void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * stringStoragePointer) {

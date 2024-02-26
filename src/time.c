@@ -89,8 +89,8 @@ char * ctime(uint32_t * timer) {
     if (timer != NULL) {
         (*timer) = timestamp;
     }
-    struct tm  * volatile timePointer = localtime(timer);
-    char * volatile result = asctime(timePointer);
+    struct tm  * timePointer = localtime(timer);
+    char * result = asctime(timePointer);
     free(timePointer);
     return result;
 }
@@ -166,6 +166,7 @@ void formatString(char * resultString, struct tm * timeStructPtr) {
         //whitespace
         resultString[19] = 0x20;
     }
+	free(helper);
 }
 
 struct tm * gmtime(const uint32_t * timer) {

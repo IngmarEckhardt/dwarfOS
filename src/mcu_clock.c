@@ -47,7 +47,6 @@ McuClock * dOS_initMcuClock(uint32_t initTime) {
     if (mcuClock == NULL) {
         return NULL;
     } else {
-        mcuClock->systemClock = 0;
         mcuClock->setSystemClock = setSystemClock;
         mcuClock->getSystemClock = getSystemClock;
         mcuClock->incrementClockOneSec = incrementClockOneSec;

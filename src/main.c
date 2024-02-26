@@ -4,15 +4,16 @@
 
 //DwarfOS
 #include <setup.h>
+#include <ascii_helper.h>
 #include <mcu_clock.h>
 #include <uart_helper.h>
 #include <string_repository.h>
 #include <string_storage.h>
+#include <heap_management_helper.h>
 #include "time.h"
 
 McuClock * mcuClock;
 StringRepository * stringRepository;
-StringStorage * stringStorage;
 UartHelper * uartHelper;
 
 volatile uint8_t adJust16MhzToSecond = 0;
@@ -25,7 +26,7 @@ void testOSMethod(void);
 
 int main(void) {
 
-    setupMcu(&mcuClock, &stringRepository, &stringStorage, &uartHelper);
+    setupMcu(&mcuClock, &stringRepository, &uartHelper);
     sei();
 
     while (1) {
@@ -56,11 +57,19 @@ void adjustTo1Sec(void) {
 
 
 void testOSMethod(void) {
-    uartHelper->sendMsgWithTimestamp(1,
-                                     (char * []) {stringRepository->getString(
-                                             &stringStorage->initMsg, stringStorage)});
-    uartHelper->usartTransmitString("Test");
-
+	char memoryStringArray[5];
+	memoryStringArray[4] = '\0';
+	
+	HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
+	uint16_t memoryAmount = heapHelper->getFreeMemory();
+	free(heapHelper);
+	
+	AsciiHelper * asciiHelper = dOS_initAsciiHelper();
+	asciiHelper->integerToAscii(memoryStringArray, memoryAmount,4,0);
+	free(asciiHelper);
+	
+	uartHelper->sendMsgWithTimestamp(3, (char * []) {"free Memory is: ",memoryStringArray, " byte"});
+	
     //we need a small delay until we go to sleep, that the receiver can read our message
     uartHelper->usartTransmitChar('\0');
 }

@@ -86,9 +86,11 @@ typedef struct {
  * This function initializes the string repository and returns a pointer to the StringRepository structure.
  * The string repository manages lazy loading, retrieval, and memory management of strings.
  *
- * It resides in the heap, allowing you to utilize it as a module and load it into RAM if necessary.
- * If memory becomes a concern, you can unload it using free().
+ * To use the string repository, call this initialization function once in your program, typically at the beginning or whenever
+ * string repository functionality is required.
  *
+ * When string repository functionality is no longer needed or to conserve memory, you can unload the string repository module by
+ * freeing the allocated memory using the standard `free()` function.
  * @note Make sure to check if the returned pointer is not NULL before using the functions.
  *
  * @return A pointer to the initialized StringRepository structure.

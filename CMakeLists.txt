@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
+
+# adjust to your MCU if needed
 set(MCU atmega328p)
 
 set(NAME "DwarfOS")
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 9)
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 
 project(${NAME} LANGUAGES C)
@@ -17,7 +19,8 @@ option(DWARF_TIME "Build ${PROJECT_NAME} without own time.h/.c" ON)
 set(CSTANDARD "-std=gnu99")
 set(CWARN "-Wall -Wextra -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
 set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
-#use Optimization level -O2 if you have the space, it add 600bytes to program memory, but is optimized for more speed
+# use Optimization level -O2 if you have the space, it add several hundred bytes to program memory,
+# but is optimized for more speed
 set(COPT "-Os -lm ")
 set(CMCU "-mmcu=${MCU}")
 set(CFLAGS "${CMCU} ${COPT} ${CWARN} ${CSTANDARD} ${CTUNING}")

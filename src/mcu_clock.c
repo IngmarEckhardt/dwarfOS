@@ -12,7 +12,6 @@ uint32_t getSystemClock(void) {
     sreg = SREG;
     cli();
 
-    // Read the value of systemClock
     ret = mcuClock->systemClock;
 
     // Restore the previous state (enable interrupts if they were enabled before)

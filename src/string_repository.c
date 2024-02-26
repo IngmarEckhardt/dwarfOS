@@ -67,7 +67,7 @@ void freeMemoryRandom(uint8_t percentage) {
 	}
 }
 
-StringRepository * dOS_initStringRepository() {
+StringRepository * dOS_initStringRepository(void) {
     StringRepository * repository = malloc(sizeof(StringRepository));
     if (repository == NULL) {
         return NULL;

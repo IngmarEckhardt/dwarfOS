@@ -15,7 +15,6 @@ option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
 option(DWARF_TIME "Build ${PROJECT_NAME} without own time.h/.c" ON)
 
 
-
 set(CSTANDARD "-std=gnu99")
 set(CWARN "-Wall -Wextra -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
 set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
@@ -58,7 +57,7 @@ set(HEADER_FILES
 configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h @ONLY)
 include_directories(${INCL_PATH})
 
-if(DWARF_TIME)
+if (DWARF_TIME)
     set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/time.c")
     set(HEADER_FILES ${HEADER_FILES} "${INCL_PATH}/time.h")
     add_definitions(-D_TIME_T_DEFINED)

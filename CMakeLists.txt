@@ -39,10 +39,6 @@ set(SRC_FILES
         "${SRC_PATH}/uart_helper.c"
 )
 
-if (!USE_STD_TIME_H)
-    list(APPEND SRC_FILES ${SRC_PATH}/time.c)
-endif ()
-
 set(HEADER_FILES
         "${INCL_PATH}/ascii_helper.h"
         "${INCL_PATH}/heap_management_helper.c"

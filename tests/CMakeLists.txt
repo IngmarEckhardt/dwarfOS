@@ -60,6 +60,28 @@ target_link_libraries(${PROJECT_NAME}_AsciiHelper
         Unity
 )
 
+add_library(${PROJECT_NAME}LibReduced STATIC
+        "${SRC_PATH}/string_repository.c" "${INCL_PATH}/string_repository.h"
+)
+target_include_directories(${PROJECT_NAME}LibReduced PUBLIC
+        "_include/_string_repo_test"
+)
+
+
+add_executable(${PROJECT_NAME}_StringRepo
+        _string_repository.c _src/_string_repo_test/_string_storage.c
+)
+target_include_directories(${PROJECT_NAME}_StringRepo PRIVATE
+        ${INCL_PATH}
+)
+
+target_link_libraries(${PROJECT_NAME}_StringRepo
+        ${PROJECT_NAME}LibReduced
+        Unity
+)
+
+
+
 
 
 

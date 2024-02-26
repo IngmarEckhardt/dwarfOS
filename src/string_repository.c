@@ -26,6 +26,10 @@ LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
 
 // return the string from the ram, will load copy it from flash into ram if it's not present there
 char* getString(LazyLoadingString* stringToFetch, StringStorage * stringStorage) {
+    if (stringToFetch == NULL | stringStorage == NULL) {
+        return NULL;
+    }
+
 	if (stringToFetch->pointerToString == NULL) {
 		stringToFetch->pointerToString = stringStorage->loadStringFromFlash(stringToFetch->flashString);
 	}
@@ -73,21 +77,18 @@ StringRepository * dOS_initStringRepository() {
         repository->freeString = freeString;
         repository->removeStringFromManagement = removeStringFromManagement;
         repository->freeMemoryRandom = freeMemoryRandom;
+        for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+            repository->arrayOfManagedLazyStringPointers[i] = NULL;
+        }
         stringRepository = repository;
         return repository;
     }
 }
 
-
-
-
-
 //Hashing will only work until 255 managed strings
-uint8_t getHash(LazyLoadingString* stringToAdd) {
+uint8_t getHash(LazyLoadingString * stringToAdd) {
 	return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
 }
-
-
 
 int8_t findStringInDb(LazyLoadingString* stringToFetch) {
 	uint8_t placement = getHash(stringToFetch);

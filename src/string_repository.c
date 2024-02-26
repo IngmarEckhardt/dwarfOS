@@ -1,5 +1,4 @@
 #include <string_repository.h>
-#include <string_storage.h>
 #include <stdlib.h>
 
 
@@ -26,9 +25,9 @@ LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
 }
 
 // return the string from the ram, will load copy it from flash into ram if it's not present there
-char* getString(LazyLoadingString* stringToFetch) {
+char* getString(LazyLoadingString* stringToFetch, StringStorage * stringStorage) {
 	if (stringToFetch->pointerToString == NULL) {
-		stringToFetch->pointerToString = loadStringFromFlash(stringToFetch->flashString);
+		stringToFetch->pointerToString = stringStorage->loadStringFromFlash(stringToFetch->flashString);
 	}
 	return stringToFetch->pointerToString;
 }
@@ -64,7 +63,7 @@ void freeMemoryRandom(uint8_t percentage) {
 	}
 }
 
-StringRepository * dOS_initStringRepository(void) {
+StringRepository * dOS_initStringRepository() {
     StringRepository * repository = malloc(sizeof(StringRepository));
     if (repository == NULL) {
         return NULL;
@@ -95,7 +94,7 @@ int8_t findStringInDb(LazyLoadingString* stringToFetch) {
 	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
 		placement = (placement + i) % MAX_SIZE_STRING_DB;
 
-		if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
+		if (stringRepository->arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
 			return (int8_t) placement;
 		}
 	}

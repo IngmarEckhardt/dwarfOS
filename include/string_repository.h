@@ -2,6 +2,7 @@
 #define DWARFOS_STRING_REPOSITORY_H
 
 #include <stdint.h>
+#include "string_storage.h"
 
 
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
@@ -23,12 +24,10 @@
  * string (pointerToString) manually or add the string to the array and use the rudimentary memory management that aims
  * as priority for a low overhead of management
  * */
-typedef struct {
-    const char * flashString;
-    char * pointerToString;
-} LazyLoadingString;
+
 
 typedef struct {
+
     LazyLoadingString * arrayOfManagedLazyStringPointers[MAX_SIZE_STRING_DB];
 
     /**
@@ -49,7 +48,7 @@ typedef struct {
     * @param stringToFetch The string to fetch.
     * @return A pointer to the fetched string.
     */
-    char * (* getString)(LazyLoadingString * stringToFetch);
+    char * (* getString)(LazyLoadingString * stringToFetch, StringStorage * stringStorage);
 
     /**
     * @brief Frees a string from the repository.

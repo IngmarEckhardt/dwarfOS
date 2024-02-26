@@ -15,3 +15,14 @@ char* loadStringFromFlash(const char* PROGMEM flashString) {
 
 const char initMsgOnFlash[] PROGMEM = " setup complete.";
 LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
+
+StringStorage * dOS_initStringStorage(void) {
+    StringStorage * storage = malloc(sizeof(StringStorage));
+    if (storage == NULL) {
+        return NULL;
+    } else {
+        storage->initMsg=initMsg;
+        storage->loadStringFromFlash=loadStringFromFlash;
+        return storage;
+    }
+}

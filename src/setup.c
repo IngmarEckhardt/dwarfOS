@@ -1,29 +1,32 @@
 #include <avr/io.h>
 #include <setup.h>
-#include "time.h"
-#include <string_storage.h>
+#include <time.h>
 #include <uart_helper.h>
 #include <version.h>
 
 
-void setupStringDb(StringRepository * stringRepository);
+void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage);
 
 void setCpuParamRegister(void);
 
-void setupMcu(McuClock * mcuClock, StringRepository * stringRepository) {
+void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage) {
     mcuClock = dOS_initMcuClock(INIT_TIME);
 #ifdef DWARFOS_TIME_H
     setMcuClockCallback(mcuClock->getSystemClock);
 #endif /* DWARFOS_TIME_H */
+
     stringRepository = dOS_initStringRepository();
-    setupStringDb(stringRepository);
+
+
+    stringStorage = dOS_initStringStorage();
+    setupStringDb(stringRepository, stringStorage);
     setCpuParamRegister();
 
-    sendMsgWithTimestamp(2, DWARFOS_IDENTSTRING, stringRepository->getString(&initMsg));
+    sendMsgWithTimestamp(2, DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage));
 }
 
-void setupStringDb(StringRepository * stringRepository) {
-    stringRepository->addString(&initMsg);
+void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage) {
+    stringRepository->addString(&stringStorage->initMsg);
 }
 
 void setCpuParamRegister(void) {

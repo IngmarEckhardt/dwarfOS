@@ -1,7 +1,6 @@
-#include <avr/io.h>
 #include <setup.h>
+#include <avr/io.h>
 #include <time.h>
-#include <uart_helper.h>
 #include <version.h>
 
 
@@ -9,7 +8,7 @@ void setupStringDb(StringRepository * stringRepository, StringStorage * stringSt
 
 void setCpuParamRegister(void);
 
-void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage) {
+void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper) {
     mcuClock = dOS_initMcuClock(INIT_TIME);
 #ifdef DWARFOS_TIME_H
     setMcuClockCallback(mcuClock->getSystemClock);
@@ -20,9 +19,11 @@ void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringSt
 
     stringStorage = dOS_initStringStorage();
     setupStringDb(stringRepository, stringStorage);
+
     setCpuParamRegister();
 
-    sendMsgWithTimestamp(2, DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage));
+    uartHelper = dOS_initUartHelper();
+    uartHelper->sendMsgWithTimestamp(2, DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage));
 }
 
 void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage) {

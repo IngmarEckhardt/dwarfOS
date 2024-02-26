@@ -18,8 +18,10 @@ void test_integerToAscii(void) {
     uint8_t size = 5;
     uint8_t position = 0;
 
+    AsciiHelper * asciiHelper = dOS_initAsciiHelper();
+
     // Call the function
-    integerToAscii(resultArray, num, size, position);
+    asciiHelper->integerToAscii(resultArray, num, size, position);
 
     // Check the result
     TEST_ASSERT_EQUAL_STRING("12345", resultArray);

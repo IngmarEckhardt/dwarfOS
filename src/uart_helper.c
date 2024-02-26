@@ -135,3 +135,16 @@ uint16_t computeArrayWithStringLengths(va_list args, uint16_t * stringLengthArra
     }
     return total_length;
 }
+
+UartHelper * dOS_initUartHelper(void) {
+    UartHelper * helper = malloc(sizeof(UartHelper));
+    if (helper == NULL) {
+        return NULL;
+    } else {
+        helper->sendMsgWithTimestamp = sendMsgWithTimestamp;
+        helper->usartTransmitChar = usartTransmitChar;
+        helper->usartTransmitString = usartTransmitString;
+        helper->usartReceiveLine = usartReceiveLine;
+        return helper;
+    }
+}

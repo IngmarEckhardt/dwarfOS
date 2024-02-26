@@ -13,19 +13,20 @@
 McuClock * mcuClock;
 StringRepository * stringRepository;
 StringStorage * stringStorage;
+UartHelper * uartHelper;
 
 volatile uint8_t adJust16MhzToSecond = 0;
 uint32_t lastTime;
 
 int main(void) {
 	
-	setupMcu(mcuClock, stringRepository, stringStorage);
+	setupMcu(mcuClock, stringRepository, stringStorage, uartHelper);
     sei();
 
 	while (1) {
         sleep_mode();
 		if (time(NULL) != lastTime) {
-			sendMsgWithTimestamp(1,stringRepository->getString(&stringStorage->initMsg, stringStorage));
+			uartHelper->sendMsgWithTimestamp(1,stringRepository->getString(&stringStorage->initMsg, stringStorage));
 			lastTime = time(NULL);
 		}	
 	}

@@ -1,10 +1,12 @@
 #include "_time.h"
 
 void setUp(void) {}
+
 void tearDown(void) {
     //free(result);
     //free(resultString);
 }
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -30,10 +32,9 @@ int main(void) {
     RUN_TEST(calcZellerCongruence_marchThirtieth2024_returnZeroForSaturday);
     RUN_TEST(calcZellerCongruence_marchThirtyFirst2024_returnOneForSunday);
     RUN_TEST(calcZellerCongruence_octoberThirtyFirst2024_return5ForThursday);
-
-
     return UNITY_END();
 }
+
 //iso functions
 
 void mktime_epochStartDateUTC_returnZero(void) {
@@ -42,6 +43,7 @@ void mktime_epochStartDateUTC_returnZero(void) {
     uint32_t expected_result = 0;
     TEST_ASSERT_EQUAL_UINT32(expected_result, resultInt32);
 }
+
 void mktime_februaryThirteenthCET_calculateCorrectly(void) {
 
     uint32_t resultInt32 = mktime(&februaryThirteenth2021);
@@ -49,6 +51,7 @@ void mktime_februaryThirteenthCET_calculateCorrectly(void) {
 
     TEST_ASSERT_EQUAL_UINT32(expected_result, resultInt32);
 }
+
 void mktime_julyThirteenthCEST_calculateCorrectly(void) {
 
     uint32_t resultInt32 = mktime(&julyThirteenth2021);
@@ -80,6 +83,7 @@ void localtime_februaryThirteenthCET_returnCorrectWintertimeStruct(void) {
     TEST_ASSERT_EQUAL_INT(2, result->tm_mon);
     TEST_ASSERT_EQUAL_INT(2021, result->tm_year);
 }
+
 void localtime_julyThirteenthCEST_returnCorrectSummertimeStruct(void) {
 
     result = localtime(&julyThirtieth2021Time_T);
@@ -115,38 +119,42 @@ void calcUtcOffset_ForFebruaryAndJuly_shouldReturnBothValuesCorrectly(void) {
 }
 
 void isDST_julyThirtieth2021_returnTrue(void) {
-    uint8_t resultOffset2 = isDst(2021, 7,13);
+    uint8_t resultOffset2 = isDst(2021, 7, 13);
     TEST_ASSERT_EQUAL_UINT8(1, resultOffset2);
 }
 
 void isDST_octoberTwentySeventh2024_returnFalse(void) {
-    uint8_t resultOffset2 = isDst(2024, 10,27);
+    uint8_t resultOffset2 = isDst(2024, 10, 27);
     TEST_ASSERT_EQUAL_UINT8(0, resultOffset2);
 }
 
 void isDST_octoberTwentySixth2024_returnTrue(void) {
-    uint8_t resultOffset2 = isDst(2024, 10,26);
+    uint8_t resultOffset2 = isDst(2024, 10, 26);
     TEST_ASSERT_EQUAL_UINT8(1, resultOffset2);
 }
+
 void isDST_marchThirtyFirst2024_returnTrue(void) {
-    uint8_t resultOffset2 = isDst(2024, 3,31);
+    uint8_t resultOffset2 = isDst(2024, 3, 31);
     TEST_ASSERT_EQUAL_UINT8(1, resultOffset2);
 }
+
 void isDST_marchThirtieth2024_returnFalse(void) {
-    uint8_t resultOffset2 = isDst(2024, 3,30);
+    uint8_t resultOffset2 = isDst(2024, 3, 30);
     TEST_ASSERT_EQUAL_UINT8(0, resultOffset2);
 }
+
 void calcZellerCongruence_marchThirtieth2024_returnZeroForSaturday(void) {
-    uint8_t resultOffset2 = calcZellerCongruence(2024, 3,30);
+    uint8_t resultOffset2 = calcZellerCongruence(2024, 3, 30);
     TEST_ASSERT_EQUAL_UINT8(0, resultOffset2);
 }
+
 void calcZellerCongruence_marchThirtyFirst2024_returnOneForSunday(void) {
-    uint8_t resultOffset2 = calcZellerCongruence(2024, 3,31);
+    uint8_t resultOffset2 = calcZellerCongruence(2024, 3, 31);
     TEST_ASSERT_EQUAL_UINT8(1, resultOffset2);
 }
 
 void calcZellerCongruence_octoberThirtyFirst2024_return5ForThursday(void) {
-    uint8_t resultOffset2 = calcZellerCongruence(2024, 10,31);
+    uint8_t resultOffset2 = calcZellerCongruence(2024, 10, 31);
     TEST_ASSERT_EQUAL_UINT8(5, resultOffset2);
 }
 
@@ -163,7 +171,7 @@ void calcMonth_59daysNonLeapYear_returnMarch(void) {
 }
 
 // Helper function to test asctime with a given timestamp
-void test_asctime_with_timestamp(struct tm *timestamp, const char *expected_format, size_t expected_length) {
+void test_asctime_with_timestamp(struct tm * timestamp, const char * expected_format, size_t expected_length) {
     resultString = asctime(timestamp);
     TEST_ASSERT_NOT_NULL(resultString);
 
@@ -179,4 +187,5 @@ void test_asctime_with_timestamp(struct tm *timestamp, const char *expected_form
     }
     TEST_ASSERT_EQUAL_UINT32(expected_length, result_length);
 }
+
 

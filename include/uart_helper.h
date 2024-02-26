@@ -10,7 +10,7 @@ typedef struct {
 
     void (*usartReceiveLine)(char * buffer, uint8_t bufferSize);
 
-    void (*sendMsgWithTimestamp)(int amountOfStrings, ...);
+    void (*sendMsgWithTimestamp)(int amountOfStrings, char * strings[]);
 } UartHelper;
 
 UartHelper * dOS_initUartHelper(void);

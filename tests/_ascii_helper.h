@@ -5,4 +5,5 @@
 
 
 void                test_integerToAscii(void);
+void                test_concatStrings_TwoStrings(void);
 #endif //DWARFOS_TEST__ASCII_HELPER_H

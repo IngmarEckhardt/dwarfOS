@@ -16,12 +16,12 @@
 #endif
 
 #ifndef BAUD
-#define BAUD 19200UL
+#define BAUD 28800UL
 #endif
 
 #define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1)
 
 
-void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper);
+void setupMcu(volatile McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper);
 
 #endif //DWARFOS_SETUP_H

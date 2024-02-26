@@ -1,14 +1,16 @@
+#include <stdlib.h>
 #include "_ascii_helper.h"
-
 void setUp(void) {}
 void tearDown(void) {
-
+    //free(result);
+    //free(resultString);
 }
 int main(void) {
     UNITY_BEGIN();
 
-
     RUN_TEST(test_integerToAscii);
+    RUN_TEST(test_concatStrings_TwoStrings);
+
 
     return UNITY_END();
 }
@@ -25,4 +27,21 @@ void test_integerToAscii(void) {
 
     // Check the result
     TEST_ASSERT_EQUAL_STRING("12345", resultArray);
+}
+
+void test_concatStrings_TwoStrings(void) {
+    char * strings[] = {"Hello, ", "world!"};
+    AsciiHelper * asciiHelper = dOS_initAsciiHelper();
+
+
+    char * result = asciiHelper->concatStrings(2, strings);
+
+    // Verify the result is not NULL
+    TEST_ASSERT_NOT_NULL(result);
+
+    // Verify the concatenated string is "Hello, world!"
+    TEST_ASSERT_EQUAL_STRING("Hello, world!", result);
+
+    // Clean up memory
+    free(result);
 }

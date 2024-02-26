@@ -8,7 +8,7 @@ void setupStringDb(StringRepository * stringRepository, StringStorage * stringSt
 
 void setCpuParamRegister(void);
 
-void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper) {
+void setupMcu(volatile McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper) {
     mcuClock = dOS_initMcuClock(INIT_TIME);
 #ifdef DWARFOS_TIME_H
     setMcuClockCallback(mcuClock->getSystemClock);
@@ -23,7 +23,7 @@ void setupMcu(McuClock * mcuClock, StringRepository * stringRepository, StringSt
     setCpuParamRegister();
 
     uartHelper = dOS_initUartHelper();
-    uartHelper->sendMsgWithTimestamp(2, DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage));
+    uartHelper->sendMsgWithTimestamp(2,(char * []){ DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage)});
 }
 
 void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage) {

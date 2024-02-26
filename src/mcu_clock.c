@@ -2,7 +2,7 @@
 #include <mcu_clock.h>
 #include <stdlib.h>
 
-McuClock * mcuClock;
+volatile McuClock * mcuClock;
 
 uint32_t getSystemClock(void) {
     uint32_t ret;
@@ -42,11 +42,12 @@ void incrementClockOneSec(void) {
     SREG = sreg;
 }
 
-McuClock * dOS_initMcuClock(uint32_t initTime) {
+volatile McuClock * dOS_initMcuClock(uint32_t initTime) {
     mcuClock = malloc(sizeof(McuClock));
     if (mcuClock == NULL) {
         return NULL;
     } else {
+		mcuClock->systemClock = 0;
         mcuClock->setSystemClock = setSystemClock;
         mcuClock->getSystemClock = getSystemClock;
         mcuClock->incrementClockOneSec = incrementClockOneSec;

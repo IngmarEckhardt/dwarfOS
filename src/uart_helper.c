@@ -1,7 +1,6 @@
 #include <uart_helper.h>
 
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 #include <time.h>
 #include <ascii_helper.h>
@@ -22,7 +21,7 @@ void usartTransmitString(char * str) {
 
     while (*str != '\0') {
         usartTransmitChar(*str++);
-    };
+    }
 
 
     usartTransmitChar('\r');
@@ -53,7 +52,7 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
 
             buffer[i] = '\0';
 
-            receivedChar = usartReceive();
+            usartReceive();
             break;
         }
     }

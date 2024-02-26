@@ -8,7 +8,6 @@
 #include <mcu_clock.h>
 #include <uart_helper.h>
 #include <string_repository.h>
-#include <string_storage.h>
 #include <heap_management_helper.h>
 #include "time.h"
 

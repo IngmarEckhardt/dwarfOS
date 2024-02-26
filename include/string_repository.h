@@ -2,7 +2,7 @@
 #define DWARFOS_STRING_REPOSITORY_H
 
 #include <stdint.h>
-#include "_string_storage.h"
+#include <string_storage.h>
 
 
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended

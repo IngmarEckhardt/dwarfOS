@@ -25,12 +25,12 @@ LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
 }
 
 // return the string from the ram, will load copy it from flash into ram if it's not present there
-char* getString(LazyLoadingString* stringToFetch, StringStorage * stringStorage) {
-    if (stringToFetch == NULL | stringStorage == NULL) {
+char* getString(LazyLoadingString * stringToFetch, StringStorage * stringStorage) {
+    if (stringStorage == NULL || stringToFetch == NULL ) {
         return NULL;
     }
 
-	if (stringToFetch->pointerToString == NULL) {
+    if (stringToFetch->pointerToString == NULL) {
 		stringToFetch->pointerToString = stringStorage->loadStringFromFlash(stringToFetch->flashString);
 	}
 	return stringToFetch->pointerToString;

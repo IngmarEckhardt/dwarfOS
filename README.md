@@ -18,3 +18,11 @@ DwarfOS provides support for generating timestamp strings in various time zones,
 
 ### Integer to ASCII Conversion
 A helper function is included for converting integers to ASCII strings, facilitating data conversion and output.
+
+## Contributing
+
+Contributions to improve or expand this library are welcome! If you find any issues or have suggestions for enhancements, feel free to open an issue or submit a pull request.
+
+## License
+
+This library is licensed under the MIT License. See the `LICENSE` file for details.

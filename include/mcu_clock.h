@@ -35,7 +35,7 @@ typedef struct {
     void (* incrementClockOneSec)(void);
 } McuClock;
 
-volatile McuClock * dOS_initMcuClock(uint32_t initTime);
+McuClock * dOS_initMcuClock(uint32_t initTime);
 
 
 #endif /* MCU_CLOCK_H */

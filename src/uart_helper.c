@@ -1,27 +1,21 @@
-#include <avr/io.h>
 #include <uart_helper.h>
-#include <time.h>
+
+#include <avr/io.h>
 #include <avr/interrupt.h>
-#include "ascii_helper.h"
+
+#include <time.h>
+#include <ascii_helper.h>
 
 
 void usartTransmitChar(uint8_t byte) {
-    uint8_t sreg;
 
-    // Wait for empty transmit buffer
     while (!(UCSR0A & (1 << UDRE0)));
-    // Disable interrupts and save the previous state
-    sreg = SREG;
-    cli();
 
-    // Put byte into buffer, sends the byte
     UDR0 = byte;
     while (!(UCSR0A & (1 << UDRE0)));
-    // Restore the previous state (enable interrupts if they were enabled before)
-    SREG = sreg;
 }
 
-void usartTransmitString(char * volatile str) {
+void usartTransmitString(char * str) {
     if (str == NULL) {
         return;
     }
@@ -31,7 +25,8 @@ void usartTransmitString(char * volatile str) {
     };
 
 
-    usartTransmitChar('\0');
+    usartTransmitChar('\r');
+    usartTransmitChar('\n');
 }
 
 char usartReceive(void) {
@@ -68,7 +63,7 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
 
 #ifdef DWARFOS_TIME_H
     uint32_t timeStamp = time(NULL);
-    char * volatile localtimeStringpointer = ctime(&timeStamp);
+    char * localtimeStringpointer = ctime(&timeStamp);
 #endif /*DWARFOS_TIME_H */
 
     // Create a new array to hold the sorted pointers
@@ -96,6 +91,7 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
     char * concatenated = asciiHelper->concatStrings(amountOfStrings + 1, sortedStrings);
+
     if (concatenated == NULL) {
 #ifdef DWARFOS_TIME_H
         free(localtimeStringpointer);
@@ -105,8 +101,11 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
     }
 
     usartTransmitString(concatenated);
+
     free(sortedStrings);
+    sortedStrings = NULL;
     free(concatenated);
+    concatenated = NULL;
 
 
 #ifdef DWARFOS_TIME_H

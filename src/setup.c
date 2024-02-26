@@ -4,30 +4,30 @@
 #include <version.h>
 
 
-void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage);
+void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * stringStoragePointer);
 
 void setCpuParamRegister(void);
 
-void setupMcu(volatile McuClock * mcuClock, StringRepository * stringRepository, StringStorage * stringStorage, UartHelper * uartHelper) {
-    mcuClock = dOS_initMcuClock(INIT_TIME);
+void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, StringStorage ** stringStoragePointer, UartHelper ** uartHelperPointer) {
+    *mcuClockPointer = (McuClock *)dOS_initMcuClock(INIT_TIME);
 #ifdef DWARFOS_TIME_H
-    setMcuClockCallback(mcuClock->getSystemClock);
+    setMcuClockCallback((*mcuClockPointer)->getSystemClock);
 #endif /* DWARFOS_TIME_H */
 
-    stringRepository = dOS_initStringRepository();
+    *stringRepositoryPointer = dOS_initStringRepository();
 
 
-    stringStorage = dOS_initStringStorage();
-    setupStringDb(stringRepository, stringStorage);
+    *stringStoragePointer = dOS_initStringStorage();
+    setupStringDb(*stringRepositoryPointer, *stringStoragePointer);
 
     setCpuParamRegister();
 
-    uartHelper = dOS_initUartHelper();
-    uartHelper->sendMsgWithTimestamp(2,(char * []){ DWARFOS_IDENTSTRING, stringRepository->getString(&stringStorage->initMsg, stringStorage)});
+    *uartHelperPointer = dOS_initUartHelper();
+    (*uartHelperPointer)->sendMsgWithTimestamp(2, (char * []){DWARFOS_IDENTSTRING, (*stringRepositoryPointer)->getString(&(*stringStoragePointer)->initMsg, (*stringStoragePointer))});
 }
 
-void setupStringDb(StringRepository * stringRepository, StringStorage * stringStorage) {
-    stringRepository->addString(&stringStorage->initMsg);
+void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * stringStoragePointer) {
+    stringRepositoryPointer->addString(&stringStoragePointer->initMsg);
 }
 
 void setCpuParamRegister(void) {

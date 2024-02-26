@@ -1,4 +1,21 @@
-#include "_time.h"
+#include <time.h>
+#include <unity.h>
+
+//given
+struct tm     epochStartDate = {0, 0, 0, 1, 1, EPOCH_YEAR};
+struct tm     februaryThirteenth2021 = {0, 0, 0, 13, 2, 2021, 0, 0, 1};
+struct tm     julyThirteenth2021 = {0, 0, 0, 13, 7, 2021, 0, 0, 2};
+const uint32_t      februaryThirteenth2021Time_T = 666489600;
+const uint32_t      julyThirtieth2021Time_T = 679449600;
+
+//declaration for the helper functions that aren't present in the header
+uint16_t            calcYear(uint32_t *days);
+uint8_t             daysInMonth(uint16_t year, uint8_t month);
+uint8_t             calcUtcOffset(uint32_t epochTimeY2K);
+uint8_t             calcMonth(uint32_t *days, uint16_t year);
+uint8_t             isDst(uint16_t year, uint8_t month, uint8_t day);
+uint8_t             calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day);
+#include "../src/time.c"
 
 void setUp(void) {}
 
@@ -7,33 +24,6 @@ void tearDown(void) {
     //free(resultString);
 }
 
-int main(void) {
-    UNITY_BEGIN();
-
-    //iso functions
-    RUN_TEST(mktime_epochStartDateUTC_returnZero);
-    RUN_TEST(mktime_februaryThirteenthCET_calculateCorrectly);
-    RUN_TEST(mktime_julyThirteenthCEST_calculateCorrectly);
-    RUN_TEST(localtime_februaryThirteenthCET_returnCorrectWintertimeStruct);
-    RUN_TEST(localtime_julyThirteenthCEST_returnCorrectSummertimeStruct);
-    RUN_TEST(asctime_UtcCetCestTimestamps_createThreeStringsWithCorrectTimezones);
-
-    //helper functions
-    RUN_TEST(calcYear_startEpoch2YK366days_shouldBeEpochYearPlusOne);
-    RUN_TEST(daysInMonth_februaryLeapYear_shouldReturn29);
-    RUN_TEST(calcUtcOffset_ForFebruaryAndJuly_shouldReturnBothValuesCorrectly);
-    RUN_TEST(calcMonth_59daysLeapYear_returnFebruary);
-    RUN_TEST(calcMonth_59daysNonLeapYear_returnMarch);
-    RUN_TEST(isDST_julyThirtieth2021_returnTrue);
-    RUN_TEST(isDST_octoberTwentySeventh2024_returnFalse);
-    RUN_TEST(isDST_octoberTwentySixth2024_returnTrue);
-    RUN_TEST(isDST_marchThirtyFirst2024_returnTrue);
-    RUN_TEST(isDST_marchThirtieth2024_returnFalse);
-    RUN_TEST(calcZellerCongruence_marchThirtieth2024_returnZeroForSaturday);
-    RUN_TEST(calcZellerCongruence_marchThirtyFirst2024_returnOneForSunday);
-    RUN_TEST(calcZellerCongruence_octoberThirtyFirst2024_return5ForThursday);
-    return UNITY_END();
-}
 
 //iso functions
 
@@ -59,6 +49,23 @@ void mktime_julyThirteenthCEST_calculateCorrectly(void) {
 
     TEST_ASSERT_EQUAL_UINT32(expected_result, resultInt32);
 }
+// Helper function to test asctime with a given timestamp
+void test_asctime_with_timestamp(struct tm * timestamp, const char * expected_format, size_t expected_length) {
+    char * resultString = asctime(timestamp);
+    TEST_ASSERT_NOT_NULL(resultString);
+
+    char expected_result[expected_length];
+    sprintf(expected_result, expected_format,
+            timestamp->tm_year, timestamp->tm_mon, timestamp->tm_mday,
+            timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+
+    TEST_ASSERT_EQUAL_STRING(expected_result, resultString);
+    size_t result_length = 0;
+    while (resultString[result_length] != '\0') {
+        result_length++;
+    }
+    TEST_ASSERT_EQUAL_UINT32(expected_length, result_length);
+}
 
 void asctime_UtcCetCestTimestamps_createThreeStringsWithCorrectTimezones(void) {
     // Testing with epochStartDate
@@ -73,7 +80,7 @@ void asctime_UtcCetCestTimestamps_createThreeStringsWithCorrectTimezones(void) {
 
 void localtime_februaryThirteenthCET_returnCorrectWintertimeStruct(void) {
 
-    result = localtime(&februaryThirteenth2021Time_T);
+    struct tm * result = localtime(&februaryThirteenth2021Time_T);
     //add one hour because of CET
     TEST_ASSERT_NOT_NULL(result);
     TEST_ASSERT_EQUAL_INT(0, result->tm_sec);
@@ -82,10 +89,11 @@ void localtime_februaryThirteenthCET_returnCorrectWintertimeStruct(void) {
     TEST_ASSERT_EQUAL_INT(13, result->tm_mday);
     TEST_ASSERT_EQUAL_INT(2, result->tm_mon);
     TEST_ASSERT_EQUAL_INT(2021, result->tm_year);
+    free(result);
 }
 
 void localtime_julyThirteenthCEST_returnCorrectSummertimeStruct(void) {
-
+    struct tm * result = localtime(&februaryThirteenth2021Time_T);
     result = localtime(&julyThirtieth2021Time_T);
     //add two hours because of CEST
     TEST_ASSERT_NOT_NULL(result);
@@ -170,22 +178,34 @@ void calcMonth_59daysNonLeapYear_returnMarch(void) {
     TEST_ASSERT_EQUAL_UINT8(3, resultMonth);
 }
 
-// Helper function to test asctime with a given timestamp
-void test_asctime_with_timestamp(struct tm * timestamp, const char * expected_format, size_t expected_length) {
-    resultString = asctime(timestamp);
-    TEST_ASSERT_NOT_NULL(resultString);
 
-    char expected_result[expected_length];
-    sprintf(expected_result, expected_format,
-            timestamp->tm_year, timestamp->tm_mon, timestamp->tm_mday,
-            timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
 
-    TEST_ASSERT_EQUAL_STRING(expected_result, resultString);
-    size_t result_length = 0;
-    while (resultString[result_length] != '\0') {
-        result_length++;
-    }
-    TEST_ASSERT_EQUAL_UINT32(expected_length, result_length);
+
+
+int main(void) {
+    UNITY_BEGIN();
+
+    //iso functions
+    RUN_TEST(mktime_epochStartDateUTC_returnZero);
+    RUN_TEST(mktime_februaryThirteenthCET_calculateCorrectly);
+    RUN_TEST(mktime_julyThirteenthCEST_calculateCorrectly);
+    RUN_TEST(localtime_februaryThirteenthCET_returnCorrectWintertimeStruct);
+    RUN_TEST(localtime_julyThirteenthCEST_returnCorrectSummertimeStruct);
+    RUN_TEST(asctime_UtcCetCestTimestamps_createThreeStringsWithCorrectTimezones);
+
+    //helper functions
+    RUN_TEST(calcYear_startEpoch2YK366days_shouldBeEpochYearPlusOne);
+    RUN_TEST(daysInMonth_februaryLeapYear_shouldReturn29);
+    RUN_TEST(calcUtcOffset_ForFebruaryAndJuly_shouldReturnBothValuesCorrectly);
+    RUN_TEST(calcMonth_59daysLeapYear_returnFebruary);
+    RUN_TEST(calcMonth_59daysNonLeapYear_returnMarch);
+    RUN_TEST(isDST_julyThirtieth2021_returnTrue);
+    RUN_TEST(isDST_octoberTwentySeventh2024_returnFalse);
+    RUN_TEST(isDST_octoberTwentySixth2024_returnTrue);
+    RUN_TEST(isDST_marchThirtyFirst2024_returnTrue);
+    RUN_TEST(isDST_marchThirtieth2024_returnFalse);
+    RUN_TEST(calcZellerCongruence_marchThirtieth2024_returnZeroForSaturday);
+    RUN_TEST(calcZellerCongruence_marchThirtyFirst2024_returnOneForSunday);
+    RUN_TEST(calcZellerCongruence_octoberThirtyFirst2024_return5ForThursday);
+    return UNITY_END();
 }
-
-

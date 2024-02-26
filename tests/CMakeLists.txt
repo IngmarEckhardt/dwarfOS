@@ -16,7 +16,8 @@ set(INCL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 set(EXTERN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../extern")
 add_subdirectory(${EXTERN_DIR} extern_build)
-
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -fprofile-arcs -ftest-coverage")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -fprofile-arcs -ftest-coverage")
 
 set(SRC_FILES
         "${SRC_PATH}/ascii_helper.c"
@@ -88,3 +89,4 @@ target_link_libraries(${PROJECT_NAME}_StringRepo
 include(CTest)
 add_test(Time ${PROJECT_NAME}_Time)
 add_test(AsciiHelper ${PROJECT_NAME}_AsciiHelper)
+add_test(StringRepo ${PROJECT_NAME}_StringRepo)

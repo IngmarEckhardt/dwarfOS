@@ -1,19 +1,13 @@
+#include <unity.h>
+#include <ascii_helper.h>
 #include <stdlib.h>
-#include "_ascii_helper.h"
+
 void setUp(void) {}
 void tearDown(void) {
     //free(result);
     //free(resultString);
 }
-int main(void) {
-    UNITY_BEGIN();
 
-    RUN_TEST(test_integerToAscii);
-    RUN_TEST(test_concatStrings_TwoStrings);
-
-
-    return UNITY_END();
-}
 void test_integerToAscii(void) {
     char resultArray[10]; // Adjust the size as per your requirement
     uint32_t num = 12345;
@@ -44,4 +38,13 @@ void test_concatStrings_TwoStrings(void) {
 
     // Clean up memory
     free(result);
+}
+int main(void) {
+    UNITY_BEGIN();
+
+    RUN_TEST(test_integerToAscii);
+    RUN_TEST(test_concatStrings_TwoStrings);
+
+
+    return UNITY_END();
 }

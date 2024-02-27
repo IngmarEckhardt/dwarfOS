@@ -38,7 +38,9 @@ modules.
 Modules such as the string repository, UART helper, and time management are loaded into the heap memory, enabling
 flexible memory management.
 
-This approach allows users to load only the modules they need, conserving memory resources on the microcontroller.
+This approach allows users to load only the necessary modules, conserving memory resources on the microcontroller. 
+Additionally, it facilitates easy modification; users can utilize function pointers to redirect to custom implementations, 
+making it possible to mock individual functions in unit tests.
 
 ## Contributing
 

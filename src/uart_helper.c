@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ascii_helper.h>
 
-
+// Transmit a single byte via USART
 void usartTransmitChar(uint8_t byte) {
 
     while (!(UCSR0A & (1 << UDRE0)));
@@ -13,7 +13,7 @@ void usartTransmitChar(uint8_t byte) {
     UDR0 = byte;
     while (!(UCSR0A & (1 << UDRE0)));
 }
-
+// Transmit a null-terminated string via USART
 void usartTransmitString(char * str) {
     if (str == NULL) {
         return;
@@ -27,13 +27,13 @@ void usartTransmitString(char * str) {
     usartTransmitChar('\r');
     usartTransmitChar('\n');
 }
-
+// Receive a single byte via USART
 char usartReceive(void) {
     while (!(UCSR0A & (1 << RXC0)));
     return UDR0;
 
 }
-
+// Receive a line of characters via USART
 void usartReceiveLine(char * buffer, uint8_t bufferSize) {
     uint8_t i = 0;
     char receivedChar;
@@ -57,7 +57,7 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
         }
     }
 }
-
+// Send a message with timestamp via USART
 void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
 
 #ifdef DWARFOS_TIME_H
@@ -67,6 +67,7 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
 
     // Create a new array to hold the sorted pointers
     char ** sortedStrings = (char **) malloc((amountOfStrings + 1) * sizeof(char *));
+
     if (sortedStrings == NULL) {
 #ifdef DWARFOS_TIME_H
         free(localtimeStringpointer);
@@ -82,11 +83,11 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
     sortedStrings[0] = '\0'; // Placeholder for timestamp
 #endif /* DWARFOS_TIME_H */
 
-    // Copy the original strings pointers to the sorted array
+
     for (int i = 0; i < amountOfStrings; i++) {
         sortedStrings[i + 1] = strings[i];
     }
-	
+
 
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
@@ -100,12 +101,11 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
         return;
     }
 
+
     usartTransmitString(concatenated);
 
     free(sortedStrings);
-    sortedStrings = NULL;
     free(concatenated);
-    concatenated = NULL;
 
 
 #ifdef DWARFOS_TIME_H
@@ -119,6 +119,7 @@ UartHelper * dOS_initUartHelper(void) {
     if (helper == NULL) {
         return NULL;
     } else {
+        // Assign function pointers
         helper->sendMsgWithTimestamp = sendMsgWithTimestamp;
         helper->usartTransmitChar = usartTransmitChar;
         helper->usartTransmitString = usartTransmitString;

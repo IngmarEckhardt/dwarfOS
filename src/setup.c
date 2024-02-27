@@ -59,14 +59,19 @@ void setCpuParamRegister(void) {
     DIDR1 |= (1 << AIN1D) | (1 << AIN0D);
 
     //Counter
+
     //Using asynchronous timer with low frequency crystal
     //ASSR |= (1 << AS2);
 
-    //Prescaler 128 (256x128 = 32768 until overflow interrupt))
+    //Pre scaling 128 (256x128 = 32768 until overflow interrupt))
     //TCCR2B |= (1 << CS22) | (1 << CS20);
+
+
+    // Prescaler 1024 for using the system clock
     TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
 
-    //Overflow-Counter 2 Interrupt on -> overflow every 1sec precisly with 32kHz watch quartz
+    //Overflow-Counter 2 Interrupt on -> overflow every 1sec precisely with 32kHz watch quartz and pre scaling 128
+    //ca 1/61hz overflow with system clock and pre scaling 1024
     TIMSK2 |= (1 << TOIE2);
 
     //External Standby Sleep Mode, Counter 2 is the only clock that stays active

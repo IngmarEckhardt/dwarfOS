@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
 
+# Unity Tests that run with normal gcc
+
 set(NAME "DwarfOS-Test")
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 9)
-set(VERSION_PATCH 0)
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 1)
 
 add_definitions(-D_TIME_T_DEFINED)
 add_definitions(-DTIME_H)

@@ -108,7 +108,7 @@ if (DWARF_TEST)
     # build Unity
     add_subdirectory(${EXTERN_PATH}/Unity extern_build)
 
-    # one complete library and a reduced library for tes
+    # reduced libs for tests
     add_library(${PROJECT_NAME}Lib STATIC
             "${SRC_PATH}/ascii_helper.c" "${SRC_PATH}/time.c"
             "${INCL_PATH}/ascii_helper.h" "${INCL_PATH}/time.h"

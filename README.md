@@ -42,6 +42,10 @@ This approach allows users to load only the necessary modules, conserving memory
 Additionally, it facilitates easy modification; users can utilize function pointers to redirect to custom implementations, 
 making it possible to mock individual functions in unit tests.
 
+## Usage
+
+The description of usage is provided in `main.c` and `setup.c` with an ample number of comments aimed at aiding beginners.
+
 ## Contributing
 
 Contributions to improve or expand this library are welcome! If you find any issues or have suggestions for

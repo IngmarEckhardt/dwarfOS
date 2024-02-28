@@ -24,6 +24,8 @@ char * concatStrings(uint8_t amountOfStrings, char * strings[]) {
     if (stringLengthArray == NULL) {
         return NULL;
     }
+
+    //16kB max length of a string is enough for every avr mcu
     uint16_t total_length = computeArrayWithStringLengths(amountOfStrings, strings, stringLengthArray);
 
     char * stringToReturn = malloc((total_length + 1) * sizeof(char));

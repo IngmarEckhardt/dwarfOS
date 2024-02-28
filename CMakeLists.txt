@@ -24,12 +24,13 @@ option(DWARF_TIME "Build ${PROJECT_NAME} with own time.h/.c" ON)
 
 set(CSTANDARD "-std=gnu99")
 set(CWARN "-Wall -Wextra -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
+set(CDEBUG "-gstabs -g -ggdb")
 set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
 # use Optimization level -O2 if you have the space, it add several hundred bytes to program memory,
 # but is optimized for more speed
 set(COPT "-Os -lm ")
 set(CMCU "-mmcu=${MCU}")
-set(CFLAGS "${CMCU} ${COPT} ${CWARN} ${CSTANDARD} ${CTUNING}")
+set(CFLAGS "${CMCU} ${COPT} ${CWARN} ${CSTANDARD} ${CTUNING} ${CDEBUG}")
 set(CMAKE_C_FLAGS "${CFLAGS}")
 
 # Source Files

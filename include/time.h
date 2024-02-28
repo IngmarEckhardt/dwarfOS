@@ -1,14 +1,9 @@
-#include <stdint.h>
-#include <stdlib.h>
-
 #ifdef DWARF_TIME
 #ifndef DWARFOS_TIME_H
 #define DWARFOS_TIME_H
 
-#ifdef __cplusplus
-extern          "C" {
-#endif
-
+#include <stdint.h>
+#include <stdlib.h>
 
 #define ONE_HOUR 3600
 #define ONE_DAY 86400
@@ -152,11 +147,6 @@ size_t strftime(char * s, size_t maxsize, const char * format, const struct tm *
  * @param mcuClockCallback a function Pointer to a function that returns the calendar time in seconds.
  */
 void setMcuClockCallback(uint32_t (* mcuClockCallback)(void));
-
-/* @} */
-#ifdef __cplusplus
-}
-#endif
 
 #endif              /* DWARFOS_TIME_H  */
 

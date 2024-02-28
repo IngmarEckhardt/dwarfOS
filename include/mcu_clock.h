@@ -58,5 +58,4 @@ typedef struct {
  */
 McuClock * dOS_initMcuClock(uint32_t initTime);
 
-
 #endif /* MCU_CLOCK_H */

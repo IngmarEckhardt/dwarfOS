@@ -41,7 +41,6 @@ int main(void) {
 
         sleep_mode();
 
-
         adjustTo1Sec();
 
         // for the example its enough to show you something every second, else we go immediately back to sleep
@@ -57,7 +56,6 @@ int main(void) {
 // for real time functionality you need a watch quartz at the TOSC1 and TOSC2 pins and change the setup to use it
 ISR(TIMER2_OVF_vect) {
     adJust16MhzToSecond++;
-
 }
 
 // counter overflow in this setup is connected to system clock

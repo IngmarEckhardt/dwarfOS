@@ -31,13 +31,10 @@ void setupMcu(
 }
 
 void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
-    if (stringRepository == NULL || uartHelper == NULL) {
-        return;
-    }
+    if (stringRepository == NULL || uartHelper == NULL) { return; }
+
     StringStorage * stringStorage = dOS_initStringStorage();
-    if (stringStorage == NULL) {
-        return;
-    }
+    if (stringStorage == NULL) { return; }
 
     stringRepository->addString(&stringStorage->initMsg);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
@@ -49,20 +46,16 @@ void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepo
     uartHelper->usartTransmitChar('\0');
 
     free(stringStorage);
-
 }
 
 void setCpuParamRegister(void) {
 
     // USART INIT
-
     // Set baud rate
     UBRR0H = (uint8_t) (UBRR_VAL >> 8);
     UBRR0L = (uint8_t) UBRR_VAL;
-
     // Enable receiver and transmitter
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
-
     // Set frame format: 8 data bits, 1 stop bit, no parity
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 
@@ -70,10 +63,8 @@ void setCpuParamRegister(void) {
 
     //turn off Analog Comparator
     ACSR |= (1 << ACD);
-
     //turning off other modules except timer 2 and USART
     PRR |= (1 << PRTWI) | (1 << PRTIM1) | (1 << PRTIM0) | (1 << PRSPI) | (1 << PRADC);
-
     //turn off digital input buffers for analog channels
     DIDR1 |= (1 << AIN1D) | (1 << AIN0D);
 
@@ -85,10 +76,8 @@ void setCpuParamRegister(void) {
     //Pre scaling 128 (256x128 = 32768 until overflow interrupt))
     //TCCR2B |= (1 << CS22) | (1 << CS20);
 
-
     // Prescaler 1024 for using the system clock
     TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
-
     //Overflow-Counter 2 Interrupt on -> overflow every 1sec precisely with 32kHz watch quartz and pre scaling 128
     //ca 1/61hz overflow with system clock and pre scaling 1024
     TIMSK2 |= (1 << TOIE2);

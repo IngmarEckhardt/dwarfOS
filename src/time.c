@@ -47,13 +47,10 @@ uint32_t mktime(const struct tm * timeptr) {
 
     // add one day for leap years
     for (uint16_t y = EPOCH_YEAR; y < time.tm_year; y++) {
-        if (isLeapYear(y))
-            daysSinceEpoch++;
+        if (isLeapYear(y)) { daysSinceEpoch++; }
     }
 
-    for (uint8_t m = 1; m < time.tm_mon; m++) {
-        daysSinceEpoch += daysInMonth(time.tm_year, m);
-    }
+    for (uint8_t m = 1; m < time.tm_mon; m++) { daysSinceEpoch += daysInMonth(time.tm_year, m); }
 
     uint32_t secondsSinceEpoch = daysSinceEpoch * ONE_DAY;
     secondsSinceEpoch += (time.tm_mday - 1) * ONE_DAY;
@@ -73,33 +70,25 @@ uint32_t time(uint32_t * timer) {
 
     if (takeTimeFromClock != NULL) {
         timestamp = takeTimeFromClock();
-        if (timer != NULL) {
-            (*timer) = timestamp;
-        }
+        if (timer != NULL) { (*timer) = timestamp; }
     } else if (timer != NULL) {
         timestamp = (*timer);
     }
-
     return timestamp;
 }
 
 char * ctime(uint32_t * timer) {
-    uint32_t volatile timestamp = time(NULL);
-    if (timer != NULL) {
-        (*timer) = timestamp;
-    }
-    struct tm  * timePointer = localtime(timer);
+    uint32_t timestamp = time(timer);
+    struct tm * timePointer = localtime(&timestamp);
     char * result = asctime(timePointer);
     free(timePointer);
     return result;
 }
 
 char * asctime(struct tm * timeptr) {
-    char * result;
-    result = (char *) malloc(TIMESTAMP_LENGTH * sizeof(char));
-    if (result == NULL) {
-        return NULL;
-    }
+    char * result = (char *) malloc(TIMESTAMP_LENGTH * sizeof(char));
+    if (result == NULL) { return NULL; }
+
     formatString(result, timeptr);
     switch (timeptr->tm_isdst) {
         case 1: {
@@ -117,7 +106,7 @@ char * asctime(struct tm * timeptr) {
         default:;
     }
     // null terminate the string
-    result[25] = 0;
+    result[25] = '\0';
     return result;
 }
 
@@ -162,18 +151,17 @@ void formatString(char * resultString, struct tm * timeStructPtr) {
         resultString[10] = 0x20;
         // :
         resultString[13] = resultString[16] = 0x3a;
-        //whitespace
+        // whitespace
         resultString[19] = 0x20;
     }
-	free(helper);
+    free(helper);
 }
 
 struct tm * gmtime(const uint32_t * timer) {
-    // Allocate memory for a struct time structure
+
     struct tm * constructedTime = (struct tm *) malloc(sizeof(struct tm));
-    if (constructedTime == NULL) {
-        return NULL;
-    }
+    if (constructedTime == NULL) { return NULL; }
+
     uint32_t timeValue = (*timer);
 
     constructedTime->tm_sec = timeValue % 60;
@@ -182,9 +170,7 @@ struct tm * gmtime(const uint32_t * timer) {
     timeValue /= 60;
     constructedTime->tm_hour = timeValue % 24;
     timeValue /= 24;
-    // Convert days since epoch to year, month, day
     constructedTime->tm_year = calcYear(&timeValue);
-    // Find the month and day
     constructedTime->tm_mon = calcMonth(&timeValue, constructedTime->tm_year);
     constructedTime->tm_mday = timeValue + 1; // Days start from 0, so add 1
 
@@ -213,11 +199,9 @@ uint32_t difftime_unsigned(uint32_t time1, uint32_t time0) {
     return (uint32_t) (diff >= 0 ? diff : -diff);
 }
 
-
 void setMcuClockCallback(uint32_t (* mcuClockCallback)(void)) {
     takeTimeFromClock = mcuClockCallback;
 }
-
 
 // Returns the number of days in a given month of a given year
 uint8_t daysInMonth(uint16_t year, uint8_t month) {
@@ -246,32 +230,19 @@ uint8_t calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day) {
 }
 
 uint8_t isDst(uint16_t year, uint8_t month, uint8_t day) {
-    // DST in Germany starts on the last Sunday of March and ends on the last Sunday of October
+    if (month > 3 && month < 10) { return 1; }
+    if (month < 3 || month > 10) { return 0; }
 
-    if (month > 3 && month < 10) {
-        return 1;
-    }
-
-    // Check if month is March through October
-    if (month < 3 || month > 10) {
-        return 0;
-    }
-
-    // Calculate the day of the week for the last day of the month
     uint8_t lastDayOfMonth = calcZellerCongruence(year, month, 31);
-
-    // Determine the date of the last Sunday of the month
     uint8_t lastSunday = 31 - ((lastDayOfMonth - 1) % 7);
 
-    if ((day >= lastSunday && month == 3) || (day < lastSunday && month == 10)) {
-        return 1;
-    }
+    if ((day >= lastSunday && month == 3) || (day < lastSunday && month == 10)) { return 1; }
     return 0;
 }
 
 uint16_t calcYear(uint32_t * days) {
     uint16_t year = EPOCH_YEAR;
-    while ((*days) >= (uint16_t)365 + isLeapYear(year)) {
+    while ((*days) >= (uint16_t) 365 + isLeapYear(year)) {
         if (isLeapYear(year)) {
             (*days) -= 366;
             year++;
@@ -294,12 +265,9 @@ uint8_t calcMonth(uint32_t * days, uint16_t year) {
 
 uint8_t calcUtcOffset(uint32_t epochTimeY2K) {
     uint32_t days = epochTimeY2K /= ONE_DAY;
-    // Convert days since epoch to year, month, day
     uint16_t year = calcYear(&days);
-    // Find the month and day
     uint8_t month = calcMonth(&days, year);
     // Days start from 0, so add 1
     uint8_t day = days + 1;
-    // Get the UTC offset based on whether daylight saving time (DST) is in effect
     return isDst(year, month, day) ? 2 : 1;
 }

@@ -2,6 +2,8 @@
 #include <avr/pgmspace.h>
 #include <stdlib.h>
 
+extern char * __brkval;
+
 int16_t getFreeMemory(void) {
     // SP is the stack pointer, this calculation ignores fragmented memory inside the area that is managed from malloc
     // but already freed and the space between bss and malloc heap end, if first allocated memory is freed.
@@ -11,9 +13,8 @@ int16_t getFreeMemory(void) {
 
 HeapManagementHelper * dOS_initHeapManagementHelper(void) {
     HeapManagementHelper * helper = malloc(sizeof(HeapManagementHelper));
-    if (helper == NULL) {
-        return NULL;
-    } else {
+    if (helper == NULL) { return NULL; }
+    else {
         helper->getFreeMemory = getFreeMemory;
         return helper;
     }

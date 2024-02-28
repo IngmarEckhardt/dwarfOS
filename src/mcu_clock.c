@@ -8,7 +8,8 @@ uint32_t getSystemClock(void) {
     uint32_t ret;
     uint8_t sreg;
 
-    // Disable interrupts and save the previous state
+    // Disable interrupts and save the previous state, because systemClock has 4 bytes and need 4 clock cycles
+    // for read and write operations that shouldn't be interrupted
     sreg = SREG;
     cli();
 

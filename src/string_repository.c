@@ -3,20 +3,21 @@
 
 // Hashing function (limited to 255 managed strings)
 uint8_t getHash(LazyLoadingString* stringToAdd);
-// Find a string in the managed database
-int8_t findStringInDb(LazyLoadingString* stringToFetch);
+// Find a string in the managed database, has to be int16_t to return -1 as fail, and hold all positive values for uint8
+int16_t findStringInDb(LazyLoadingString* stringToFetch);
 // Global pointer to the StringRepository instance
 StringRepository * stringRepository;
 
 
 // Add a string to the database of managed strings, enabling lazy loading and availability for freeMemoryRandom function.
 // Alternatively, users can manage this manually using the data structures.
+// uses placement with hashing, best case O(1), could be changed to placement without hashing for small amount of strings
 LazyLoadingString** addString(LazyLoadingString* stringToAdd) {
     // Calculate hash to determine placement in the array
 	uint8_t placement = getHash(stringToAdd);
 	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
 		placement = (placement + i) % MAX_SIZE_STRING_DB;
-        // Find an empty slot and add the string
+        // Find an empty slot and add the string, start a next fit placement strategy if the hashed placed is already in use
 		if (stringRepository->arrayOfManagedLazyStringPointers[placement] == NULL) {
             stringRepository->arrayOfManagedLazyStringPointers[placement] = stringToAdd;
 			return &stringRepository->arrayOfManagedLazyStringPointers[placement];
@@ -47,7 +48,7 @@ LazyLoadingString* freeString(LazyLoadingString* stringToKill) {
 // Remove string from the array of managed strings, ensuring memory is freed
 LazyLoadingString* removeStringFromManagement(LazyLoadingString* stringToKill) {
 
-	int8_t index = findStringInDb(stringToKill);
+	int16_t index = findStringInDb(stringToKill);
 	if (index >= 0) {
 		freeString(stringToKill);
         stringRepository->arrayOfManagedLazyStringPointers[index] = NULL;
@@ -63,7 +64,7 @@ void freeMemoryRandom(uint8_t percentage) {
 	if (step > (MAX_SIZE_STRING_DB - 1)) {
 		step = MAX_SIZE_STRING_DB - 1;
 	}
-	for (int i = 0; i < MAX_SIZE_STRING_DB; i += step) {
+	for (uint8_t i = 0; i < MAX_SIZE_STRING_DB; i += step) {
 		freeString(stringRepository->arrayOfManagedLazyStringPointers[i]);
 	}
 }
@@ -89,16 +90,17 @@ StringRepository * dOS_initStringRepository(void) {
 
 
 uint8_t getHash(LazyLoadingString * stringToAdd) {
+    // hashing with the pointer address
 	return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
 }
 
-int8_t findStringInDb(LazyLoadingString* stringToFetch) {
+int16_t findStringInDb(LazyLoadingString* stringToFetch) {
 	uint8_t placement = getHash(stringToFetch);
-	for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+	for (uint8_t i = 0; i < MAX_SIZE_STRING_DB; i++) {
 		placement = (placement + i) % MAX_SIZE_STRING_DB;
 
 		if (stringRepository->arrayOfManagedLazyStringPointers[placement] == stringToFetch) {
-			return (int8_t) placement;
+			return placement;
 		}
 	}
 	return -1;

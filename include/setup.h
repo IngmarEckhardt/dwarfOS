@@ -1,10 +1,8 @@
 #ifndef DWARFOS_SETUP_H
 #define DWARFOS_SETUP_H
 
-
 #include <mcu_clock.h>
 #include <string_repository.h>
-#include <string_storage.h>
 #include <uart_helper.h>
 
 #ifndef INIT_TIME
@@ -27,15 +25,17 @@
 /**
  * @brief Initializes the MCU setup.
  *
- * This function sets up the microcontroller unit (MCU) by initializing various components
- * such as the clock, string repository, UART helper, etc.
+ * This function sets up the microcontroller unit (MCU) by initializing various components such as the clock,
+ * string repository, UART helper, etc. Change this function to your desired behaviour. Load only the modules you need.
+ * A minimal setup would be just setting the parameter registers, dont using lazy strings and instancing and freeing
+ * the other modules fine granular only when needed.
  *
  * To configure the MCU setup, call this function once in your program, typically at the beginning.
  *
- * @param mcuClockPointer A pointer to a pointer to the McuClock structure.
- * @param stringRepositoryPointer A pointer to a pointer to the StringRepository structure.
- * @param uartHelperPointer A pointer to a pointer to the UartHelper structure.
+ * @param pointerToGlobalMcuClockPointer A pointer to a pointer to the McuClock structure.
+ * @param pointerToGlobalStringRepoPointer A pointer to a pointer to the StringRepository structure.
+ * @param pointerToGlobalUartHelperPointer A pointer to a pointer to the UartHelper structure.
  */
-void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, UartHelper ** uartHelperPointer);
+void setupMcu(McuClock ** pointerToGlobalMcuClockPointer, StringRepository ** pointerToGlobalStringRepoPointer, UartHelper ** pointerToGlobalUartHelperPointer);
 
 #endif //DWARFOS_SETUP_H

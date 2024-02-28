@@ -4,33 +4,52 @@
 #include <version.h>
 
 
-void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * stringStoragePointer);
-
 void setCpuParamRegister(void);
 
-void setupMcu(McuClock ** mcuClockPointer, StringRepository ** stringRepositoryPointer, UartHelper ** uartHelperPointer) {
-    *mcuClockPointer = (McuClock *)dOS_initMcuClock(INIT_TIME);
+void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper);
+
+void setupMcu(
+        McuClock ** pointerToGlobalMcuClockPointer,
+        StringRepository ** pointerToGlobalStringRepoPointer,
+        UartHelper ** pointerToGlobalUartHelperPointer) {
+
+    // derefencering the pointer to the global pointer -> setting the global pointers
+    *pointerToGlobalMcuClockPointer = dOS_initMcuClock(INIT_TIME);
+
+    // per default on, but can be turned off,
+    // time.h from Dwarfos is the main problem with gcc in an environment with time_t already defined (every Win,Mac,Linux OS)
 #ifdef DWARFOS_TIME_H
-    setMcuClockCallback((*mcuClockPointer)->getSystemClock);
+    setMcuClockCallback((*pointerToGlobalMcuClockPointer)->getSystemClock);
 #endif /* DWARFOS_TIME_H */
 
-    *stringRepositoryPointer = dOS_initStringRepository();
-
-
-    StringStorage * stringStoragePointer = dOS_initStringStorage();
-    setupStringDb(*stringRepositoryPointer, stringStoragePointer);
-
+    *pointerToGlobalStringRepoPointer = dOS_initStringRepository();
+    //has to be done before you init the uart Helper, or move the setup of baud rate and frame format to the helper
     setCpuParamRegister();
+    *pointerToGlobalUartHelperPointer = dOS_initUartHelper();
 
-    *uartHelperPointer = dOS_initUartHelper();
-    (*uartHelperPointer)->sendMsgWithTimestamp(2, (char * []){DWARFOS_IDENTSTRING, (*stringRepositoryPointer)->getString(&stringStoragePointer->initMsg, stringStoragePointer)});
-	free(stringStoragePointer);	
-	//make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
-	(*uartHelperPointer)->usartTransmitChar('\0');
+    fillArrayWithManagedLazyStringsAndSendInitMsg(*pointerToGlobalStringRepoPointer, *pointerToGlobalUartHelperPointer);
 }
 
-void setupStringDb(StringRepository * stringRepositoryPointer, StringStorage * stringStoragePointer) {
-    stringRepositoryPointer->addString(&stringStoragePointer->initMsg);
+void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
+    if (stringRepository == NULL || uartHelper == NULL) {
+        return;
+    }
+    StringStorage * stringStorage = dOS_initStringStorage();
+    if (stringStorage == NULL) {
+        return;
+    }
+
+    stringRepository->addString(&stringStorage->initMsg);
+    uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
+                                                     stringRepository->getString(&stringStorage->initMsg,
+                                                                                 stringStorage)});
+    // only free the Ram Memory in this setup, it's still in the management and will be loaded again if needed
+    stringRepository->freeString(&stringStorage->initMsg);
+    //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
+    uartHelper->usartTransmitChar('\0');
+
+    free(stringStorage);
+
 }
 
 void setCpuParamRegister(void) {
@@ -38,8 +57,8 @@ void setCpuParamRegister(void) {
     // USART INIT
 
     // Set baud rate
-    UBRR0H = (unsigned char) (UBRR_VAL >> 8);
-    UBRR0L = (unsigned char) UBRR_VAL;
+    UBRR0H = (uint8_t) (UBRR_VAL >> 8);
+    UBRR0L = (uint8_t) UBRR_VAL;
 
     // Enable receiver and transmitter
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);

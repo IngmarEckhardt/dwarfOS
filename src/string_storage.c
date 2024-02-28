@@ -1,6 +1,7 @@
 #include <string_storage.h>
-#include <stdlib.h>
 
+#include <avr/pgmspace.h>
+#include <stdlib.h>
 
 char* loadStringFromFlash(const char* PROGMEM flashString) {
 

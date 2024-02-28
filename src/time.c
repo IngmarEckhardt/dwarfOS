@@ -18,7 +18,6 @@ uint8_t calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day);
 
 uint8_t isLeapYear(uint16_t year);
 
-
 void formatString(char * resultString, struct tm * timeStructPtr);
 
 void addTimezone(char * result, uint8_t timezoneFlag);

@@ -2,6 +2,7 @@
 #define DWARFOS_UART_HELPER_H
 
 #include <stdint.h>
+
 /**
  * @brief Structure for UART (Universal Asynchronous Receiver-Transmitter) helper functions.
  *
@@ -18,6 +19,7 @@ typedef struct {
      * @param byte The character to transmit.
      */
     void (* usartTransmitChar)(unsigned char byte);
+
     /**
      * @brief Transmits a null-terminated string via UART.
      *
@@ -26,6 +28,7 @@ typedef struct {
      * @param str The string to transmit.
      */
     void (* usartTransmitString)(char * str);
+
     /**
      * @brief Receives a line of characters via UART.
      *
@@ -35,6 +38,7 @@ typedef struct {
      * @param bufferSize The size of the buffer.
      */
     void (* usartReceiveLine)(char * buffer, uint8_t bufferSize);
+
     /**
      * @brief Sends messages with timestamps via UART.
      *
@@ -44,7 +48,7 @@ typedef struct {
      * @param amountOfStrings The number of strings to concatenate.
      * @param strings An array of pointers to strings.
      */
-    void (* sendMsgWithTimestamp)(int amountOfStrings, char * strings[]);
+    void (* sendMsgWithTimestamp)(uint8_t amountOfStrings, char * strings[]);
 } UartHelper;
 
 /**

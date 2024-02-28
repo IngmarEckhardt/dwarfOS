@@ -1,8 +1,6 @@
 #ifndef DWARFOS_STRING_STORAGE_H
 #define DWARFOS_STRING_STORAGE_H
 
-#include <avr/pgmspace.h>
-
 typedef struct {
     const char * flashString; // Pointer to the string in flash memory
     char * pointerToString; // Pointer to the string in RAM
@@ -24,8 +22,9 @@ typedef struct {
     * @param flashString Pointer to the string in flash memory.
     * @return A pointer to the loaded string.
     */
-    char * (* loadStringFromFlash)(const char * PROGMEM flashString);
+    char * (* loadStringFromFlash)(const char * flashString);
 } StringStorage;
+
 /**
  * @brief Initializes the string storage.
  *

@@ -6,7 +6,7 @@ uint16_t computeArrayWithStringLengths(uint8_t amountStrings, char * strings[], 
 
 void integerToAscii(char * result, uint32_t num, uint8_t size, uint8_t position) {
     uint32_t divisor = 1;
-    for (int i = 0; i < size - 1; ++i) {
+    for (uint8_t i = 0; i < size - 1; ++i) {
         divisor *= 10;
     }
 
@@ -39,8 +39,7 @@ char * concatStrings(uint8_t amountOfStrings, char * strings[]) {
     }
     *destination = '\0';
     free(stringLengthArray);
-    stringLengthArray = NULL;
-    return stringToReturn;
+     return stringToReturn;
 }
 
 

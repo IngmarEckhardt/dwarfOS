@@ -23,7 +23,6 @@ void usartTransmitString(char * str) {
         usartTransmitChar(*str++);
     }
 
-
     usartTransmitChar('\r');
     usartTransmitChar('\n');
 }
@@ -45,7 +44,6 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
         }
         receivedChar = usartReceive();
 
-
         if (receivedChar != 0x0d) {
             buffer[i++] = receivedChar;
         } else {
@@ -58,14 +56,14 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
     }
 }
 // Send a message with timestamp via USART
-void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
+void sendMsgWithTimestamp(uint8_t amountOfStrings, char * strings[]) {
 
 #ifdef DWARFOS_TIME_H
     uint32_t timeStamp = time(NULL);
     char * localtimeStringpointer = ctime(&timeStamp);
 #endif /*DWARFOS_TIME_H */
 
-    // Create a new array to hold the sorted pointers
+    // Create a new array to hold the sorted pointers with purpose to insert timestamp at the start of line
     char ** sortedStrings = (char **) malloc((amountOfStrings + 1) * sizeof(char *));
 
     if (sortedStrings == NULL) {
@@ -83,16 +81,14 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
     sortedStrings[0] = '\0'; // Placeholder for timestamp
 #endif /* DWARFOS_TIME_H */
 
-
-    for (int i = 0; i < amountOfStrings; i++) {
+    for (uint8_t i = 0; i < amountOfStrings; i++) {
         sortedStrings[i + 1] = strings[i];
     }
-
-
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
     char * concatenated = asciiHelper->concatStrings(amountOfStrings + 1, sortedStrings);
 	free(asciiHelper);
+
     if (concatenated == NULL) {
 #ifdef DWARFOS_TIME_H
         free(localtimeStringpointer);
@@ -101,18 +97,14 @@ void sendMsgWithTimestamp(int amountOfStrings, char * strings[]) {
         return;
     }
 
-
     usartTransmitString(concatenated);
-
     free(sortedStrings);
     free(concatenated);
-
 
 #ifdef DWARFOS_TIME_H
     free(localtimeStringpointer);
 #endif /*DWARFOS_TIME_H */
 }
-
 
 UartHelper * dOS_initUartHelper(void) {
     UartHelper * helper = malloc(sizeof(UartHelper));

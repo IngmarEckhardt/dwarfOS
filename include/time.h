@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+
 #ifdef DWARF_TIME
 #ifndef DWARFOS_TIME_H
 #define DWARFOS_TIME_H
@@ -36,7 +37,6 @@ typedef uint32_t time_t;
 #else
 #define CLOCKS_PER_SEC ((clock_t)-1)
 #endif
-
 
 
 /**
@@ -84,7 +84,7 @@ int32_t difftime(time_t time1, time_t time0);
  * @param timeptr Pointer to the `struct tm` object representing the time in UTC.
  * @return The calendar time value.
  */
-time_t mktime(const struct tm* timeptr);
+time_t mktime(const struct tm * timeptr);
 
 /**
  * @brief Returns the actual calendar time and if timer is not NULL store the value there.
@@ -94,7 +94,7 @@ time_t mktime(const struct tm* timeptr);
  * @param timer Pointer to a time_t object
  * @return calendar time as time_t.
  */
-time_t time(time_t* timer);
+time_t time(time_t * timer);
 
 /**
  * @brief Converts the calendar time value to a string representation in localtime and
@@ -105,7 +105,7 @@ time_t time(time_t* timer);
  * @param timer Pointer to the calendar time value.
  * @return A string representing the calendar time.
  */
-char* ctime(time_t* timer);
+char * ctime(time_t * timer);
 
 /**
  * @brief Converts a `struct tm` object to a string representation.
@@ -113,7 +113,7 @@ char* ctime(time_t* timer);
  * @param timeptr Pointer to the `struct tm` object representing the time.
  * @return A string representing the time.
  */
-char* asctime(struct tm* timeptr);
+char * asctime(struct tm * timeptr);
 
 
 /**
@@ -122,7 +122,7 @@ char* asctime(struct tm* timeptr);
  * @param timer Pointer to the calendar time value.
  * @return Pointer to a `struct tm` object representing the time in UTC.
  */
-struct tm* gmtime(const time_t* timer);
+struct tm * gmtime(const time_t * timer);
 
 /**
  * @brief Converts a calendar time value to a local time-based `struct tm` object.
@@ -130,7 +130,7 @@ struct tm* gmtime(const time_t* timer);
  * @param timer Pointer to the calendar time value.
  * @return Pointer to a `struct tm` object representing the local time.
  */
-struct tm* localtime(const time_t* timer);
+struct tm * localtime(const time_t * timer);
 
 /**
  * @brief Formats a time as a string according to a format string.
@@ -143,7 +143,7 @@ struct tm* localtime(const time_t* timer);
  * @param timeptr  Pointer to the `struct tm` object representing the time.
  * @return Always returns zero in this implementation
  */
-size_t strftime(char* s, size_t maxsize, const char* format, const struct tm* timeptr);
+size_t strftime(char * s, size_t maxsize, const char * format, const struct tm * timeptr);
 
 /**
  * @brief Setter for a Callback Function that will be used from time();

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Windows-ninja.exe"
+	BuildStamp="20240228-2045-Experimental"
+	Name="DESKTOP-OM3S92P"
+	Generator="ctest-3.27.8"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Windows"
+	Hostname="DESKTOP-OM3S92P"
+	OSRelease=" Professional"
+	OSVersion=" (Build 19045)"
+	OSPlatform="AMD64"
+	Is64Bits="1"
+	VendorString="AuthenticAMD"
+	VendorID="Advanced Micro Devices"
+	FamilyID="15"
+	ModelID="1"
+	ProcessorCacheSize="96"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="8"
+	TotalVirtualMemory="35636"
+	TotalPhysicalMemory="32701"
+	LogicalProcessorsPerPhysical="1"
+	ProcessorClockFrequency="3800.00"
+	>
+	<Coverage>
+		<StartDateTime>Feb 28 21:45 Mitteleurop[NON-UTF-8-BYTE-0xE4]ische Zeit</StartDateTime>
+		<StartTime>1709153139</StartTime>
+		<File Name="unity.c" FullPath="./extern/Unity/src/unity.c" Covered="true">
+			<LOCTested>90</LOCTested>
+			<LOCUnTested>642</LOCUnTested>
+			<PercentCoverage>12.30</PercentCoverage>
+			<CoverageMetric>0.13</CoverageMetric>
+		</File>
+		<File Name="ascii_helper.c" FullPath="./src/ascii_helper.c" Covered="true">
+			<LOCTested>40</LOCTested>
+			<LOCUnTested>4</LOCUnTested>
+			<PercentCoverage>90.91</PercentCoverage>
+			<CoverageMetric>0.93</CoverageMetric>
+		</File>
+		<File Name="string_repository.c" FullPath="./src/string_repository.c" Covered="true">
+			<LOCTested>48</LOCTested>
+			<LOCUnTested>6</LOCUnTested>
+			<PercentCoverage>88.89</PercentCoverage>
+			<CoverageMetric>0.91</CoverageMetric>
+		</File>
+		<File Name="time.c" FullPath="./src/time.c" Covered="true">
+			<LOCTested>124</LOCTested>
+			<LOCUnTested>36</LOCUnTested>
+			<PercentCoverage>77.50</PercentCoverage>
+			<CoverageMetric>0.79</CoverageMetric>
+		</File>
+		<File Name="_ascii_helper.c" FullPath="./tests/_ascii_helper.c" Covered="true">
+			<LOCTested>24</LOCTested>
+			<LOCUnTested>0</LOCUnTested>
+			<PercentCoverage>100.00</PercentCoverage>
+			<CoverageMetric>1.00</CoverageMetric>
+		</File>
+		<File Name="_string_storage.c" FullPath="./tests/_src/_string_storage.c" Covered="true">
+			<LOCTested>8</LOCTested>
+			<LOCUnTested>1</LOCUnTested>
+			<PercentCoverage>88.89</PercentCoverage>
+			<CoverageMetric>0.95</CoverageMetric>
+		</File>
+		<File Name="_string_repository.c" FullPath="./tests/_string_repository.c" Covered="true">
+			<LOCTested>75</LOCTested>
+			<LOCUnTested>0</LOCUnTested>
+			<PercentCoverage>100.00</PercentCoverage>
+			<CoverageMetric>1.00</CoverageMetric>
+		</File>
+		<File Name="_time.c" FullPath="./tests/_time.c" Covered="true">
+			<LOCTested>135</LOCTested>
+			<LOCUnTested>0</LOCUnTested>
+			<PercentCoverage>100.00</PercentCoverage>
+			<CoverageMetric>1.00</CoverageMetric>
+		</File>
+		<LOCTested>544</LOCTested>
+		<LOCUntested>689</LOCUntested>
+		<LOC>1233</LOC>
+		<PercentCoverage>44.12</PercentCoverage>
+		<EndDateTime>Feb 28 21:45 Mitteleurop[NON-UTF-8-BYTE-0xE4]ische Zeit</EndDateTime>
+		<EndTime>1709153139</EndTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Coverage>
+</Site>

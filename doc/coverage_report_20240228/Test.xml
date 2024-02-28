@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Windows-ninja.exe"
+	BuildStamp="20240228-2045-Experimental"
+	Name="DESKTOP-OM3S92P"
+	Generator="ctest-3.27.8"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Windows"
+	Hostname="DESKTOP-OM3S92P"
+	OSRelease=" Professional"
+	OSVersion=" (Build 19045)"
+	OSPlatform="AMD64"
+	Is64Bits="1"
+	VendorString="AuthenticAMD"
+	VendorID="Advanced Micro Devices"
+	FamilyID="15"
+	ModelID="1"
+	ProcessorCacheSize="96"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="8"
+	TotalVirtualMemory="35636"
+	TotalPhysicalMemory="32701"
+	LogicalProcessorsPerPhysical="1"
+	ProcessorClockFrequency="3800"
+	>
+	<Testing>
+		<StartDateTime>Feb 28 21:45 Mitteleurop[NON-UTF-8-BYTE-0xE4]ische Zeit</StartDateTime>
+		<StartTestTime>1709153139</StartTestTime>
+		<TestList>
+			<Test>./Time</Test>
+			<Test>./AsciiHelper</Test>
+			<Test>./StringRepo</Test>
+		</TestList>
+		<Test Status="passed">
+			<Name>Time</Name>
+			<Path>.</Path>
+			<FullName>./Time</FullName>
+			<FullCommandLine>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_Time.exe</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0396525</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_Time.exe</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value encoding="base64" compression="gzip">eJy1kt1OwzAMhe/3FHmCdj+AWO+gGxICtIl2QoBQFVKXFtKmsh1gPD1JBxOTEBcUriIntr9jn8RRuCJACkE9lTI84hp0wjavTDh7kVgsku3JQExhxlUNgYpGh8OofvJBBq1RZcISeSYZVmmcIbDF5gbQRMujJBnEv6eMPikF3KOVuE7LChmg4TKep5mSWlntsLFBBMV63Zs4/iQ+Wr1DS/4FN4m0cW1/mHGzzQ/iVdUwoM9OGK3i3vy9L/xvJt6BJ7au/xS+H0lSHXrFKgaO3XvqQmJZt5QpBLfrtETwwKp5oKvK6dqI8XlvpgHqreIw8r5eg8SM/Dee+w89vj6bHBzkck0Zlcbq/Bi6e5+21JYWDfQGTyPf/7S5MG7dW/fPQbYbMR33snNgPO1Lmw67Md2iF0VBwNmJwZMgCAa3znISrRtcmEJwCcJXCmO5tSxeJAmE2jxDLqhqFIiKBbwqgJw2yc4ep1Tnvno0HO+J+7VrENwN3gFnFJbz====</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="passed">
+			<Name>AsciiHelper</Name>
+			<Path>.</Path>
+			<FullName>./AsciiHelper</FullName>
+			<FullCommandLine>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_AsciiHelper.exe</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0306538</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_AsciiHelper.exe</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value encoding="base64" compression="gzip">eJyljcEKAiEURfd+hT9QRs3KnUwE0WICbS3ivBzJNJ5vmN8PmWjVrru5Fw6c20txq4BVgH9MTih6QtI0j7GI4+LwPuhvE1SqwrrqY7QTpBfg1svuIBuwMRMEQFNU4/KqtGb93/JulfuSvSNNGHOo1izlM9cbtvkdtuemafmOn1xMM0Kb55ALwsjZcGFv5UhVjA==</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="passed">
+			<Name>StringRepo</Name>
+			<Path>.</Path>
+			<FullName>./StringRepo</FullName>
+			<FullCommandLine>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_StringRepo.exe</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0303044</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\cmake-build-tests-coverage\DwarfOS_StringRepo.exe</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value encoding="base64" compression="gzip">eJy1z8EKgkAQBuD7PoUvUKtBVHsTQ4gQo62zLO5okrsbs2vh25dt1KWjzmUGfvh+JmH0bAEthfJ6ETR2ClruOtkYun0IrHL+3Q6ss7SwDhtdFwg3YxtnsJ+XLIpWbIgLISV/5+wQc06SkfS112twU+gbr1cIMAG/CD2PoMz9U5CiUZnQogYF2o1bF/2+yV6V2B+Flkb5EjL7P2QZnAY0CINUNG2HMJy7WhsEGZB8T56jhcNq====</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<EndDateTime>Feb 28 21:45 Mitteleurop[NON-UTF-8-BYTE-0xE4]ische Zeit</EndDateTime>
+		<EndTestTime>1709153139</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

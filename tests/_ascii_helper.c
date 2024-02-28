@@ -4,8 +4,6 @@
 
 void setUp(void) {}
 void tearDown(void) {
-    //free(result);
-    //free(resultString);
 }
 
 void test_integerToAscii(void) {

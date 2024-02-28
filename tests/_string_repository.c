@@ -2,12 +2,8 @@
 #include <string_repository.h>
 #include <malloc.h>
 
-void setUp(void) {
-
-}
-void tearDown(void) {
-
-}
+void setUp(void) {}
+void tearDown(void) {}
 
 void test_addString(void) {
     StringRepository * repositoryUnderTest;

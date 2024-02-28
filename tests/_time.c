@@ -18,12 +18,7 @@ uint8_t             calcZellerCongruence(uint16_t year, uint8_t month, uint8_t d
 #include "../src/time.c"
 
 void setUp(void) {}
-
-void tearDown(void) {
-    //free(result);
-    //free(resultString);
-}
-
+void tearDown(void) {}
 
 //iso functions
 
@@ -38,7 +33,6 @@ void mktime_februaryThirteenthCET_calculateCorrectly(void) {
 
     uint32_t resultInt32 = mktime(&februaryThirteenth2021);
     uint32_t expected_result = februaryThirteenth2021Time_T;
-
     TEST_ASSERT_EQUAL_UINT32(expected_result, resultInt32);
 }
 
@@ -46,7 +40,6 @@ void mktime_julyThirteenthCEST_calculateCorrectly(void) {
 
     uint32_t resultInt32 = mktime(&julyThirteenth2021);
     uint32_t expected_result = julyThirtieth2021Time_T;
-
     TEST_ASSERT_EQUAL_UINT32(expected_result, resultInt32);
 }
 // Helper function to test asctime with a given timestamp
@@ -61,9 +54,7 @@ void test_asctime_with_timestamp(struct tm * timestamp, const char * expected_fo
 
     TEST_ASSERT_EQUAL_STRING(expected_result, resultString);
     size_t result_length = 0;
-    while (resultString[result_length] != '\0') {
-        result_length++;
-    }
+    while (resultString[result_length] != '\0') {result_length++;}
     TEST_ASSERT_EQUAL_UINT32(expected_length, result_length);
 }
 

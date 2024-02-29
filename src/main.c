@@ -15,6 +15,7 @@ McuClock * mcuClock;
 
 #ifdef DWARFOS_WATCH_QUARTZ
 #else
+const uint8_t adjustValue = ADJUST_TO_SECOND_VALUE;
 volatile uint8_t adjustCounter = 0;
 #endif /* DWARFOS_WATCH_QUARTZ */
 
@@ -65,7 +66,7 @@ ISR(TIMER2_OVF_vect) {
 // counter overflow in this setup is connected to system clock
 // 16Mhz / (pre scaling 1024 x overflow interrupt 256 x 61) = ca 1.0001hz, good enough for logging
 void adjustTo1Sec(void) {
-    if (adjustCounter == ADJUST_TO_SECOND_VALUE) {
+    if (adjustCounter == adjustValue) {
         mcuClock->incrementClockOneSec();
         adjustCounter = 0;
     }

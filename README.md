@@ -45,8 +45,8 @@ making it possible to mock individual functions in unit tests.
 ## Usage
 
 The description of usage is provided in `main.c` and `setup.c` with an ample number of comments aimed at aiding beginners.
-Further Example how to include dOS into a project as a git submodule with using its own CMakelists with library build option
-is provided in the repository `Dwarf-Example`.
+An additional example demonstrating how to include dOS into a project as a Git submodule, utilizing its own CMakeLists with 
+library build options, is provided in the `Dwarf-Example` repository.
 
 ## Contributing
 

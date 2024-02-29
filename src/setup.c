@@ -6,31 +6,24 @@
 
 void setCpuParamRegister(void);
 
-void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper);
+void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper);
 
-void setupMcu(
-        McuClock ** pointerToGlobalMcuClockPointer,
-        StringRepository ** pointerToGlobalStringRepoPointer,
-        UartHelper ** pointerToGlobalUartHelperPointer) {
+void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
+
+    setCpuParamRegister();
 
     // derefencering the pointer to the global pointer -> setting the global pointers
     *pointerToGlobalMcuClockPointer = dOS_initMcuClock(INIT_TIME);
-
-    // per default on, but can be turned off,
-    // time.h from Dwarfos is the main problem with gcc in an environment with time_t already defined (every Win,Mac,Linux OS)
-#ifdef DWARFOS_TIME_H
     setMcuClockCallback((*pointerToGlobalMcuClockPointer)->getSystemClock);
-#endif /* DWARFOS_TIME_H */
 
-    *pointerToGlobalStringRepoPointer = dOS_initStringRepository();
-    //has to be done before you init the uart Helper, or move the setup of baud rate and frame format to the helper
-    setCpuParamRegister();
-    *pointerToGlobalUartHelperPointer = dOS_initUartHelper();
-
-    fillArrayWithManagedLazyStringsAndSendInitMsg(*pointerToGlobalStringRepoPointer, *pointerToGlobalUartHelperPointer);
+    StringRepository * stringRepository = dOS_initStringRepository();
+    UartHelper * uartHelper = dOS_initUartHelper();
+    loadInitStringAndSendInitMsg(stringRepository, uartHelper);
+    free(stringRepository);
+    free(uartHelper);
 }
 
-void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
+void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
     if (stringRepository == NULL || uartHelper == NULL) { return; }
 
     StringStorage * stringStorage = dOS_initStringStorage();
@@ -40,11 +33,9 @@ void fillArrayWithManagedLazyStringsAndSendInitMsg(StringRepository * stringRepo
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
                                                      stringRepository->getString(&stringStorage->initMsg,
                                                                                  stringStorage)});
-    // only free the Ram Memory in this setup, it's still in the management and will be loaded again if needed
-    stringRepository->freeString(&stringStorage->initMsg);
+    stringRepository->removeStringFromManagement(&stringStorage->initMsg);
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');
-
     free(stringStorage);
 }
 
@@ -70,18 +61,20 @@ void setCpuParamRegister(void) {
 
     //Counter
 
+#ifdef DWARFOS_WATCH_QUARTZ
     //Using asynchronous timer with low frequency crystal
-    //ASSR |= (1 << AS2);
+    ASSR |= (1 << AS2);
 
     //Pre scaling 128 (256x128 = 32768 until overflow interrupt))
-    //TCCR2B |= (1 << CS22) | (1 << CS20);
-
+    TCCR2B |= (1 << CS22) | (1 << CS20);
+#else
     // Prescaler 1024 for using the system clock
     TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
+#endif /* DWARFOS_WATCH_QUARTZ  */
+
     //Overflow-Counter 2 Interrupt on -> overflow every 1sec precisely with 32kHz watch quartz and pre scaling 128
     //ca 1/61hz overflow with system clock and pre scaling 1024
     TIMSK2 |= (1 << TOIE2);
-
     //External Standby Sleep Mode, Counter 2 is the only clock that stays active
     SMCR |= (1 << SM2) | (1 << SM1) | (1 << SM0);
 }

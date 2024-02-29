@@ -1,4 +1,3 @@
-#ifdef DWARF_TIME
 #ifndef DWARFOS_TIME_H
 #define DWARFOS_TIME_H
 
@@ -149,5 +148,3 @@ size_t strftime(char * s, size_t maxsize, const char * format, const struct tm *
 void setMcuClockCallback(uint32_t (* mcuClockCallback)(void));
 
 #endif              /* DWARFOS_TIME_H  */
-
-#endif /* DWARF_TIME */

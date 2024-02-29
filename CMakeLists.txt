@@ -13,7 +13,7 @@ set(VERSION_PATCH 2)
 project(${NAME} LANGUAGES C)
 
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
-option(DWARF_TIME "Build ${PROJECT_NAME} with own time.h/.c" ON)
+option(DWARF_WATCH_QUARTZ "Build ${PROJECT_NAME} with watch quartz" OFF)
 option(DWARF_TEST "Build ${PROJECT_NAME} Tests with standard gcc" OFF)
 
 
@@ -54,6 +54,11 @@ set(CWARN "-Wall -Wextra -Wstrict-prototypes -Wl,--gc-sections -Wl,--relax")
 set(CFLAGS "${CMCU} ${COPT} ${CWARN} ${CSTANDARD} ${CTUNING} ${CDEBUG}")
 set(CMAKE_C_FLAGS "${CFLAGS}")
 
+add_definitions(-D_TIME_T_DEFINED)
+if (DWARF_WATCH_QUARTZ)
+    add_definitions(-DDWARFOS_WATCH_QUARTZ)
+endif ()
+
 
 # files and folders
 
@@ -67,6 +72,7 @@ set(SRC_FILES
         "${SRC_PATH}/setup.c"
         "${SRC_PATH}/string_repository.c"
         "${SRC_PATH}/string_storage.c"
+        "${SRC_PATH}/time.c"
         "${SRC_PATH}/uart_helper.c"
 )
 set(HEADER_FILES
@@ -76,15 +82,10 @@ set(HEADER_FILES
         "${INCL_PATH}/setup.h"
         "${INCL_PATH}/string_repository.h"
         "${INCL_PATH}/string_storage.h"
+        "${INCL_PATH}/time.h"
         "${INCL_PATH}/uart_helper.h"
 )
-# Add time-related files if DWARF_TIME is enabled
-if (DWARF_TIME)
-    set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/time.c")
-    set(HEADER_FILES ${HEADER_FILES} "${INCL_PATH}/time.h")
-    add_definitions(-D_TIME_T_DEFINED)
-    add_definitions(-DDWARF_TIME)
-endif ()
+
 include_directories(${INCL_PATH})
 
 

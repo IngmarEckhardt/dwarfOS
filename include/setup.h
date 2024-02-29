@@ -7,7 +7,7 @@
 
 #ifndef INIT_TIME
 // Default initial time: 2024-02-18 19:50:00 (CET)
-#define INIT_TIME ((uint32_t) 761601000)
+#define INIT_TIME 761601000UL
 #endif
 #ifndef F_CPU
 // Default CPU frequency: 16 MHz
@@ -21,6 +21,8 @@
 
 // Calculate UBRR value for given baud rate and CPU frequency
 #define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1)
+
+#define ADJUST_TO_SECOND_VALUE (uint8_t)(F_CPU / ( 1024UL * 256))
 
 /**
  * @brief Initializes the MCU setup.
@@ -36,6 +38,6 @@
  * @param pointerToGlobalStringRepoPointer A pointer to a pointer to the StringRepository structure.
  * @param pointerToGlobalUartHelperPointer A pointer to a pointer to the UartHelper structure.
  */
-void setupMcu(McuClock ** pointerToGlobalMcuClockPointer, StringRepository ** pointerToGlobalStringRepoPointer, UartHelper ** pointerToGlobalUartHelperPointer);
+void setupMcu(McuClock ** pointerToGlobalMcuClockPointer);
 
 #endif //DWARFOS_SETUP_H

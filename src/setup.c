@@ -65,7 +65,7 @@ void setCpuParamRegister(void) {
     //Using asynchronous timer with low frequency crystal
     ASSR |= (1 << AS2);
 
-    //Pre scaling 128 (256x128 = 32768 until overflow interrupt))
+    //Pre scaling 128 (256x128 = 32768 until overflow interrupt)
     TCCR2B |= (1 << CS22) | (1 << CS20);
 #else
     // Prescaler 1024 for using the system clock

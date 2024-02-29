@@ -22,7 +22,10 @@ volatile uint8_t adjustCounter = 0;
 // just for the example
 uint8_t lastTime;
 
+#ifdef DWARFOS_WATCH_QUARTZ
+#else
 void adjustTo1Sec(void);
+#endif
 
 void testOSMethod(void);
 
@@ -40,7 +43,6 @@ int main(void) {
 #else
         adjustTo1Sec();
 #endif /* DWARFOS_WATCH_QUARTZ */
-
 
         // for the example its enough to show you something every second, else we go immediately back to sleep
         if ((uint8_t)time(NULL) != lastTime) {
@@ -72,7 +74,6 @@ void adjustTo1Sec(void) {
     }
 }
 #endif /* DWARFOS_WATCH_QUARTZ */
-
 
 void testOSMethod(void) {
     char memoryStringArray[5];

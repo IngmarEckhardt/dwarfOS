@@ -2,7 +2,7 @@
 #include <unity.h>
 
 //given
-struct tm     epochStartDate = {0, 0, 0, 1, 1, EPOCH_YEAR};
+struct tm     epochStartDate = {0, 0, 0, 1, 1, EPOCH_YEAR,0,0,0};
 struct tm     februaryThirteenth2021 = {0, 0, 0, 13, 2, 2021, 0, 0, 1};
 struct tm     julyThirteenth2021 = {0, 0, 0, 13, 7, 2021, 0, 0, 2};
 const uint32_t      februaryThirteenth2021Time_T = 666489600;
@@ -84,8 +84,7 @@ void localtime_februaryThirteenthCET_returnCorrectWintertimeStruct(void) {
 }
 
 void localtime_julyThirteenthCEST_returnCorrectSummertimeStruct(void) {
-    struct tm * result = localtime(&februaryThirteenth2021Time_T);
-    result = localtime(&julyThirtieth2021Time_T);
+    struct tm * result = localtime(&julyThirtieth2021Time_T);
     //add two hours because of CEST
     TEST_ASSERT_NOT_NULL(result);
     TEST_ASSERT_EQUAL_INT(0, result->tm_sec);

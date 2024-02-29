@@ -23,7 +23,7 @@ UartHelper * uartHelper;
 volatile uint8_t adJust16MhzToSecond = 0;
 
 // just for the example
-uint32_t lastTime;
+uint8_t lastTime;
 
 void adjustTo1Sec(void);
 
@@ -44,7 +44,7 @@ int main(void) {
         adjustTo1Sec();
 
         // for the example its enough to show you something every second, else we go immediately back to sleep
-        if (time(NULL) != lastTime) {
+        if ((uint8_t)time(NULL) != lastTime) {
             lastTime = time(NULL);
 
             testOSMethod();

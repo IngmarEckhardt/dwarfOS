@@ -3,8 +3,6 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
 set(MCU atmega328p)
 
-# Ensure that you are using avr-gcc for this project.
-# Additionally, you may need to correctly set the paths to avr-objcopy and avr-size for your environment.
 # If you are using Atmel/Microchip Studio, create a new project and move these project files into this folder.
 # Ensure that you include all the files and set "non-project" files to be visible.
 
@@ -17,6 +15,13 @@ project(${NAME} LANGUAGES C)
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
 option(DWARF_TIME "Build ${PROJECT_NAME} with own time.h/.c" ON)
 option(DWARF_TEST "Build ${PROJECT_NAME} Tests with standard gcc" OFF)
+
+#Make sure you are using avr-gcc for this project. Add the folder containing avr-gcc to the PATH environment variable.
+#Uncommenting this will work, but there are often better ways depending on your workflow/IDE.
+if (DWARF_TEST)
+else ()
+# set(CMAKE_C_COMPILER avr-gcc)
+endif ()
 
 # generates the version.h in the include folder, containing the String with ProjectName and Version, as in version.h.in
 configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h @ONLY)
@@ -33,6 +38,7 @@ set(CSTANDARD "-std=gnu99")
 if (DWARF_TEST)
     set(CDEBUG "-g -ggdb --coverage")
 else ()
+
     set(CDEBUG "-g -ggdb")
     set(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections")
     # use Optimization level -O2 if you have the space, it add several hundred bytes to program memory,
@@ -61,7 +67,7 @@ set(SRC_FILES
 
 set(HEADER_FILES
         "${INCL_PATH}/ascii_helper.h"
-        "${INCL_PATH}/heap_management_helper.c"
+        "${INCL_PATH}/heap_management_helper.h"
         "${INCL_PATH}/mcu_clock.h"
         "${INCL_PATH}/setup.h"
         "${INCL_PATH}/string_repository.h"

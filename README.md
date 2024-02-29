@@ -1,8 +1,8 @@
 # DwarfOS
 
-DwarfOS is a lightweight "OS" designed for microcontrollers such as Arduino. It aims to minimize dependency on large
+DwarfOS (dOS) is a lightweight "OS" designed for microcontrollers such as Arduino. It aims to minimize dependency on large
 libraries, providing essential functionalities tailored for resource-constrained environments. This README provides an
-overview of the features and components included in DwarfOS.
+overview of the features and components included in dOS.
 
 ## Features
 
@@ -23,8 +23,8 @@ module (`string_repository.h`).
 
 ### UTC/CET/CEST Timestamps
 
-DwarfOS provides support for generating timestamp strings in various time zones, including Coordinated Universal Time (
-UTC), Central European Time (CET), and Central European Summer Time (CEST).
+DwarfOS provides support for generating timestamp strings in Coordinated Universal Time (UTC), Central European 
+Time (CET), and Central European Summer Time (CEST).
 
 ### Integer to ASCII Conversion
 
@@ -32,7 +32,7 @@ A helper function is included for converting integers to ASCII strings, facilita
 
 ## Module Separation and Memory Management
 
-One of the notable features of DwarfOS is its modular architecture, allowing for separate loading and unloading of
+One of the notable features of dOS is its modular architecture, allowing for separate loading and unloading of
 modules.
 
 Modules such as the string repository, UART helper, and time management are loaded into the heap memory, enabling
@@ -45,6 +45,8 @@ making it possible to mock individual functions in unit tests.
 ## Usage
 
 The description of usage is provided in `main.c` and `setup.c` with an ample number of comments aimed at aiding beginners.
+Further Example how to include dOS into a project as a git submodule with using its own CMakelists with library build option
+is provided in the repository `Dwarf-Example`.
 
 ## Contributing
 

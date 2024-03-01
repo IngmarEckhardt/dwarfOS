@@ -3,7 +3,10 @@
 cmake_minimum_required(VERSION 3.27)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
-set(MCU atmega328p)
+if(NOT DEFINED MCU)
+    set(MCU atmega328p)
+endif()
+
 
 
 set(NAME "DwarfOS")

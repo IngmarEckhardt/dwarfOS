@@ -83,6 +83,8 @@ void test_freeMemoryRandom(void) {
         LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
         lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
         repository->arrayOfManagedLazyStringPointers[i] = lazyString;
+
+        //ignore all pointer warning, they have 2 byte with 8bit avr-gcc, and this is just to get a value here.
         repository->arrayOfManagedLazyStringPointers[i]->flashString = (const char *) (i + 0xff);
 
     }

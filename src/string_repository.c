@@ -70,7 +70,7 @@ void freeMemoryRandom(uint8_t percentage) {
 }
 
 uint8_t getHash(LazyLoadingString * stringToAdd) {
-    // hashing with the pointer address
+    // hashing with the pointer address, in avr-gcc pointer are 2 byte
     return (((uint16_t) stringToAdd) % MAX_SIZE_STRING_DB);
 }
 

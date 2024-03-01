@@ -2,8 +2,6 @@
 #define DWARFOS_SETUP_H
 
 #include <mcu_clock.h>
-#include <string_repository.h>
-#include <uart_helper.h>
 
 #ifndef INIT_TIME
 // Default initial time: 2024-02-18 19:50:00 (CET)

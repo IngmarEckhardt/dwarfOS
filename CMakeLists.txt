@@ -129,24 +129,18 @@ if (DWARF_TEST)
     # some reduced libs for tests
     add_library(${PROJECT_NAME}Lib STATIC   "${SRC_PATH}/ascii_helper.c" "${SRC_PATH}/time.c"
                                             "${INCL_PATH}/ascii_helper.h" "${INCL_PATH}/time.h")
-    target_include_directories(${PROJECT_NAME}Lib PUBLIC ${INCL_PATH})
-
     add_library(${PROJECT_NAME}LibReduced STATIC "${SRC_PATH}/string_repository.c" "${INCL_PATH}/string_repository.h")
-    target_include_directories(${PROJECT_NAME}LibReduced PUBLIC "${TEST_PATH}/_include/_string_repo_test")
 
     # time.c
     add_executable(${PROJECT_NAME}_Time "${TEST_PATH}/_time.c")
-    target_include_directories(${PROJECT_NAME}_Time PRIVATE ${INCL_PATH})
     target_link_libraries(${PROJECT_NAME}_Time ${PROJECT_NAME}Lib unity)
 
     # ascii_helper.c
     add_executable(${PROJECT_NAME}_AsciiHelper "${TEST_PATH}/_ascii_helper.c")
-    target_include_directories(${PROJECT_NAME}_AsciiHelper PRIVATE ${INCL_PATH})
     target_link_libraries(${PROJECT_NAME}_AsciiHelper ${PROJECT_NAME}Lib unity)
 
     # string_repository.c
     add_executable(${PROJECT_NAME}_StringRepo "${TEST_PATH}/_string_repository.c" "${TEST_PATH}/_src/_string_storage.c")
-    target_include_directories(${PROJECT_NAME}_StringRepo PRIVATE ${INCL_PATH})
     target_link_libraries(${PROJECT_NAME}_StringRepo ${PROJECT_NAME}LibReduced unity)
 
     include(CTest)
@@ -154,6 +148,5 @@ if (DWARF_TEST)
     add_test(AsciiHelper ${PROJECT_NAME}_AsciiHelper)
     add_test(StringRepo ${PROJECT_NAME}_StringRepo)
 endif ()
-
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")

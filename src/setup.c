@@ -1,6 +1,8 @@
 #include <setup.h>
 #include <avr/io.h>
 #include <time.h>
+#include <string_repository.h>
+#include <uart_helper.h>
 #include <version.h>
 
 

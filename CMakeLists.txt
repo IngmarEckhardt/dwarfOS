@@ -5,8 +5,13 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
 if(NOT DEFINED MCU)
     set(MCU atmega328p)
-endif()
 
+endif()
+if (MCU STREQUAL "atmega328p")
+    add_definitions(-DDWARFOS_328p)
+elseif (MCU STREQUAL "atmega2560")
+    add_definitions(-DDWARFOS_2560)
+endif ()
 
 
 set(NAME "DwarfOS")

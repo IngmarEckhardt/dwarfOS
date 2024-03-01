@@ -56,8 +56,13 @@ void setCpuParamRegister(void) {
 
     //turn off Analog Comparator
     ACSR |= (1 << ACD);
+#ifdef DWARFOS_328p
     //turning off other modules except timer 2 and USART
     PRR |= (1 << PRTWI) | (1 << PRTIM1) | (1 << PRTIM0) | (1 << PRSPI) | (1 << PRADC);
+#elif DWARFOS_2560
+    PRR0 |= (1 << PRTWI) | (1 << PRTIM1) | (1 << PRTIM0) | (1 << PRSPI) | (1 << PRADC);
+#endif
+
     //turn off digital input buffers for analog channels
     DIDR1 |= (1 << AIN1D) | (1 << AIN0D);
 

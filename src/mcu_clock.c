@@ -6,40 +6,17 @@ McuClock * mcuClock;
 
 uint32_t getSystemClock(void) {
     uint32_t returnValue;
-    uint8_t interruptStatusRegister;
-
-    // Disable interrupts and save the previous state, because systemClock has 4 bytes and need 4 clock cycles
-    // for read and write operations that shouldn't be interrupted
-    interruptStatusRegister = SREG;
-    cli();
-
-    returnValue = mcuClock->systemClock;
-
-    // Restore the previous state (enable interrupts if they were enabled before)
-    SREG = interruptStatusRegister;
-
+    ATOMIC_OPERATION(returnValue = mcuClock->systemClock)
     return returnValue;
 }
 
 void setSystemClock(uint32_t timestamp) {
-    uint8_t interruptStatusRegister;
-
-    interruptStatusRegister = SREG;
-    cli();
-
-    mcuClock->systemClock = timestamp;
-
-    SREG = interruptStatusRegister;
+    ATOMIC_OPERATION(mcuClock->systemClock = timestamp)
 }
 
 void incrementClockOneSec(void) {
-    uint8_t interruptStatusRegister;
-    interruptStatusRegister = SREG;
-    cli();
+    ATOMIC_OPERATION(mcuClock->systemClock++)
 
-    mcuClock->systemClock++;
-
-    SREG = interruptStatusRegister;
 }
 
 McuClock * dOS_initMcuClock(uint32_t initTime) {

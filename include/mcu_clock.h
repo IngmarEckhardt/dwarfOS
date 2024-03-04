@@ -58,4 +58,12 @@ typedef struct {
  */
 McuClock * dOS_initMcuClock(uint32_t initTime);
 
+#define ATOMIC_OPERATION(code) \
+        uint8_t interruptStatusRegister; \
+        interruptStatusRegister = SREG; \
+        cli(); \
+        code; \
+        SREG = interruptStatusRegister; \
+
+
 #endif /* MCU_CLOCK_H */

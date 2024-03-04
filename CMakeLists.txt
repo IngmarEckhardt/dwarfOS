@@ -78,6 +78,7 @@ set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/extern")
 set(SRC_FILES
         "${SRC_PATH}/ascii_helper.c"
         "${SRC_PATH}/heap_management_helper.c"
+        "${SRC_PATH}/input_queue.c"
         "${SRC_PATH}/mcu_clock.c"
         "${SRC_PATH}/setup.c"
         "${SRC_PATH}/string_repository.c"
@@ -88,6 +89,7 @@ set(SRC_FILES
 set(HEADER_FILES
         "${INCL_PATH}/ascii_helper.h"
         "${INCL_PATH}/heap_management_helper.h"
+        "${INCL_PATH}/input_queue.h"
         "${INCL_PATH}/mcu_clock.h"
         "${INCL_PATH}/setup.h"
         "${INCL_PATH}/string_repository.h"

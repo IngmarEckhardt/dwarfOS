@@ -1,20 +1,20 @@
 #include <unity.h>
 #include <string_repository.h>
 #include <malloc.h>
-
+#define SIZE_OF_INIT_STRING_REPO 8
 void setUp(void) {}
 void tearDown(void) {}
 
 void test_addString(void) {
     StringRepository * repositoryUnderTest;
-    repositoryUnderTest = dOS_initStringRepository();
+    repositoryUnderTest = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     // Create a LazyLoadingString object
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
 
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL; // Initialize pointerToString
     // Add the string to the repository
-    LazyLoadingString** addedString = repositoryUnderTest->addString(lazyString);
+    LazyLoadingString** addedString = repositoryUnderTest->addString(lazyString, repositoryUnderTest->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Check if the string was added successfully
     TEST_ASSERT_NOT_NULL(addedString);
     TEST_ASSERT_EQUAL_PTR(lazyString, *addedString);
@@ -23,13 +23,13 @@ void test_addString(void) {
 
 void test_getString(void) {
     StringRepository * stringRepository;
-    stringRepository = dOS_initStringRepository();
+    stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     StringStorage * stringStorage = dOS_initStringStorage();
     // Create a LazyLoadingString object and add it to the repository
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
-    stringRepository->addString(lazyString);
+    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Try to retrieve the string
     char* retrievedString = stringRepository->getString(lazyString, stringStorage); // Pass NULL for StringStorage
     // Check if the retrieved string is not NULL
@@ -40,12 +40,12 @@ void test_getString(void) {
 
 void test_freeString(void) {
     StringRepository * stringRepository;
-    stringRepository = dOS_initStringRepository();
+    stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     // Create a LazyLoadingString object and add it to the repository
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
     lazyString->flashString = (const char *) 0xff;
-    stringRepository->addString(lazyString);
+    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Free the string
     LazyLoadingString* freedString = stringRepository->freeString(lazyString);
     // Check if the freed string is the same as the original one
@@ -58,14 +58,14 @@ void test_freeString(void) {
 
 void test_removeStringFromManagement(void) {
     StringRepository * stringRepository;
-    stringRepository = dOS_initStringRepository();
+    stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     // Create a LazyLoadingString object and add it to the repository
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
-    stringRepository->addString(lazyString);
+    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Remove the string from management
-    LazyLoadingString* removedString = stringRepository->removeStringFromManagement(lazyString);
+    LazyLoadingString* removedString = stringRepository->removeStringFromManagement(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Check if the removed string is the same as the original one
     TEST_ASSERT_EQUAL_PTR(lazyString, removedString);
     // Check if the string is no longer in the repository
@@ -75,7 +75,7 @@ void test_removeStringFromManagement(void) {
 
 void test_freeMemoryRandom(void) {
     // Initialize the repository
-    StringRepository * repository = dOS_initStringRepository();
+    StringRepository * repository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     TEST_ASSERT_NOT_NULL(repository);
 
     // Add some strings to the repository for testing
@@ -90,7 +90,7 @@ void test_freeMemoryRandom(void) {
     }
 
     // Free memory randomly with a percentage of 50%
-    repository->freeMemoryRandom(50);
+    repository->freeMemoryRandom(50, repository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
 
     // Check if approximately half of the strings are deallocated
     int deallocatedCount = 0;

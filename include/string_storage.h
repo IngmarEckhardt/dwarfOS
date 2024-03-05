@@ -1,5 +1,6 @@
 #ifndef DWARFOS_STRING_STORAGE_H
 #define DWARFOS_STRING_STORAGE_H
+#include <stdint.h>
 
 typedef struct {
     const char * flashString; // Pointer to the string in flash memory
@@ -36,5 +37,7 @@ typedef struct {
  * @return A pointer to the initialized StringStorage structure.
  */
 StringStorage * dOS_initStringStorage(void);
+
+LazyLoadingString ** initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
 
 #endif //DWARFOS_STRING_STORAGE_H

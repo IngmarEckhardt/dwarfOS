@@ -33,7 +33,7 @@ void enqueueUint8MaxValuesShouldIncreaseSizeAtleastUntilHalfOfUint8Max(void) {
     free(queue);
 }
 
-void test_queue_empty_after_init() {
+void test_queue_empty_after_init(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     TEST_ASSERT_EQUAL(0, queue->head);
@@ -42,7 +42,7 @@ void test_queue_empty_after_init() {
     free(queue);
 }
 
-void test_element13enqueueDequeue_expectedBehaviour() {
+void test_element13enqueueDequeue_expectedBehaviour(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     TEST_ASSERT_EQUAL(0, queue->head);
@@ -53,7 +53,7 @@ void test_element13enqueueDequeue_expectedBehaviour() {
     free(queue);
 }
 
-void test_queue_resize() {
+void test_queue_resize(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 2) - 1; ++i) {
@@ -72,7 +72,7 @@ void test_queue_resize() {
     free(queue);
 }
 
-void test_dequeue() {
+void test_dequeue(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     queue->enqueue(1, queue);
@@ -83,7 +83,7 @@ void test_dequeue() {
     free(queue);
 }
 
-void test_elements_position() {
+void test_elements_position(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (uint8_t i = 0; i < 223; ++i) {
@@ -103,7 +103,7 @@ void test_elements_position() {
     }
 }
 
-void test_enqueue_when_queue_is_full() {
+void test_enqueue_when_queue_is_full(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (int i = 0; i < INPUT_BUFFER_START_SIZE - 1; ++i) {
@@ -116,7 +116,7 @@ void test_enqueue_when_queue_is_full() {
     free(queue);
 }
 
-void test_dequeue_when_queue_is_empty() {
+void test_dequeue_when_queue_is_empty(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     int16_t item = queue->dequeue(queue);
@@ -142,7 +142,7 @@ void * increase_clock_thread(void * arg) {
     return NULL;
 }
 
-void test_get_char() {
+void test_get_char(void) {
     pthread_t threads[2];
     volatile uint8_t clock = 0;
     InputQueue * queue = cca_initInputQueue(&clock);
@@ -169,7 +169,7 @@ void test_get_char() {
 }
 
 
-void test_increaseSize_when_queue_is_full() {
+void test_increaseSize_when_queue_is_full(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (int i = 0; i < INPUT_BUFFER_START_SIZE - 1; ++i) {
@@ -182,7 +182,7 @@ void test_increaseSize_when_queue_is_full() {
     free(queue);
 }
 
-void test_decreaseSize_when_queue_is_less_than_quarter_full() {
+void test_decreaseSize_when_queue_is_less_than_quarter_full(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 4) - 1; ++i) {
@@ -202,7 +202,7 @@ void test_decreaseSize_when_queue_is_less_than_quarter_full() {
     free(queue);
 }
 
-void test_decreaseSize_when_tail_is_less_than_head() {
+void test_decreaseSize_when_tail_is_less_than_head(void) {
     InputQueue * queue = cca_initInputQueue(NULL);
     TEST_ASSERT_NOT_NULL(queue);
     for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 4) - 1; ++i) {

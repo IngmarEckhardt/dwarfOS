@@ -5,6 +5,8 @@
 #include <uart_helper.h>
 #include <version.h>
 
+#define SIZE_OF_INIT_STRING_REPO 8
+
 
 void setCpuParamRegister(void);
 
@@ -18,7 +20,7 @@ void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
     *pointerToGlobalMcuClockPointer = dOS_initMcuClock(INIT_TIME);
     setMcuClockCallback((*pointerToGlobalMcuClockPointer)->getSystemClock);
 
-    StringRepository * stringRepository = dOS_initStringRepository();
+    StringRepository * stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     UartHelper * uartHelper = dOS_initUartHelper();
     loadInitStringAndSendInitMsg(stringRepository, uartHelper);
     free(stringRepository);
@@ -31,11 +33,11 @@ void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelpe
     StringStorage * stringStorage = dOS_initStringStorage();
     if (stringStorage == NULL) { return; }
 
-    stringRepository->addString(&stringStorage->initMsg);
+    stringRepository->addString(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
                                                      stringRepository->getString(&stringStorage->initMsg,
                                                                                  stringStorage)});
-    stringRepository->removeStringFromManagement(&stringStorage->initMsg);
+    stringRepository->removeStringFromManagement(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');
     free(stringStorage);

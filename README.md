@@ -16,6 +16,12 @@ RTC) functionality when using a watch quartz.
 Communication with external devices or host systems is facilitated through serial ports using the UART helper
 module (`uart_helper.h`).
 
+### Standard Input Buffer
+
+The `input_queue.h` contains a circular buffer that dynamically adjusts its size. This buffer facilitates a `stdin` 
+interface, enabling the utilization of standard functions such as `printf` and `fgets`. An illustrative example of its usage 
+is provided in the `Dwarf-Example` repository.
+
 ### Lazy Loading Strings from Flash
 
 Strings stored in flash memory can be lazily loaded into dynamic memory using the string repository

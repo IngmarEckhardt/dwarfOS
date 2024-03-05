@@ -20,7 +20,7 @@ module (`uart_helper.h`).
 
 The `input_queue.h` contains a circular buffer that dynamically adjusts its size. This buffer facilitates a `stdin` 
 interface, enabling the utilization of standard functions such as `printf` and `fgets`. An illustrative example of its usage 
-is provided in the `colossal-cave-adventure` repository.
+is provided in the `Dwarf-Example` repository.
 
 ### Lazy Loading Strings from Flash
 

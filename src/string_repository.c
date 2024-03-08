@@ -98,7 +98,6 @@ char * loadStringFromFile(TextFile * file, StringStorage * stringStorage, uint8_
             if (stringStorage->readProgMemByte(&file->entries[i].indexNumbers[j]) == index) {
                 char * stringToReturn = (char *) malloc(file->maxLengthOfStrings);
                 stringStorage->loadFromFlash(stringToReturn, file->entries[i].stringInProgramMem);
-                free(stringStorage);
                 return stringToReturn;
             }
         }

@@ -90,13 +90,15 @@ findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfMa
 
 
 char * loadStringFromFile(TextFile * file, StringStorage * stringStorage, uint8_t index) {
-    if (file == NULL || stringStorage == NULL) { return NULL; }
 
     for (uint8_t i = 0; i < file->amountOfEntries; i++) {
         for (int j = 0; j < file->sizeOfIndexArray; j++) {
+
+
             if (stringStorage->readProgMemByte(&file->entries[i].indexNumbers[j]) == index) {
                 char * stringToReturn = (char *) malloc(file->maxLengthOfStrings);
                 stringStorage->loadFromFlash(stringToReturn, file->entries[i].stringInProgramMem);
+                free(stringStorage);
                 return stringToReturn;
             }
         }

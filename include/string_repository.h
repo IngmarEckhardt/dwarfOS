@@ -7,20 +7,19 @@
 #ifndef MAX_SIZE_STRING_DB
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
 #endif
-
 typedef struct {
     uint8_t * indexNumbers;
     char * stringInProgramMem;
-} ProgMemString;
+} Entry;
 
-typedef const struct {
+typedef struct {
+
+    Entry * entries;
     const uint8_t amountOfEntries;
     const uint8_t sizeOfIndexArray;
-    const uint16_t  maxLengthOfStrings;
-    ProgMemString * entries;
+    const uint16_t maxLengthOfStrings;
+
 } TextFile;
-
-
 
 typedef struct {
     /**
@@ -50,7 +49,8 @@ typedef struct {
      * @param stringToAdd The string to add.
      * @return An array of pointers to managed LazyLoadingString structures.
      */
-    LazyLoadingString ** (* addString)(LazyLoadingString * stringToAdd, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
+    LazyLoadingString **
+    (* addString)(LazyLoadingString * stringToAdd, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
 
     /**
     * @brief Retrieves a string from the repository.
@@ -92,9 +92,11 @@ typedef struct {
     * @param stringToKill The string to remove from management.
     * @return A pointer to the removed LazyLoadingString.
     */
-    LazyLoadingString * (* removeStringFromManagement)(LazyLoadingString * stringToKill, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
+    LazyLoadingString * (* removeStringFromManagement)(LazyLoadingString * stringToKill,
+                                                       LazyLoadingString ** arrayOfManagedLazyStringPointers,
+                                                       uint8_t size);
 
-    char * (*loadStringFromFile)(TextFile * file,StringStorage * stringStorage, uint8_t index);
+    char * (*loadStringFromFile)(TextFile * file, StringStorage * stringStorage, uint8_t index);
 } StringRepository;
 
 /**
@@ -115,6 +117,7 @@ typedef struct {
 StringRepository * dOS_initStringRepository(uint8_t size);
 
 
-LazyLoadingString ** initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
+LazyLoadingString **
+initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
 
 #endif /* DWARFOS_STRING_REPOSITORY_H */

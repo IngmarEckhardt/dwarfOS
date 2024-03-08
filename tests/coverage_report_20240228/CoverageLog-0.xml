@@ -2625,13 +2625,13 @@
 				<Line Number="26" Count="-1">}</Line>
 				<Line Number="27" Count="-1"></Line>
 				<Line Number="28" Count="-1">// Retrieve a string from RAM, loading it from flash if not present</Line>
-				<Line Number="29" Count="1">char* getString(LazyLoadingString * stringToFetch, StringStorage * stringStorage) {</Line>
+				<Line Number="29" Count="1">char* getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, StringStorage * stringStorage) {</Line>
 				<Line Number="30" Count="1">    if (stringStorage == NULL || stringToFetch == NULL ) {</Line>
 				<Line Number="31" Count="0">        return NULL;</Line>
 				<Line Number="32" Count="-1">    }</Line>
 				<Line Number="33" Count="-1"></Line>
 				<Line Number="34" Count="1">    if (stringToFetch-&gt;pointerToString == NULL) {</Line>
-				<Line Number="35" Count="1">		stringToFetch-&gt;pointerToString = stringStorage-&gt;loadStringFromFlash(stringToFetch-&gt;flashString);</Line>
+				<Line Number="35" Count="1">		stringToFetch-&gt;pointerToString = stringStorage-&gt;createStringFromFlash(stringToFetch-&gt;flashString);</Line>
 				<Line Number="36" Count="-1">	}</Line>
 				<Line Number="37" Count="1">	return stringToFetch-&gt;pointerToString;</Line>
 				<Line Number="38" Count="-1">}</Line>
@@ -2673,7 +2673,7 @@
 				<Line Number="74" Count="0">        return NULL;</Line>
 				<Line Number="75" Count="-1">    } else {</Line>
 				<Line Number="76" Count="-1">        // Assign function pointers</Line>
-				<Line Number="77" Count="5">        repository-&gt;getString = getString;</Line>
+				<Line Number="77" Count="5">        repository-&gt;getStringFromRamElseLoadFromFlash = getStringFromRamElseLoadFromFlash;</Line>
 				<Line Number="78" Count="5">        repository-&gt;addString = addString;</Line>
 				<Line Number="79" Count="5">        repository-&gt;freeString = freeString;</Line>
 				<Line Number="80" Count="5">        repository-&gt;removeStringFromManagement = removeStringFromManagement;</Line>
@@ -3072,7 +3072,7 @@
 				<Line Number="1" Count="-1">#include &lt;stdlib.h&gt;</Line>
 				<Line Number="2" Count="-1"></Line>
 				<Line Number="3" Count="-1"></Line>
-				<Line Number="4" Count="1">char* loadStringFromFlash(const char* flashString) {</Line>
+				<Line Number="4" Count="1">char* createStringFromFlash(const char* flashString) {</Line>
 				<Line Number="5" Count="-1"></Line>
 				<Line Number="6" Count="1">    return "mock";</Line>
 				<Line Number="7" Count="-1">}</Line>
@@ -3086,7 +3086,7 @@
 				<Line Number="15" Count="0">        return NULL;</Line>
 				<Line Number="16" Count="-1">    } else {</Line>
 				<Line Number="17" Count="1">        storage-&gt;initMsg=initMsg;</Line>
-				<Line Number="18" Count="1">        storage-&gt;loadStringFromFlash=loadStringFromFlash;</Line>
+				<Line Number="18" Count="1">        storage-&gt;loadStringFromFlash=createStringFromFlash;</Line>
 				<Line Number="19" Count="1">        return storage;</Line>
 				<Line Number="20" Count="-1">    }</Line>
 				<Line Number="21" Count="-1">}</Line>
@@ -3127,7 +3127,7 @@
 				<Line Number="30" Count="1">    lazyString-&gt;pointerToString = NULL;</Line>
 				<Line Number="31" Count="1">    stringRepository-&gt;addString(lazyString);</Line>
 				<Line Number="32" Count="-1">    // Try to retrieve the string</Line>
-				<Line Number="33" Count="1">    char* retrievedString = stringRepository-&gt;getString(lazyString, stringStorage); // Pass NULL for StringStorage</Line>
+				<Line Number="33" Count="1">    char* retrievedString = stringRepository-&gt;getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for StringStorage</Line>
 				<Line Number="34" Count="-1">    // Check if the retrieved string is not NULL</Line>
 				<Line Number="35" Count="1">    TEST_ASSERT_NOT_NULL(retrievedString);</Line>
 				<Line Number="36" Count="-1">    // You might want to add further checks depending on your implementation</Line>

@@ -1,5 +1,6 @@
 #ifndef DWARFOS_STRING_STORAGE_H
 #define DWARFOS_STRING_STORAGE_H
+
 #include <stdint.h>
 
 typedef struct {
@@ -23,7 +24,11 @@ typedef struct {
     * @param flashString Pointer to the string in flash memory.
     * @return A pointer to the loaded string.
     */
-    char * (* loadStringFromFlash)(const char * flashString);
+    char * (* createStringFromFlash)(const char * flashString);
+
+    void (* loadFromFlash)(char * stringBuffer, const char * flashString);
+
+    uint8_t (* readProgMemByte)(const uint8_t * addressOfByte);
 } StringStorage;
 
 /**

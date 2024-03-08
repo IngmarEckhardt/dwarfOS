@@ -35,8 +35,8 @@ void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelpe
 
     stringRepository->addString(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
-                                                     stringRepository->getString(&stringStorage->initMsg,
-                                                                                 stringStorage)});
+                                                     stringRepository->getStringFromRamElseLoadFromFlash(&stringStorage->initMsg,
+                                                                                                         stringStorage)});
     stringRepository->removeStringFromManagement(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');

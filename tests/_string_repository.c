@@ -31,7 +31,7 @@ void test_getString(void) {
     lazyString->pointerToString = NULL;
     stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Try to retrieve the string
-    char* retrievedString = stringRepository->getString(lazyString, stringStorage); // Pass NULL for StringStorage
+    char* retrievedString = stringRepository->getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for StringStorage
     // Check if the retrieved string is not NULL
     TEST_ASSERT_NOT_NULL(retrievedString);
     // You might want to add further checks depending on your implementation
@@ -143,6 +143,51 @@ void test_initManagedLazyLoadingStringArray(void) {
     free(result);
 }
 
+
+
+void test_loadStringFromFile(void) {
+#define NUMBER_OF_ENTRIES 1
+
+    uint8_t indizes[1] = {0};
+    ProgMemString memString = {
+        .indexNumbers = indizes,
+        .stringInProgramMem = "test"
+    };
+
+    TextFile file = {
+            .entries = &memString,
+            .amountOfEntries = NUMBER_OF_ENTRIES,
+            .sizeOfIndexArray = 1,
+            .maxLengthOfStrings = 5
+
+    };
+    StringRepository * repository = dOS_initStringRepository(0);
+    StringStorage * storage = dOS_initStringStorage();
+
+    // Test when the TextFile object is NULL
+    char * result = repository->loadStringFromFile(NULL, storage, 0);
+    TEST_ASSERT_NULL(result);
+
+    // Test when the StringStorage object is NULL
+    result =  repository->loadStringFromFile(&file, NULL, 0);
+    TEST_ASSERT_NULL(result);
+
+    // Test when the index is not found in the TextFile object
+    result =  repository->loadStringFromFile(&file, storage, 249); // Assuming 999 is not a valid index
+    TEST_ASSERT_NULL(result);
+
+    // Test when the index is found in the TextFile object
+    result = repository->loadStringFromFile(&file, storage, 0); // Assuming 0 is a valid index
+    TEST_ASSERT_NOT_NULL(result);
+    // Assuming the string at index 0 is "mock"
+    TEST_ASSERT_EQUAL_STRING("test", result);
+
+    // Clean up
+    free(result);
+    free(storage);
+    // Free the TextFile object
+}
+
 int main(void) {
     UNITY_BEGIN();
     // Run tests
@@ -152,5 +197,6 @@ int main(void) {
     RUN_TEST(test_removeStringFromManagement);
     RUN_TEST(test_freeMemoryRandom);
     RUN_TEST(test_initManagedLazyLoadingStringArray);
+    RUN_TEST(test_loadStringFromFile);
     return UNITY_END();
 }

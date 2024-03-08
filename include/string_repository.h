@@ -9,6 +9,20 @@
 #endif
 
 typedef struct {
+    uint8_t * indexNumbers;
+    char * stringInProgramMem;
+} ProgMemString;
+
+typedef const struct {
+    const uint8_t amountOfEntries;
+    const uint8_t sizeOfIndexArray;
+    const uint16_t  maxLengthOfStrings;
+    ProgMemString * entries;
+} TextFile;
+
+
+
+typedef struct {
     /**
      * @brief Structure for managing lazy loading of strings from flash program memory
      *
@@ -46,7 +60,7 @@ typedef struct {
     * @param stringToFetch The string to fetch.
     * @return A pointer to the fetched string.
     */
-    char * (* getString)(LazyLoadingString * stringToFetch, StringStorage * stringStorage);
+    char * (* getStringFromRamElseLoadFromFlash)(LazyLoadingString * stringToFetch, StringStorage * stringStorage);
 
     /**
      * @brief Frees a string from the repository.
@@ -79,6 +93,8 @@ typedef struct {
     * @return A pointer to the removed LazyLoadingString.
     */
     LazyLoadingString * (* removeStringFromManagement)(LazyLoadingString * stringToKill, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
+
+    char * (*loadStringFromFile)(TextFile * file,StringStorage * stringStorage, uint8_t index);
 } StringRepository;
 
 /**

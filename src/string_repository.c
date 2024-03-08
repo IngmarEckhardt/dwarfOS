@@ -89,21 +89,7 @@ findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfMa
 }
 
 
-char * loadStringFromFile(TextFile * file, StringStorage * stringStorage, uint8_t index) {
 
-    for (uint8_t i = 0; i < file->amountOfEntries; i++) {
-        for (int j = 0; j < file->sizeOfIndexArray; j++) {
-
-
-            if (stringStorage->readProgMemByte(&file->entries[i].indexNumbers[j]) == index) {
-                char * stringToReturn = (char *) malloc(file->maxLengthOfStrings);
-                stringStorage->loadFromFlash(stringToReturn, file->entries[i].stringInProgramMem);
-                return stringToReturn;
-            }
-        }
-    }
-    return NULL;
-}
 
 // Initialize the StringRepository instance
 StringRepository * dOS_initStringRepository(uint8_t size) {
@@ -116,7 +102,6 @@ StringRepository * dOS_initStringRepository(uint8_t size) {
         repository->freeString = freeString;
         repository->removeStringFromManagement = removeStringFromManagement;
         repository->freeMemoryRandom = freeMemoryRandom;
-        repository->loadStringFromFile = loadStringFromFile;
         if (size > 0) {
             repository->arrayOfManagedLazyStringPointers = malloc(size * sizeof(LazyLoadingString *));
             for (int i = 0; i < size; i++) {
@@ -153,4 +138,20 @@ initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], ui
         managedLazyLoadingStringArray[i] = stringToAdd;
     }
     return managedLazyLoadingStringArray;
+}
+
+char * getStringIfNumberIncluded(TextFile textFile, uint8_t number) {
+    size_t entrySize = textFile.sizeOfIndexArray * sizeof(uint8_t) + textFile.maxLengthOfStrings * sizeof(char);
+
+    for (uint8_t i = 0; i < textFile.amountOfEntries; i++) {
+        uint8_t * entryAddress = (uint8_t *) textFile.entries + i * entrySize;
+        uint8_t * numbers = entryAddress;
+        char * string = (char *) (entryAddress + textFile.sizeOfIndexArray * sizeof(uint8_t));
+        for (int j = 0; j < textFile.sizeOfIndexArray; j++) {
+            if (numbers[j] == number) {
+                return string;
+            }
+        }
+    }
+    return NULL;
 }

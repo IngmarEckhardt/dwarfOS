@@ -8,18 +8,13 @@
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
 #endif
 typedef struct {
-    uint8_t * indexNumbers;
-    char * stringInProgramMem;
-} Entry;
-
-typedef struct {
-
-    Entry * entries;
+    void * entries;
     const uint8_t amountOfEntries;
     const uint8_t sizeOfIndexArray;
     const uint16_t maxLengthOfStrings;
-
 } TextFile;
+
+char * getStringIfNumberIncluded(TextFile textFile, uint8_t number);
 
 typedef struct {
     /**

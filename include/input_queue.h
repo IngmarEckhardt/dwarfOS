@@ -40,6 +40,6 @@ struct InputQueue{
 // difference between the current time and the time of the last call to give the serial connection a delay to receive
 // additional signs. If the clock has a difference of 2 ticks or more, the function will return -1 and set the
 // EOF flag.
-InputQueue * cca_initInputQueue(volatile uint8_t * clock);
+InputQueue * cca_initInputQueue(void);
 
 #endif //COLOSSAL_CAVE_ADVENTURE_INPUTQUEUE_H

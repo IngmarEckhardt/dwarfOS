@@ -45,18 +45,15 @@ int16_t dequeue(InputQueue * inputQueue) {
 }
 
 int16_t getCharacter(InputQueue * inputQueue) {
-    uint8_t start = *inputQueue->clock;
     int16_t nextChar = inputQueue->dequeue(inputQueue);
     while (nextChar == -1) {
         nextChar = inputQueue->dequeue(inputQueue);
-        if (calculateTimeDifference(start, *inputQueue->clock, inputQueue) > 1) {
-            return -1;
-        }
     }
     return nextChar;
 }
 
-InputQueue * cca_initInputQueue(volatile uint8_t * clock) {
+
+InputQueue * cca_initInputQueue(void) {
     InputQueue * queue = malloc(sizeof(InputQueue));
     if (queue == NULL) { return NULL; }
     else {
@@ -71,7 +68,6 @@ InputQueue * cca_initInputQueue(volatile uint8_t * clock) {
         queue->enqueue = enqueue;
         queue->dequeue = dequeue;
         queue->get_char = getCharacter;
-        queue->clock = clock;
         queue->adjustValue = ADJUST_TO_SECOND_VALUE;
         return queue;
     }
@@ -139,13 +135,5 @@ uint8_t countElementsInQueue(InputQueue * inputQueue) {
         return inputQueue->tail - inputQueue->head;
     } else {
         return inputQueue->size - inputQueue->head + inputQueue->tail;
-    }
-}
-
-uint8_t calculateTimeDifference(uint8_t a, uint8_t b, InputQueue * inputQueue) {
-    if (a > b) {
-        return a - b;
-    } else {
-        return a + inputQueue->adjustValue - b;
     }
 }

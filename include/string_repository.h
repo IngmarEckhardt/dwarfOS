@@ -98,4 +98,7 @@ typedef struct {
  */
 StringRepository * dOS_initStringRepository(uint8_t size);
 
+
+LazyLoadingString ** initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
+
 #endif /* DWARFOS_STRING_REPOSITORY_H */

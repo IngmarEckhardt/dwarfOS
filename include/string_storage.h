@@ -38,6 +38,5 @@ typedef struct {
  */
 StringStorage * dOS_initStringStorage(void);
 
-LazyLoadingString ** initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
 
 #endif //DWARFOS_STRING_STORAGE_H

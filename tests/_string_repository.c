@@ -113,6 +113,36 @@ void test_freeMemoryRandom(void) {
     free(repository);
 }
 
+void test_initManagedLazyLoadingStringArray(void) {
+    const char * const flashStrings[] = {"string1", "string2", "string3"};
+    uint8_t numStrings = sizeof(flashStrings) / sizeof(flashStrings[0]);
+
+    LazyLoadingString ** result = initManagedLazyLoadingStringArray(flashStrings, numStrings);
+
+    // Check if the returned array is not NULL
+    TEST_ASSERT_NOT_NULL(result);
+
+    // Check each LazyLoadingString
+    for (int i = 0; i < numStrings; i++) {
+        LazyLoadingString * lazyString = result[i];
+
+        // Check if the LazyLoadingString is not NULL
+        TEST_ASSERT_NOT_NULL(lazyString);
+
+        // Check if the flashString matches the corresponding string in the input array
+        TEST_ASSERT_EQUAL_STRING(flashStrings[i], lazyString->flashString);
+
+        // Check if pointerToString is NULL
+        TEST_ASSERT_NULL(lazyString->pointerToString);
+    }
+
+    // Free the allocated memory
+    for (int i = 0; i < numStrings; i++) {
+        free(result[i]);
+    }
+    free(result);
+}
+
 int main(void) {
     UNITY_BEGIN();
     // Run tests
@@ -121,5 +151,6 @@ int main(void) {
     RUN_TEST(test_freeString);
     RUN_TEST(test_removeStringFromManagement);
     RUN_TEST(test_freeMemoryRandom);
+    RUN_TEST(test_initManagedLazyLoadingStringArray);
     return UNITY_END();
 }

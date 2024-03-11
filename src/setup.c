@@ -30,17 +30,17 @@ void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
 void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
     if (stringRepository == NULL || uartHelper == NULL) { return; }
 
-    StringStorage * stringStorage = dOS_initStringStorage();
-    if (stringStorage == NULL) { return; }
+    FlashHelper * flashHelper = dOS_initFlashHelper();
+    if (flashHelper == NULL) { return; }
 
-    stringRepository->addString(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    stringRepository->addString(&flashHelper->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
-                                                     stringRepository->getStringFromRamElseLoadFromFlash(&stringStorage->initMsg,
-                                                                                                         stringStorage)});
-    stringRepository->removeStringFromManagement(&stringStorage->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+                                                     stringRepository->getStringFromRamElseLoadFromFlash(&flashHelper->initMsg,
+                                                                                                         flashHelper)});
+    stringRepository->removeStringFromManagement(&flashHelper->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');
-    free(stringStorage);
+    free(flashHelper);
 }
 
 void setCpuParamRegister(void) {

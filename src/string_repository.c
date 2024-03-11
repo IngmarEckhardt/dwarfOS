@@ -28,11 +28,11 @@ addString(LazyLoadingString * stringToAdd, LazyLoadingString ** arrayOfManagedLa
 }
 
 // Retrieve a string from RAM, loading it from flash if not present
-char * getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, StringStorage * stringStorage) {
-    if (stringStorage == NULL || stringToFetch == NULL) { return NULL; }
+char * getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
+    if (flashHelper == NULL || stringToFetch == NULL) { return NULL; }
 
     if (stringToFetch->pointerToString == NULL) {
-        stringToFetch->pointerToString = stringStorage->createStringFromFlash(stringToFetch->flashString);
+        stringToFetch->pointerToString = flashHelper->createStringFromFlash(stringToFetch->flashString);
     }
     return stringToFetch->pointerToString;
 }
@@ -42,6 +42,19 @@ LazyLoadingString * freeString(LazyLoadingString * stringToKill) {
     free(stringToKill->pointerToString);
     stringToKill->pointerToString = NULL;
     return stringToKill;
+}
+
+
+// Free memory based on a percentage, ensuring at least one element is freed
+void freeMemoryRandom(uint8_t percentage, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
+    uint8_t step = 100 / percentage;
+    //we delete at least one element
+    if (step > (size - 1)) {
+        step = size - 1;
+    }
+    for (uint8_t i = 0; i < size; i += step) {
+        freeString(arrayOfManagedLazyStringPointers[i]);
+    }
 }
 
 // Remove string from the array of managed strings, ensuring memory is freed
@@ -58,37 +71,21 @@ removeStringFromManagement(LazyLoadingString * stringToKill, LazyLoadingString *
     return NULL;
 }
 
-// Free memory based on a percentage, ensuring at least one element is freed
-void freeMemoryRandom(uint8_t percentage, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
-    uint8_t step = 100 / percentage;
-    //we delete at least one element
-    if (step > (size - 1)) {
-        step = size - 1;
+char * loadStringFromFile(TextFile * textFile, FlashHelper * flashHelper, const uint8_t index) {
+    size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
+
+    for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
+        uint8_t * entryAddress = (uint8_t *) textFile->entries + i * entrySize;
+        uint8_t * numbers = entryAddress;
+        char * string = (char *) (entryAddress + textFile->sizeOfIndexArray * sizeof(uint8_t));
+        for (int j = 0; j < textFile->sizeOfIndexArray; j++) {
+            if (index == flashHelper->readProgMemByte(&numbers[j])) {
+                return flashHelper->createStringFromFlash(string);
+            }
+        }
     }
-    for (uint8_t i = 0; i < size; i += step) {
-        freeString(arrayOfManagedLazyStringPointers[i]);
-    }
+    return NULL;
 }
-
-uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size) {
-    // hashing with the pointer address, in avr-gcc pointer are 2 byte
-    return (((uint16_t) stringToAdd) % size);
-}
-
-int16_t
-findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
-    if (stringToFetch == NULL) { return -1; }
-
-    uint8_t placement = getHash(stringToFetch, size);
-    for (uint8_t i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        placement = (placement + i) % MAX_SIZE_STRING_DB;
-
-        if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) { return placement; }
-    }
-    return -1;
-}
-
-
 
 
 // Initialize the StringRepository instance
@@ -96,12 +93,12 @@ StringRepository * dOS_initStringRepository(uint8_t size) {
     StringRepository * repository = malloc(sizeof(StringRepository));
     if (repository == NULL) { return NULL; }
     else {
-
-        repository->getStringFromRamElseLoadFromFlash = getStringFromRamElseLoadFromFlash;
         repository->addString = addString;
+        repository->getStringFromRamElseLoadFromFlash = getStringFromRamElseLoadFromFlash;
         repository->freeString = freeString;
-        repository->removeStringFromManagement = removeStringFromManagement;
         repository->freeMemoryRandom = freeMemoryRandom;
+        repository->removeStringFromManagement = removeStringFromManagement;
+        repository->loadStringFromFile = loadStringFromFile;
         if (size > 0) {
             repository->arrayOfManagedLazyStringPointers = malloc(size * sizeof(LazyLoadingString *));
             for (int i = 0; i < size; i++) {
@@ -140,18 +137,20 @@ initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], ui
     return managedLazyLoadingStringArray;
 }
 
-char * getStringIfNumberIncluded(TextFile textFile, uint8_t number) {
-    size_t entrySize = textFile.sizeOfIndexArray * sizeof(uint8_t) + textFile.maxLengthOfStrings * sizeof(char);
+uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size) {
+    // hashing with the pointer address, in avr-gcc pointer are 2 byte
+    return (((uint16_t) stringToAdd) % size);
+}
 
-    for (uint8_t i = 0; i < textFile.amountOfEntries; i++) {
-        uint8_t * entryAddress = (uint8_t *) textFile.entries + i * entrySize;
-        uint8_t * numbers = entryAddress;
-        char * string = (char *) (entryAddress + textFile.sizeOfIndexArray * sizeof(uint8_t));
-        for (int j = 0; j < textFile.sizeOfIndexArray; j++) {
-            if (numbers[j] == number) {
-                return string;
-            }
-        }
+int16_t
+findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
+    if (stringToFetch == NULL) { return -1; }
+
+    uint8_t placement = getHash(stringToFetch, size);
+    for (uint8_t i = 0; i < MAX_SIZE_STRING_DB; i++) {
+        placement = (placement + i) % MAX_SIZE_STRING_DB;
+
+        if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) { return placement; }
     }
-    return NULL;
+    return -1;
 }

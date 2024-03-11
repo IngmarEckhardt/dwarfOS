@@ -77,23 +77,25 @@ set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/extern")
 set(SRC_FILES
         "${SRC_PATH}/ascii_helper.c"
+        "${SRC_PATH}/flash_helper.c"
         "${SRC_PATH}/heap_management_helper.c"
         "${SRC_PATH}/input_queue.c"
         "${SRC_PATH}/mcu_clock.c"
+        "${SRC_PATH}/pgm_textfile_generator.c"
         "${SRC_PATH}/setup.c"
         "${SRC_PATH}/string_repository.c"
-        "${SRC_PATH}/string_storage.c"
         "${SRC_PATH}/time.c"
         "${SRC_PATH}/uart_helper.c"
 )
 set(HEADER_FILES
         "${INCL_PATH}/ascii_helper.h"
+        "${INCL_PATH}/flash_helper.h"
         "${INCL_PATH}/heap_management_helper.h"
         "${INCL_PATH}/input_queue.h"
         "${INCL_PATH}/mcu_clock.h"
+        "${INCL_PATH}/pgm_textfile_generator.h"
         "${INCL_PATH}/setup.h"
         "${INCL_PATH}/string_repository.h"
-        "${INCL_PATH}/string_storage.h"
         "${INCL_PATH}/time.h"
         "${INCL_PATH}/uart_helper.h"
 )

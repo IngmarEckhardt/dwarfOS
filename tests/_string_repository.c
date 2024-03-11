@@ -24,14 +24,14 @@ void test_addString(void) {
 void test_getString(void) {
     StringRepository * stringRepository;
     stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
-    StringStorage * stringStorage = dOS_initStringStorage();
+    FlashHelper * stringStorage = dOS_initFlashHelper();
     // Create a LazyLoadingString object and add it to the repository
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
     stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     // Try to retrieve the string
-    char* retrievedString = stringRepository->getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for StringStorage
+    char* retrievedString = stringRepository->getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for FlashHelper
     // Check if the retrieved string is not NULL
     TEST_ASSERT_NOT_NULL(retrievedString);
     // You might want to add further checks depending on your implementation

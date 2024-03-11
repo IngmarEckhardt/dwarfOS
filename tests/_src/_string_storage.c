@@ -1,4 +1,4 @@
-#include <string_storage.h>
+#include <flash_helper.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,8 +20,8 @@ uint8_t readProgMemByte(const uint8_t * addressOfByte) {
 const char initMsgOnFlash[] = " setup complete.";
 LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
 
-StringStorage * dOS_initStringStorage(void) {
-    StringStorage * storage = malloc(sizeof(StringStorage));
+FlashHelper * dOS_initFlashHelper(void) {
+    FlashHelper * storage = malloc(sizeof(FlashHelper));
     if (storage == NULL) {
         return NULL;
     } else {

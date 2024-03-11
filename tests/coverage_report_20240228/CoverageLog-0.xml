@@ -2625,7 +2625,7 @@
 				<Line Number="26" Count="-1">}</Line>
 				<Line Number="27" Count="-1"></Line>
 				<Line Number="28" Count="-1">// Retrieve a string from RAM, loading it from flash if not present</Line>
-				<Line Number="29" Count="1">char* getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, StringStorage * stringStorage) {</Line>
+				<Line Number="29" Count="1">char* getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, FlashHelper * stringStorage) {</Line>
 				<Line Number="30" Count="1">    if (stringStorage == NULL || stringToFetch == NULL ) {</Line>
 				<Line Number="31" Count="0">        return NULL;</Line>
 				<Line Number="32" Count="-1">    }</Line>
@@ -3080,8 +3080,8 @@
 				<Line Number="9" Count="-1">const char initMsgOnFlash[] = " setup complete.";</Line>
 				<Line Number="10" Count="-1">LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};</Line>
 				<Line Number="11" Count="-1"></Line>
-				<Line Number="12" Count="1">StringStorage * dOS_initStringStorage(void) {</Line>
-				<Line Number="13" Count="1">    StringStorage * storage = malloc(sizeof(StringStorage));</Line>
+				<Line Number="12" Count="1">FlashHelper * dOS_initFlashHelper(void) {</Line>
+				<Line Number="13" Count="1">    FlashHelper * storage = malloc(sizeof(FlashHelper));</Line>
 				<Line Number="14" Count="1">    if (storage == NULL) {</Line>
 				<Line Number="15" Count="0">        return NULL;</Line>
 				<Line Number="16" Count="-1">    } else {</Line>
@@ -3120,14 +3120,14 @@
 				<Line Number="23" Count="1">void test_getString(void) {</Line>
 				<Line Number="24" Count="-1">    StringRepository * stringRepository;</Line>
 				<Line Number="25" Count="1">    stringRepository = dOS_initStringRepository();</Line>
-				<Line Number="26" Count="1">    StringStorage * stringStorage = dOS_initStringStorage();</Line>
+				<Line Number="26" Count="1">    FlashHelper * stringStorage = dOS_initFlashHelper();</Line>
 				<Line Number="27" Count="-1">    // Create a LazyLoadingString object and add it to the repository</Line>
 				<Line Number="28" Count="1">    LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));</Line>
 				<Line Number="29" Count="1">    lazyString-&gt;flashString = (const char *) 0xff;</Line>
 				<Line Number="30" Count="1">    lazyString-&gt;pointerToString = NULL;</Line>
 				<Line Number="31" Count="1">    stringRepository-&gt;addString(lazyString);</Line>
 				<Line Number="32" Count="-1">    // Try to retrieve the string</Line>
-				<Line Number="33" Count="1">    char* retrievedString = stringRepository-&gt;getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for StringStorage</Line>
+				<Line Number="33" Count="1">    char* retrievedString = stringRepository-&gt;getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for FlashHelper</Line>
 				<Line Number="34" Count="-1">    // Check if the retrieved string is not NULL</Line>
 				<Line Number="35" Count="1">    TEST_ASSERT_NOT_NULL(retrievedString);</Line>
 				<Line Number="36" Count="-1">    // You might want to add further checks depending on your implementation</Line>

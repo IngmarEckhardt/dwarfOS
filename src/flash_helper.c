@@ -1,4 +1,4 @@
-#include <string_storage.h>
+#include <flash_helper.h>
 #include <avr/pgmspace.h>
 #include <stdlib.h>
 
@@ -22,14 +22,14 @@ const char initMsgOnFlash[] PROGMEM = " setup complete.\n";
 LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
 
 
-StringStorage * dOS_initStringStorage(void) {
-    StringStorage * storage = malloc(sizeof(StringStorage));
-    if (storage == NULL) { return NULL; }
+FlashHelper * dOS_initFlashHelper(void) {
+    FlashHelper * helper = malloc(sizeof(FlashHelper));
+    if (helper == NULL) { return NULL; }
     else {
-        storage->initMsg = initMsg;
-        storage->createStringFromFlash = createStringFromFlash;
-        storage->loadFromFlash = loadFromFlash;
-        storage->readProgMemByte = readProgMemByte;
-        return storage;
+        helper->initMsg = initMsg;
+        helper->createStringFromFlash = createStringFromFlash;
+        helper->loadFromFlash = loadFromFlash;
+        helper->readProgMemByte = readProgMemByte;
+        return helper;
     }
 }

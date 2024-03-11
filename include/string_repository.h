@@ -2,7 +2,7 @@
 #define DWARFOS_STRING_REPOSITORY_H
 
 #include <stdint.h>
-#include <string_storage.h>
+#include <flash_helper.h>
 
 #ifndef MAX_SIZE_STRING_DB
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
@@ -13,8 +13,6 @@ typedef struct {
     const uint8_t sizeOfIndexArray;
     const uint16_t maxLengthOfStrings;
 } TextFile;
-
-char * getStringIfNumberIncluded(TextFile textFile, uint8_t number);
 
 typedef struct {
     /**
@@ -55,7 +53,7 @@ typedef struct {
     * @param stringToFetch The string to fetch.
     * @return A pointer to the fetched string.
     */
-    char * (* getStringFromRamElseLoadFromFlash)(LazyLoadingString * stringToFetch, StringStorage * stringStorage);
+    char * (* getStringFromRamElseLoadFromFlash)(LazyLoadingString * stringToFetch, FlashHelper * flashHelper);
 
     /**
      * @brief Frees a string from the repository.
@@ -91,7 +89,7 @@ typedef struct {
                                                        LazyLoadingString ** arrayOfManagedLazyStringPointers,
                                                        uint8_t size);
 
-    char * (*loadStringFromFile)(TextFile * file, StringStorage * stringStorage, uint8_t index);
+    char * (*loadStringFromFile)(TextFile * file, FlashHelper * flashHelper, uint8_t index);
 } StringRepository;
 
 /**

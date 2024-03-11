@@ -1,3 +1,4 @@
+#include <pgm_textfile_generator.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
@@ -49,17 +50,22 @@ char * toCamelCase(char * prefix) {
     return stringToReturn;
 }
 
-char * createFileName(char * prefix, char fileEnding) {
-    uint16_t length = strlen(prefix);
-    char * stringToReturn = malloc(length + 4);
+char * createFileName(char * additionalPrefix, char * prefix, char fileEnding) {
+    uint16_t lengthPrefix = strlen(prefix);
+    uint16_t lengthAdditionalPrefix = strlen(additionalPrefix);
+    char * stringToReturn = malloc(lengthPrefix + lengthAdditionalPrefix + 8); // 8 extra chars for "../", "/", "/", "s.", and null terminator
     if (stringToReturn == NULL) { return NULL; }
 
-    strcpy(stringToReturn, prefix);
-    for (uint16_t i = 0; i < length; i++) {stringToReturn[i] = tolower(prefix[i]);}
-    stringToReturn[length++] = 's';
-    stringToReturn[length++] = '.';
-    stringToReturn[length++] = fileEnding;
-    stringToReturn[length] = '\0';
+    strcpy(stringToReturn, "../");
+    strcat(stringToReturn, additionalPrefix);
+    strcat(stringToReturn, "/");
+    strcat(stringToReturn, prefix);
+    strcat(stringToReturn, "/");
+    for (uint16_t i = 0; i < lengthPrefix; i++) {stringToReturn[i + lengthAdditionalPrefix + 4] = tolower(prefix[i]);} // 4 extra chars for "../"
+    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 4] = 's'; // 4 extra chars for "../"
+    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 5] = '.';
+    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 6] = fileEnding;
+    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 7] = '\0';
     return stringToReturn;
 }
 
@@ -82,9 +88,13 @@ void writeProgMemArrays(const char * prefix, const uint8_t datasets, AdventEntry
         fprintf(file, "    uint8_t numbers[MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH];\n", prefix, i + 1);
         fprintf(file, "    char stringInProgramMem[%s_DESCRIPTION_%d_LENGTH];\n", prefix, i + 1);
         fprintf(file, "} %s_%d;\n\n", prefix, i + 1);
-
+        fprintf(file, "#ifndef CCA_TEST\n");
         fprintf(file, "const %s_%d %ss_%d[AMOUNT_OF_%s_DESCRIPTIONS_%d] PROGMEM = {\n", prefix, i + 1, camelCase, i + 1,
                 prefix, i + 1);
+        fprintf(file, "#else\n");
+        fprintf(file, "const %s_%d %ss_%d[AMOUNT_OF_%s_DESCRIPTIONS_%d] = {\n", prefix, i + 1, camelCase, i + 1,
+                prefix, i + 1);
+        fprintf(file, "#endif\n");
 
         for (int j = 0; j < entry_counts[i]; j++) {
             fprintf(file, "\t\t{{");
@@ -93,7 +103,7 @@ void writeProgMemArrays(const char * prefix, const uint8_t datasets, AdventEntry
             // print String
             fprintf(file, "},\"%s\"},\n", entries[i][j].text);
         }
-        fprintf(file, "}\n");
+        fprintf(file, "};\n");
     }
 }
 
@@ -105,16 +115,21 @@ void writeSingleRemainingStrings(const char * prefix, const uint8_t datasets, Ad
     }
     fprintf(file, "\n");
     for (int j = 0; j < entry_counts[datasets - 1]; j++) {
-
+        fprintf(file, "#ifndef CCA_TEST\n");
         fprintf(file, "const char %s_%d[%s_DESCRIPTION_%d_LENGTH] PROGMEM = \"%s\";\n", camelCase,
                 entries[datasets - 1][j].indices[0], prefix, entries[datasets - 1][j].indices[0],
                 entries[datasets - 1][j].text);
+        fprintf(file, "#else\n");
+        fprintf(file, "const char %s_%d[%s_DESCRIPTION_%d_LENGTH] = \"%s\";\n", camelCase,
+                entries[datasets - 1][j].indices[0], prefix, entries[datasets - 1][j].indices[0],
+                entries[datasets - 1][j].text);
+        fprintf(file, "#endif\n");
     }
 }
 
 void writeGetterFunction(const char * prefix, const uint8_t datasets, AdventEntry * const * entries,
                          const int * entry_counts, const char * camelCase, const char * camelCaseCopy, FILE * file) {
-    fprintf(file, "char * get%s(uint8_t %sNumber) {\n", camelCaseCopy, camelCase);
+    fprintf(file, "char * get%s(StringRepository * stringRepository, FlashHelper * flashHelper, uint8_t %sNumber) {\n", camelCaseCopy, camelCase);
     fprintf(file, "    char * stringToReturn = NULL;\n\n");
     for (int j = 0; j < entry_counts[datasets - 1]; j++) {
         fprintf(file, "    if (%sNumber == %d) {\n", camelCase, entries[datasets - 1][j].indices[0]);
@@ -143,8 +158,10 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, AdventEntr
 void writeHeaderFile(const char * prefix, const char * camelCase, const char * pascalCase, FILE * file) {
     fprintf(file, "#ifndef %sS_H\n", prefix);
     fprintf(file, "#define %sS_H\n", prefix);
-    fprintf(file, "#include <stdint.h>\n\n");
-    fprintf(file, "char * get%s(uint8_t %sNumber);\n\n", pascalCase, camelCase);
+    fprintf(file, "#include <stdint.h>\n");
+    fprintf(file, "#include <string_repository.h>\n\n");
+
+    fprintf(file, "char * get%s(StringRepository * stringRepository, FlashHelper * flashHelper, uint8_t %sNumber);\n\n", pascalCase, camelCase);
     fprintf(file, "#endif //%sS_H\n", prefix);
 }
 
@@ -159,9 +176,11 @@ void writeSourceFile(const uint16_t * bordersArray, const char * prefix, const u
     fprintf(file, "#include <avr/pgmspace.h>\n");
     fprintf(file, "#endif\n");
     fprintf(file, "#include <stdlib.h>\n");
-    fprintf(file, "#include <cca_helper.h>\n\n");
-
+    fprintf(file, "#ifndef CCA_TEST\n");
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix, i + 1, bordersArray[i]);}
+    fprintf(file, "#else\n");
+    for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix, i + 1, bordersArray[i]+1);}
+    fprintf(file, "#endif\n");
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define AMOUNT_OF_%s_DESCRIPTIONS_%d %d\n", prefix, i + 1, entry_counts[i]);}
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH %d\n", prefix, i + 1, maxIndizes[i]);}
 
@@ -226,8 +245,8 @@ void convertTextArrayToProgMemTextFiles(const char * textsArray[], uint16_t amou
     int * entry_counts;
     parseDatas(textsArray, amount, bordersArray, amountBorders, &datasets, &entries, &entry_counts);
 
-    char * fileNameC = createFileName(prefix, 'c');
-    char * fileNameH = createFileName(prefix, 'h');
+    char * fileNameC = createFileName("src", prefix, 'c');
+    char * fileNameH = createFileName("include",prefix, 'h');
     char * camelCase = toCamelCase(prefix);
     char * pascalCase = malloc(strlen(camelCase) + 1);
     strcpy(pascalCase, camelCase);

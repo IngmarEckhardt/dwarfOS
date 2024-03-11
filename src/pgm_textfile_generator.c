@@ -176,11 +176,8 @@ void writeSourceFile(const uint16_t * bordersArray, const char * prefix, const u
     fprintf(file, "#include <avr/pgmspace.h>\n");
     fprintf(file, "#endif\n");
     fprintf(file, "#include <stdlib.h>\n");
-    fprintf(file, "#ifndef CCA_TEST\n");
-    for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix, i + 1, bordersArray[i]);}
-    fprintf(file, "#else\n");
+
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix, i + 1, bordersArray[i]+1);}
-    fprintf(file, "#endif\n");
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define AMOUNT_OF_%s_DESCRIPTIONS_%d %d\n", prefix, i + 1, entry_counts[i]);}
     for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH %d\n", prefix, i + 1, maxIndizes[i]);}
 

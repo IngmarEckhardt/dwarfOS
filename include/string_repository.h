@@ -8,7 +8,7 @@
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
 #endif
 typedef struct {
-    void * entries;
+    const uint32_t farPointer;
     const uint8_t amountOfEntries;
     const uint8_t sizeOfIndexArray;
     const uint16_t maxLengthOfStrings;

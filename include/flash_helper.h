@@ -25,10 +25,18 @@ typedef struct {
     * @return A pointer to the loaded string.
     */
     char * (* createStringFromFlash)(const char * flashString);
+    char * (* createFarStringFromFlash)(uint32_t farFlashString); // uint_farptr_t == uint32_t
 
-    void (* loadFromFlash)(char * stringBuffer, const char * flashString);
+    void (* loadStringFromFlash)(char * stringBuffer, const char * flashString);
+    void (* loadFarStringFromFlash)(char * stringBuffer,  uint32_t farFlashString);
 
     uint8_t (* readProgMemByte)(const uint8_t * addressOfByte);
+    uint8_t (* readFarProgMemByte)(uint32_t addressOfByte);
+
+    uint16_t (*readNearWord)(const uint16_t * intAdress);
+    uint16_t (*readFarWord)(uint32_t intAdress);
+
+    int32_t (*compareWithFlashString)(const char * string, const char * flashString);
 } FlashHelper;
 
 /**

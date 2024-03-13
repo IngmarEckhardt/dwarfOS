@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <stdlib.h>
 
-char * createStringFromFlash(const char * PROGMEM flashString) {
+char * createStringFromFlash(const char  *  flashString) {
     char * result = (char *) malloc((strlen_P(flashString) + 1) * sizeof(char));
     if (result == NULL) { return NULL; }
 
@@ -10,15 +10,46 @@ char * createStringFromFlash(const char * PROGMEM flashString) {
     return result;
 
 }
-void loadFromFlash(char * stringBuffer, const char * PROGMEM flashString) {
+
+char * createFarStringFromFlash(uint_farptr_t farFlashString) {
+
+    char * result = (char *) malloc((strlen_PF(farFlashString) + 1) * sizeof(char));
+    if (result == NULL) { return NULL; }
+
+    strcpy_PF(result, farFlashString);
+    return result;
+
+}
+void loadStringFromFlash(char * stringBuffer, const char * flashString) {
     strcpy_P(stringBuffer, flashString);
+}
+
+void loadFarStringFromFlash(char * stringBuffer, uint_farptr_t farFlashString) {
+    strcpy_PF(stringBuffer, farFlashString);
 }
 
 uint8_t readProgMemByte(const uint8_t * addressOfByte) {
     return pgm_read_byte(addressOfByte);
 }
 
-const char initMsgOnFlash[] PROGMEM = " setup complete.\n";
+#ifdef DWARFOS_2560
+uint8_t readFarProgMemByte(uint_farptr_t addressOfByte) {
+    return pgm_read_byte_far(addressOfByte);
+}
+#endif
+
+int32_t compareWithFlashString(const char * string, const char * flashString) {
+    return strcmp_P(string, flashString);
+}
+uint16_t readNearWord(const uint16_t * intAdress) {
+    return pgm_read_word(intAdress);
+}
+#ifdef DWARFOS_2560
+uint16_t readFarWord(uint_farptr_t intAdress) {
+    return pgm_read_word_far(intAdress);
+}
+#endif
+const char __attribute__((section(".progmem.data")))initMsgOnFlash[] = " setup complete.\n";
 LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
 
 
@@ -28,8 +59,18 @@ FlashHelper * dOS_initFlashHelper(void) {
     else {
         helper->initMsg = initMsg;
         helper->createStringFromFlash = createStringFromFlash;
-        helper->loadFromFlash = loadFromFlash;
+        helper->createFarStringFromFlash = createFarStringFromFlash;
+        helper->loadStringFromFlash = loadStringFromFlash;
+        helper->loadFarStringFromFlash = loadFarStringFromFlash;
         helper->readProgMemByte = readProgMemByte;
+#ifdef DWARFOS_2560
+        helper->readFarProgMemByte = readFarProgMemByte;
+#endif
+        helper->readNearWord = readNearWord;
+        #ifdef DWARFOS_2560
+        helper->readFarWord = readFarWord;
+#endif
+        helper->compareWithFlashString = compareWithFlashString;
         return helper;
     }
 }

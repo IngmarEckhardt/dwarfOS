@@ -75,12 +75,12 @@ char * loadStringFromFile(TextFile * textFile, FlashHelper * flashHelper, const 
     size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
 
     for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
-        uint8_t * entryAddress = (uint8_t *) textFile->entries + i * entrySize;
-        uint8_t * numbers = entryAddress;
-        char * string = (char *) (entryAddress + textFile->sizeOfIndexArray * sizeof(uint8_t));
+        uint32_t entryAddress = textFile->farPointer + i * entrySize;
+        uint32_t numbers = entryAddress;
+        uint32_t string = entryAddress + textFile->sizeOfIndexArray * sizeof(uint8_t);
         for (int j = 0; j < textFile->sizeOfIndexArray; j++) {
-            if (index == flashHelper->readProgMemByte(&numbers[j])) {
-                return flashHelper->createStringFromFlash(string);
+            if (index == flashHelper->readFarProgMemByte(numbers+j)) {
+                return flashHelper->createFarStringFromFlash(string);
             }
         }
     }

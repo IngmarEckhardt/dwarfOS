@@ -1,6 +1,7 @@
 #include <flash_helper.h>
 #include <avr/pgmspace.h>
 #include <stdlib.h>
+#include <version.h>
 
 char * createStringFromFlash(const char  *  flashString) {
     char * result = (char *) malloc((strlen_P(flashString) + 1) * sizeof(char));
@@ -49,7 +50,7 @@ uint16_t readFarWord(uint_farptr_t intAdress) {
     return pgm_read_word_far(intAdress);
 }
 #endif
-const __attribute__((section(".progmemx.data"))) char initMsgOnFlash[] = " setup complete.\n";
+const __attribute__((__progmem__)) char initMsgOnFlash[] = DWARFOS_IDENTSTRING;
 
 FlashHelper * dOS_initFlashHelper(void) {
     FlashHelper * helper = malloc(sizeof(FlashHelper));

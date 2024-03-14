@@ -3,9 +3,6 @@
 #include <time.h>
 #include <uart_helper.h>
 #include <flash_helper.h>
-#include <version.h>
-
-
 
 void setCpuParamRegister(void);
 
@@ -30,10 +27,11 @@ void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
     FlashHelper * flashHelper = dOS_initFlashHelper();
     if (flashHelper == NULL) { return; }
 
-    uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
-                                                     flashHelper->createFarStringFromFlash(flashHelper->initMsg)});
+    char * initmsg = flashHelper->createFarStringFromFlash(flashHelper->initMsg);
+    uartHelper->sendMsgWithTimestamp(1, (char * []) {initmsg});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');
+    free(initmsg);
     free(flashHelper);
 }
 

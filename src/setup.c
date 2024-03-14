@@ -1,16 +1,15 @@
 #include <setup.h>
 #include <avr/io.h>
 #include <time.h>
-#include <string_repository.h>
 #include <uart_helper.h>
+#include <flash_helper.h>
 #include <version.h>
 
-#define SIZE_OF_INIT_STRING_REPO 8
 
 
 void setCpuParamRegister(void);
 
-void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper);
+void loadInitStringAndSendInitMsg(UartHelper * uartHelper);
 
 void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
 
@@ -20,24 +19,19 @@ void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
     *pointerToGlobalMcuClockPointer = dOS_initMcuClock(INIT_TIME);
     setMcuClockCallback((*pointerToGlobalMcuClockPointer)->getSystemClock);
 
-    StringRepository * stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
     UartHelper * uartHelper = dOS_initUartHelper();
-    loadInitStringAndSendInitMsg(stringRepository, uartHelper);
-    free(stringRepository);
+    loadInitStringAndSendInitMsg(uartHelper);
     free(uartHelper);
 }
 
-void loadInitStringAndSendInitMsg(StringRepository * stringRepository, UartHelper * uartHelper) {
-    if (stringRepository == NULL || uartHelper == NULL) { return; }
+void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
+    if (uartHelper == NULL) { return; }
 
     FlashHelper * flashHelper = dOS_initFlashHelper();
     if (flashHelper == NULL) { return; }
 
-    stringRepository->addString(&flashHelper->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {DWARFOS_IDENTSTRING,
-                                                     stringRepository->getStringFromRamElseLoadFromFlash(&flashHelper->initMsg,
-                                                                                                         flashHelper)});
-    stringRepository->removeStringFromManagement(&flashHelper->initMsg, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+                                                     flashHelper->createFarStringFromFlash(flashHelper->initMsg)});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');
     free(flashHelper);

@@ -14,7 +14,7 @@ typedef struct {
  * It contains functions to initialize string storage and load strings from flash memory.
  */
 typedef struct {
-    LazyLoadingString initMsg; // Initialization message
+    uint32_t initMsg; // Initialization message
 
     /**
     * @brief Loads a string from flash memory.

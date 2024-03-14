@@ -49,15 +49,13 @@ uint16_t readFarWord(uint_farptr_t intAdress) {
     return pgm_read_word_far(intAdress);
 }
 #endif
-const char __attribute__((section(".progmem.data")))initMsgOnFlash[] = " setup complete.\n";
-LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
-
+const __attribute__((section(".progmemx.data"))) char initMsgOnFlash[] = " setup complete.\n";
 
 FlashHelper * dOS_initFlashHelper(void) {
     FlashHelper * helper = malloc(sizeof(FlashHelper));
     if (helper == NULL) { return NULL; }
     else {
-        helper->initMsg = initMsg;
+        helper->initMsg =  pgm_get_far_address(initMsgOnFlash);
         helper->createStringFromFlash = createStringFromFlash;
         helper->createFarStringFromFlash = createFarStringFromFlash;
         helper->loadStringFromFlash = loadStringFromFlash;

@@ -36,7 +36,7 @@ typedef struct {
     uint16_t (*readNearWord)(const uint16_t * intAdress);
     uint16_t (*readFarWord)(uint32_t intAdress);
 
-    int32_t (*compareWithFlashString)(const char * string, const char * flashString);
+    int16_t (*compareWithFlashString)(const char * string, const char * flashString);
 } FlashHelper;
 
 /**

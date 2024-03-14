@@ -38,7 +38,7 @@ uint8_t readFarProgMemByte(uint_farptr_t addressOfByte) {
 }
 #endif
 
-int32_t compareWithFlashString(const char * string, const char * flashString) {
+int16_t compareWithFlashString(const char * string, const char * flashString) {
     return strcmp_P(string, flashString);
 }
 uint16_t readNearWord(const uint16_t * intAdress) {

@@ -190,8 +190,11 @@ void writeSourceFile(const char * prefix, const uint8_t datasets,
     calcMaxAmountOfIndexArray(datasets, entries, entry_counts, maxIndizes);
 
     calcMaxLengthOfStrings(datasets, entries, entry_counts,maxLengthOfStrings);
-
-    fprintf(file, "//#include \"%ss.h\"\n", camelCase);
+    char * prefixLowercase = malloc(strlen(prefix) + 1);
+    for (uint16_t i = 0; i < strlen(prefix); i++){
+        prefixLowercase[i] = tolower(prefix[i]);
+    }
+    fprintf(file, "//#include \"%ss.h\"\n",prefixLowercase);
     fprintf(file, "#include <stdlib.h>\n");
     fprintf(file, "#include <avr/pgmspace.h>\n");
     fprintf(file, "#include \"advent.h\"\n");

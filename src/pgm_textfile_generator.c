@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SRC_DIR "src/test"
+#define SRC_DIR "src"
 #define FILE_EXTENSION 'c'
 
 // structure to manage a single string

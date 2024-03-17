@@ -4,9 +4,21 @@
 #include <stdint.h>
 
 typedef struct {
-    const char * flashString; // Pointer to the string in flash memory
-    char * pointerToString; // Pointer to the string in RAM
-} LazyLoadingString;
+    char * pointerToNearProgMemString;
+    const uint8_t amountOfEntries;
+    const uint8_t indexAmount;
+    const uint16_t maxLengthOfStrings;
+} NearTextFile;
+
+#ifdef __AVR_HAVE_ELPM__
+typedef struct {
+    const uint32_t farPointer;
+    const uint8_t amountOfEntries;
+    const uint8_t sizeOfIndexArray;
+    const uint16_t maxLengthOfStrings;
+} FarTextFile;
+#endif
+
 /**
  * @brief Structure for managing string storage and lazy loading.
  *
@@ -14,8 +26,6 @@ typedef struct {
  * It contains functions to initialize string storage and load strings from flash memory.
  */
 typedef struct {
-    uint32_t initMsg; // Initialization message
-
     /**
     * @brief Loads a string from flash memory.
     *
@@ -25,18 +35,27 @@ typedef struct {
     * @return A pointer to the loaded string.
     */
     char * (* createStringFromFlash)(const char * flashString);
+
+    uint16_t (* readNearWord)(const uint16_t * intAdress);
+
+    int16_t (* compareWithFlashString)(const char * string, const char * flashString);
+
+    char * (* loadNearStringFromFile)(NearTextFile * textFile, const uint8_t index);
+
+    void (* loadNearStringFromFlash)(char * stringBuffer, const char * pointerToNearProgMemString);
+
+#ifdef __AVR_HAVE_ELPM__
+
     char * (* createFarStringFromFlash)(uint32_t farFlashString); // uint_farptr_t == uint32_t
 
-    void (* loadStringFromFlash)(char * stringBuffer, const char * flashString);
-    void (* loadFarStringFromFlash)(char * stringBuffer,  uint32_t farFlashString);
+    void (* loadFarStringFromFlash)(char * stringBuffer, uint32_t farFlashString);
 
-    uint8_t (* readProgMemByte)(const uint8_t * addressOfByte);
-    uint8_t (* readFarProgMemByte)(uint32_t addressOfByte);
+    char * (* loadFarStringFromFile)(FarTextFile * textFile, const uint8_t index);
 
-    uint16_t (*readNearWord)(const uint16_t * intAdress);
-    uint16_t (*readFarWord)(uint32_t intAdress);
-
-    int16_t (*compareWithFlashString)(const char * string, const char * flashString);
+    uint32_t initMsg; // Initialization message
+#else
+    const char * initMsg;
+#endif
 } FlashHelper;
 
 /**
@@ -50,6 +69,4 @@ typedef struct {
  * @return A pointer to the initialized FlashHelper structure.
  */
 FlashHelper * dOS_initFlashHelper(void);
-
-
 #endif //DWARFOS_FLASH_HELPER_H

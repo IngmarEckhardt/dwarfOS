@@ -3,12 +3,12 @@
 #include <avr/io.h>
 
 //DwarfOS
-#include <setup.h>
-#include <ascii_helper.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <heap_management_helper.h>
-#include <time.h>
+#include "setup.h"
+#include "ascii_helper.h"
+#include "mcu_clock.h"
+#include "uart_helper.h"
+#include "heap_management_helper.h"
+#include "time.h"
 
 //the clock has states, instance it one time and hold a reference somewhere if you use it
 McuClock * mcuClock;

@@ -18,6 +18,7 @@ typedef struct {
      * @return The amount of free heap memory in bytes.
      */
     int16_t (* getFreeMemory)(void);
+    int16_t (* getStackPointerValue)(void);
 } HeapManagementHelper;
 
 /**

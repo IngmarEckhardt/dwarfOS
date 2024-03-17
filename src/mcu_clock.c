@@ -1,5 +1,5 @@
+#include "mcu_clock.h"
 #include <avr/interrupt.h>
-#include <mcu_clock.h>
 #include <stdlib.h>
 
 McuClock * mcuClock;

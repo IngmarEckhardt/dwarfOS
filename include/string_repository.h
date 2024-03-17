@@ -2,18 +2,15 @@
 #define DWARFOS_STRING_REPOSITORY_H
 
 #include <stdint.h>
-#include <flash_helper.h>
+#include "flash_helper.h"
 
 #ifndef MAX_SIZE_STRING_DB
 #define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
 #endif
 typedef struct {
-    const uint32_t farPointer;
-    const uint8_t amountOfEntries;
-    const uint8_t sizeOfIndexArray;
-    const uint16_t maxLengthOfStrings;
-} TextFile;
-
+    const char * flashString; // Pointer to the string in flash memory
+    char * pointerToString; // Pointer to the string in RAM
+} LazyLoadingString;
 typedef struct {
     /**
      * @brief Structure for managing lazy loading of strings from flash program memory
@@ -53,7 +50,7 @@ typedef struct {
     * @param stringToFetch The string to fetch.
     * @return A pointer to the fetched string.
     */
-    char * (* getStringFromRamElseLoadFromFlash)(LazyLoadingString * stringToFetch, FlashHelper * flashHelper);
+    char * (* getString)(LazyLoadingString * stringToFetch, FlashHelper * flashHelper);
 
     /**
      * @brief Frees a string from the repository.
@@ -89,7 +86,6 @@ typedef struct {
                                                        LazyLoadingString ** arrayOfManagedLazyStringPointers,
                                                        uint8_t size);
 
-    char * (*loadStringFromFile)(TextFile * file, FlashHelper * flashHelper, uint8_t index);
 } StringRepository;
 
 /**

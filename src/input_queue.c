@@ -1,8 +1,7 @@
-#include <input_queue.h>
+#include "input_queue.h"
 #include <stdlib.h>
 #include <string.h>
 
-#include <setup.h>
 
 
 
@@ -68,7 +67,6 @@ InputQueue * cca_initInputQueue(void) {
         queue->enqueue = enqueue;
         queue->dequeue = dequeue;
         queue->get_char = getCharacter;
-        queue->adjustValue = ADJUST_TO_SECOND_VALUE;
         return queue;
     }
 }

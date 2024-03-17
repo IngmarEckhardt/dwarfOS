@@ -18,8 +18,6 @@ struct InputQueue{
     uint8_t tail;
     uint8_t size;
     uint8_t * buffer;
-    volatile uint8_t * clock;
-    uint8_t adjustValue;
 
     void (* enqueue)(uint8_t item, InputQueue * inputQueue);
     /**

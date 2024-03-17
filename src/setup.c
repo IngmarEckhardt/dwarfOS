@@ -1,8 +1,8 @@
-#include <setup.h>
+#include "setup.h"
 #include <avr/io.h>
-#include <time.h>
-#include <uart_helper.h>
-#include <flash_helper.h>
+#include "time.h"
+#include "uart_helper.h"
+#include "flash_helper.h"
 
 void setCpuParamRegister(void);
 
@@ -26,8 +26,11 @@ void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
 
     FlashHelper * flashHelper = dOS_initFlashHelper();
     if (flashHelper == NULL) { return; }
-
+#ifdef __AVR_HAVE_ELPM__
     char * initmsg = flashHelper->createFarStringFromFlash(flashHelper->initMsg);
+#else
+    char * initmsg = flashHelper->createStringFromFlash(flashHelper->initMsg);
+#endif
     uartHelper->sendMsgWithTimestamp(1, (char * []) {initmsg});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');

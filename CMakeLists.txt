@@ -5,19 +5,13 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
 if (NOT DEFINED MCU)
     set(MCU atmega328p)
-
-endif ()
-if (MCU STREQUAL "atmega328p")
-    add_definitions(-DDWARFOS_328p)
-elseif (MCU STREQUAL "atmega2560")
-    add_definitions(-DDWARFOS_2560)
 endif ()
 
 
 set(NAME "DwarfOS")
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
-set(VERSION_PATCH 2)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
 project(${NAME} LANGUAGES C)
 
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
@@ -43,7 +37,9 @@ if (NOT DEFINED FILE_EXT)
     set(FILE_EXT ".exe")
 endif ()
 set(AVR_OBJCOPY "${TOOLCHAIN_PATH}avr-objcopy${FILE_EXT}")
+set(AVR_OBJDUMP "${TOOLCHAIN_PATH}avr-objdump.exe")
 set(AVR_SIZE "${TOOLCHAIN_PATH}avr-size${FILE_EXT}")
+
 
 
 # compiler flags
@@ -127,6 +123,8 @@ else ()
 
         # display size of solution
         add_custom_target(size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
+        # show the complete content of the flash memory
+        add_custom_target(objdump "${AVR_OBJDUMP}" -h -s "${PROJECT_NAME}.elf" > objdump_output.txt)
     endif ()
 endif ()
 

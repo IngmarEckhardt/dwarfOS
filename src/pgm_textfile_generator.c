@@ -1,17 +1,21 @@
-#include <pgm_textfile_generator.h>
+#include "pgm_textfile_generator.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#define SRC_DIR "src"
+#define FILE_EXTENSION 'c'
 
+// structure to manage a single string
 typedef struct {
+    //if the string is several times in the array with strings given to the function, all of the indizes+1 will be listet here
     uint8_t indices[UINT8_MAX];
     const char * text;
+    // amount of the indizes, just for convenience to ease the max-calculation
     int index_count;
-} AdventEntry;
-
+} Entry;
 
 char * addEscapeCharsToNonPrintableChars(const char * str) {
     char * result = malloc(strlen(str) * 2 + 1); // Allocate enough space for the replaced string
@@ -35,7 +39,7 @@ char * addEscapeCharsToNonPrintableChars(const char * str) {
 char * toCamelCase(char * prefix) {
     uint16_t length = strlen(prefix);
     char * stringToReturn = malloc(length + 1);
-    if (stringToReturn == NULL) {return NULL; }
+    if (stringToReturn == NULL) { return NULL; }
 
     strcpy(stringToReturn, prefix);
     int indexToPlace = 0;
@@ -53,15 +57,17 @@ char * toCamelCase(char * prefix) {
 char * createFileName(char * additionalPrefix, char * prefix, char fileEnding) {
     uint16_t lengthPrefix = strlen(prefix);
     uint16_t lengthAdditionalPrefix = strlen(additionalPrefix);
-    char * stringToReturn = malloc(lengthPrefix + lengthAdditionalPrefix + 8); // 8 extra chars for "../", "/", "/", "s.", and null terminator
+    char * stringToReturn = malloc(
+            lengthPrefix + lengthAdditionalPrefix + 8); // 8 extra chars for "../", "/", "/", "s.", and null terminator
     if (stringToReturn == NULL) { return NULL; }
 
     strcpy(stringToReturn, "../");
     strcat(stringToReturn, additionalPrefix);
     strcat(stringToReturn, "/");
     strcat(stringToReturn, prefix);
-    strcat(stringToReturn, "/");
-    for (uint16_t i = 0; i < lengthPrefix; i++) {stringToReturn[i + lengthAdditionalPrefix + 4] = tolower(prefix[i]);} // 4 extra chars for "../"
+    for (uint16_t i = 0; i < lengthPrefix; i++) {
+        stringToReturn[i + lengthAdditionalPrefix + 4] = tolower(prefix[i]);
+    } // 4 extra chars for "../"
     stringToReturn[lengthPrefix + lengthAdditionalPrefix + 4] = 's'; // 4 extra chars for "../"
     stringToReturn[lengthPrefix + lengthAdditionalPrefix + 5] = '.';
     stringToReturn[lengthPrefix + lengthAdditionalPrefix + 6] = fileEnding;
@@ -69,7 +75,7 @@ char * createFileName(char * additionalPrefix, char * prefix, char fileEnding) {
     return stringToReturn;
 }
 
-void calcMaxAmountOfIndexArray(const uint8_t datasets, AdventEntry * const * entries, const int * entry_counts,
+void calcMaxAmountOfIndexArray(const uint8_t datasets, Entry * const * entries, const int * entry_counts,
                                uint8_t * maxIndizes) {
     for (int i = 0; i < datasets - 1; i++) {
         maxIndizes[i] = 0;
@@ -81,25 +87,20 @@ void calcMaxAmountOfIndexArray(const uint8_t datasets, AdventEntry * const * ent
     }
 }
 
-void writeProgMemArrays(const char * prefix, const uint8_t datasets, AdventEntry * const * entries, const int * entry_counts,
+void writeProgMemArrays(const char * prefix, const uint8_t datasets, Entry * const * entries, const int * entry_counts,
                         const char * camelCase, FILE * file) {
     for (int i = 0; i < datasets - 1; i++) {
         fprintf(file, "\ntypedef struct {\n");
-        fprintf(file, "    uint8_t numbers[MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH];\n", prefix, i + 1);
-        fprintf(file, "    char stringInProgramMem[%s_DESCRIPTION_%d_LENGTH];\n", prefix, i + 1);
+        fprintf(file, "\tuint8_t numbers[MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH];\n", prefix, i + 1);
+        fprintf(file, "\tchar stringInProgramMem[%s_DESCRIPTION_%d_LENGTH];\n", prefix, i + 1);
         fprintf(file, "} %s_%d;\n\n", prefix, i + 1);
-        fprintf(file, "#ifndef CCA_TEST\n");
-        fprintf(file, "const %s_%d %ss_%d[AMOUNT_OF_%s_DESCRIPTIONS_%d] PROGMEM = {\n", prefix, i + 1, camelCase, i + 1,
+        fprintf(file, "const __attribute__((__progmem__)) %s_%d %ss_%d[AMOUNT_OF_%s_DESCRIPTIONS_%d] = {\n", prefix,
+                i + 1, camelCase, i + 1,
                 prefix, i + 1);
-        fprintf(file, "#else\n");
-        fprintf(file, "const %s_%d %ss_%d[AMOUNT_OF_%s_DESCRIPTIONS_%d] = {\n", prefix, i + 1, camelCase, i + 1,
-                prefix, i + 1);
-        fprintf(file, "#endif\n");
-
         for (int j = 0; j < entry_counts[i]; j++) {
             fprintf(file, "\t\t{{");
             // print indizes
-            for (int k = 0; k < entries[i][j].index_count; k++) {fprintf(file, "%d,", entries[i][j].indices[k]); }
+            for (int k = 0; k < entries[i][j].index_count; k++) { fprintf(file, "%d,", entries[i][j].indices[k]); }
             // print String
             fprintf(file, "},\"%s\"},\n", entries[i][j].text);
         }
@@ -107,87 +108,93 @@ void writeProgMemArrays(const char * prefix, const uint8_t datasets, AdventEntry
     }
 }
 
-void writeSingleRemainingStrings(const char * prefix, const uint8_t datasets, AdventEntry * const * entries,
+void writeSingleRemainingStrings(const char * prefix, const uint8_t datasets, Entry * const * entries,
                                  const int * entry_counts, const char * camelCase, FILE * file) {
     for (int i = 0; i < entry_counts[datasets - 1]; i++) {
-        fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %u\n", prefix, entries[datasets - 1][i].indices[0],
+        fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %u\n",
+                prefix,
+                entries[datasets - 1][i].indices[0],
                 strlen(entries[datasets - 1][i].text));
-    }
-    fprintf(file, "\n");
-    for (int j = 0; j < entry_counts[datasets - 1]; j++) {
-        fprintf(file, "#ifndef CCA_TEST\n");
-        fprintf(file, "const char %s_%d[%s_DESCRIPTION_%d_LENGTH] PROGMEM = \"%s\";\n", camelCase,
-                entries[datasets - 1][j].indices[0], prefix, entries[datasets - 1][j].indices[0],
-                entries[datasets - 1][j].text);
-        fprintf(file, "#else\n");
-        fprintf(file, "const char %s_%d[%s_DESCRIPTION_%d_LENGTH] = \"%s\";\n", camelCase,
-                entries[datasets - 1][j].indices[0], prefix, entries[datasets - 1][j].indices[0],
-                entries[datasets - 1][j].text);
-        fprintf(file, "#endif\n");
+        fprintf(file, "const __attribute__((__progmem__)) char %s_%d[%s_DESCRIPTION_%d_LENGTH] = \"%s\";\n",
+                camelCase,
+                entries[datasets - 1][i].indices[0],
+                prefix,
+                entries[datasets - 1][i].indices[0],
+                entries[datasets - 1][i].text);
+        fprintf(file, "\n");
     }
 }
 
-void writeGetterFunction(const char * prefix, const uint8_t datasets, AdventEntry * const * entries,
-                         const int * entry_counts, const char * camelCase, const char * camelCaseCopy, FILE * file) {
-    fprintf(file, "char * load%s(StringRepository * stringRepository, FlashHelper * flashHelper, uint8_t %sNumber) {\n", camelCaseCopy, camelCase);
-    fprintf(file, "    char * stringToReturn = NULL;\n\n");
-    for (int j = 0; j < entry_counts[datasets - 1]; j++) {
-        fprintf(file, "    if (%sNumber == %d) {\n", camelCase, entries[datasets - 1][j].indices[0]);
-        fprintf(file, "        stringToReturn = (char *) malloc(%s_DESCRIPTION_%d_LENGTH);\n", prefix,
-                entries[datasets - 1][j].indices[0]);
-        fprintf(file, "        flashHelper->loadFromFlash(stringToReturn, %s_%d);\n", camelCase,
-                entries[datasets - 1][j].indices[0]);
-        fprintf(file, "    }\n");
-    }
-    for (int i = 0; i < datasets - 1; i++) {
-        fprintf(file, "    if (stringToReturn != NULL) { return stringToReturn; }\n\n");
-        fprintf(file, "    stringToReturn = stringRepository->loadStringFromFile(&(TextFile) {\n");
-        fprintf(file, "            .entries = (void *) %ss_%d,\n", camelCase, i + 1);
-        fprintf(file, "            .maxLengthOfStrings = %s_DESCRIPTION_%d_LENGTH,\n", prefix, i + 1);
-        fprintf(file, "            .sizeOfIndexArray = MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH,\n", prefix,
-                i + 1);
-        fprintf(file, "            .amountOfEntries = AMOUNT_OF_%s_DESCRIPTIONS_%d,\n", prefix, i + 1);
-        fprintf(file, "    }, flashHelper, %sNumber);\n", camelCase);
+void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * const * entries,
+                         const int * entry_counts, const char * camelCase, const char * pascalCase, FILE * file) {
 
+    fprintf(file, "#define LOAD_FROM(NUM) \\\n");
+    fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(FarTextFile) { \\\n");
+    fprintf(file, "\t\t.farPointer = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
+    fprintf(file, "\t\t.maxLengthOfStrings = %s_DESCRIPTION_##NUM##_LENGTH, \\\n", prefix);
+    fprintf(file, "\t\t.sizeOfIndexArray = MAX_AMOUNT_OF_%s_DESCRIPTIONS_##NUM##_WITH_SAME_LENGTH, \\\n", prefix);
+    fprintf(file, "\t\t.amountOfEntries = AMOUNT_OF_%s_DESCRIPTIONS_##NUM, \\\n", prefix);
+    fprintf(file, "\t}, %sNumber); \\\n", camelCase);
+    fprintf(file, "\tif (stringToReturn != NULL) { return stringToReturn; }\n\n");
+    fprintf(file, "char * load%s(FlashHelper * helper, uint8_t %sNumber) {\n", pascalCase, camelCase);
+    fprintf(file, "\tchar * stringToReturn = NULL;\n\n");
+    for (int j = 0; j < entry_counts[datasets - 1]; j++) {
+        fprintf(file, "\tif (%sNumber == %d) {\n", camelCase,
+                entries[datasets - 1][j].indices[0]);
+        fprintf(file, "\t\tstringToReturn = (char *) malloc(%s_DESCRIPTION_%d_LENGTH);\n", prefix,
+                entries[datasets - 1][j].indices[0]);
+        fprintf(file, "\t\thelper->loadFarStringFromFlash(stringToReturn, pgm_get_far_address(%s_%d));\n",
+                camelCase, entries[datasets - 1][j].indices[0]);
+        fprintf(file, "\t}\n");
     }
+    for (int i = 0; i < datasets - 1; i++) { fprintf(file, "\tLOAD_FROM(%d)\n", i + 1); }
     fprintf(file, "\n");
     fprintf(file, "\treturn stringToReturn;\n");
-    fprintf(file, "}\n");
-
-    fprintf(file, "\n");
-    fprintf(file, "char * get%s(int %sNumber) {\n", camelCaseCopy, camelCase);
-    fprintf(file, "#ifndef CCA_TEST\n");
-    fprintf(file, "    return load%s(stringRepository, flashHelper, %sNumber);\n", camelCaseCopy, camelCase);
-    fprintf(file, "#else\n");
-    fprintf(file, "    StringRepository * stringRepository = dOS_initStringRepository(0);\n");
-    fprintf(file, "    FlashHelper * flashHelper = dOS_initFlashHelper();\n");
-    fprintf(file, "    char * result = load%s(stringRepository, flashHelper, %sNumber);\n", camelCaseCopy, camelCase);
-    fprintf(file, "    free(stringRepository);\n");
-    fprintf(file, "    free(flashHelper);\n");
-    fprintf(file, "    return result;\n");
-    fprintf(file, "#endif\n");
-    fprintf(file, "}\n");
+    fprintf(file, "}\n\n");
+    fprintf(file, "char * get%s(int %sNumber) {\n", pascalCase, camelCase);
+    fprintf(file, "\treturn load%s(flashHelper, %sNumber);\n", pascalCase, camelCase);
+    fprintf(file, "}");
 }
 
-void writeSourceFile(const uint16_t * bordersArray, const char * prefix, const uint8_t datasets,
-                     AdventEntry * const * entries, const int * entry_counts,
+void calcMaxLengthOfStrings(const uint8_t datasets, Entry * const * entries, const int * entry_counts,
+                               uint16_t * maxLengthOfStrings) {
+    for (int i = 0; i < datasets - 1; i++) {
+        maxLengthOfStrings[i] = 0;
+        for (int j = 0; j < entry_counts[i]; j++) {
+            uint16_t intermedLength = strlen(entries[i][j].text);
+            if (intermedLength  > maxLengthOfStrings[i]) {
+                maxLengthOfStrings[i] = intermedLength;
+            }
+        }
+    }
+}
+void writeSourceFile(const char * prefix, const uint8_t datasets,
+                     Entry * const * entries, const int * entry_counts,
                      const char * camelCase, const char * pascalCase, FILE * file) {
+
     uint8_t maxIndizes[datasets];
+    uint16_t maxLengthOfStrings[datasets];
     calcMaxAmountOfIndexArray(datasets, entries, entry_counts, maxIndizes);
 
-    fprintf(file, "#include <stdlib.h>\n");
-    fprintf(file, "#include <stdint.h>\n");
-    fprintf(file, "#ifndef CCA_TEST\n");
-    fprintf(file, "#include <avr/pgmspace.h>\n");
-    fprintf(file, "#include <advent.h>\n");
-    fprintf(file, "#include <advdec.h>\n");
-    fprintf(file, "#else\n");
-    fprintf(file, "#include <string_repository.h>\n");
-    fprintf(file, "#endif\n\n");
+    calcMaxLengthOfStrings(datasets, entries, entry_counts,maxLengthOfStrings);
 
-        for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix, i + 1, bordersArray[i]+1);}
-    for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define AMOUNT_OF_%s_DESCRIPTIONS_%d %d\n", prefix, i + 1, entry_counts[i]);}
-    for (int i = 0; i < datasets - 1; i++) {fprintf(file, "#define MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH %d\n", prefix, i + 1, maxIndizes[i]);}
+    fprintf(file, "//#include \"%ss.h\"\n", camelCase);
+    fprintf(file, "#include <stdlib.h>\n");
+    fprintf(file, "#include <avr/pgmspace.h>\n");
+    fprintf(file, "#include \"advent.h\"\n");
+    fprintf(file, "#include \"advdec.h\"\n\n");
+    for (int i = 0; i < datasets - 1; i++) {
+        fprintf(file, "#define %s_DESCRIPTION_%d_LENGTH %d\n", prefix,
+                i + 1,  maxLengthOfStrings[i] + 1);
+    }
+    for (int i = 0; i < datasets - 1; i++) {
+        fprintf(file, "#define AMOUNT_OF_%s_DESCRIPTIONS_%d %d\n", prefix,
+                i + 1, entry_counts[i]);
+    }
+    for (int i = 0; i < datasets - 1; i++) {
+        fprintf(file, "#define MAX_AMOUNT_OF_%s_DESCRIPTIONS_%d_WITH_SAME_LENGTH %d\n", prefix,
+                i + 1,maxIndizes[i]);
+    }
 
     writeProgMemArrays(prefix, datasets, entries, entry_counts, camelCase, file);
     fprintf(file, "\n");
@@ -199,12 +206,12 @@ void writeSourceFile(const uint16_t * bordersArray, const char * prefix, const u
 }
 
 void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t * bordersArray, uint8_t amountBorders,
-                uint8_t * datasets, AdventEntry *** entries, int ** entry_counts) {
+                uint8_t * datasets, Entry *** entries, int ** entry_counts) {
     (*datasets) = amountBorders + 1;
-    (*entries) = malloc(*datasets * sizeof(AdventEntry *));
+    (*entries) = malloc(*datasets * sizeof(Entry *));
     (*entry_counts) = calloc(*datasets, sizeof(int));
     for (int i = 0; i < (*datasets); i++) {
-        (*entries)[i] = malloc(amount * sizeof(AdventEntry));
+        (*entries)[i] = malloc(amount * sizeof(Entry));
     }
     for (uint16_t indexOfComputedString = 0; indexOfComputedString < amount; indexOfComputedString++) {
 
@@ -215,7 +222,7 @@ void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t
         uint8_t placed = 0;
 
         for (int indexOfDataset = 0; indexOfDataset < (*datasets); indexOfDataset++) {
-
+            //placement with string lenght or as fallback placing in the last dataset
             if ((strLength <= bordersArray[indexOfDataset]) || (*datasets) - 1 == indexOfDataset) {
                 char * convertedString = addEscapeCharsToNonPrintableChars(textsArray[indexOfComputedString]);
                 for (int indexOfEntryInTheDataset = 0;
@@ -230,7 +237,7 @@ void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t
                 }
                 if (!placed) {
 
-                    AdventEntry entry = {
+                    Entry entry = {
                             .text = convertedString,
                             .index_count = 1,
                             .indices = {indexOfComputedString + 1}
@@ -246,11 +253,13 @@ void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t
 void convertTextArrayToProgMemTextFiles(const char * textsArray[], uint16_t amount, const uint16_t bordersArray[],
                                         uint8_t amountBorders, char * prefix) {
     uint8_t datasets;
-    AdventEntry ** entries;
+    Entry ** entries;
     int * entry_counts;
+
     parseDatas(textsArray, amount, bordersArray, amountBorders, &datasets, &entries, &entry_counts);
 
-    char * fileNameC = createFileName("src", prefix, 'c');
+    //write the file into the /src directory, if this is getting started from a subfolder of project root /
+    char * fileNameC = createFileName(SRC_DIR, prefix, FILE_EXTENSION);
     char * camelCase = toCamelCase(prefix);
     char * pascalCase = malloc(strlen(camelCase) + 1);
     strcpy(pascalCase, camelCase);
@@ -259,16 +268,24 @@ void convertTextArrayToProgMemTextFiles(const char * textsArray[], uint16_t amou
 
     FILE * file = fopen(fileNameC, "w");
     if (file == NULL) {
+        free(fileNameC);
+        free(camelCase);
+        free(pascalCase);
+        for (int i = 0; i < amountBorders; i++) { free(entries[i]); }
+        free(entries);
+        free(entry_counts);
         printf("Error opening file!\n");
         return;
     }
-    writeSourceFile(bordersArray, prefix, datasets, entries, entry_counts, camelCase, pascalCase, file);
-    fclose(file);
 
-    for (int i = 0; i < amountBorders; i++) {free(entries[i]);}
-    free(entries);
-    free(entry_counts);
+    writeSourceFile(prefix, datasets, entries, entry_counts, camelCase, pascalCase, file);
+
+
+    fclose(file);
     free(fileNameC);
     free(camelCase);
     free(pascalCase);
+    for (int i = 0; i < amountBorders; i++) { free(entries[i]); }
+    free(entries);
+    free(entry_counts);
 }

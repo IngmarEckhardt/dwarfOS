@@ -1,4 +1,4 @@
-#include <string_repository.h>
+#include "string_repository.h"
 #include <stdlib.h>
 
 // Hashing function (limited to 255 managed strings)
@@ -71,21 +71,6 @@ removeStringFromManagement(LazyLoadingString * stringToKill, LazyLoadingString *
     return NULL;
 }
 
-char * loadStringFromFile(TextFile * textFile, FlashHelper * flashHelper, const uint8_t index) {
-    size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
-
-    for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
-        uint32_t entryAddress = textFile->farPointer + i * entrySize;
-        uint32_t numbers = entryAddress;
-        uint32_t string = entryAddress + textFile->sizeOfIndexArray * sizeof(uint8_t);
-        for (int j = 0; j < textFile->sizeOfIndexArray; j++) {
-            if (index == flashHelper->readFarProgMemByte(numbers+j)) {
-                return flashHelper->createFarStringFromFlash(string);
-            }
-        }
-    }
-    return NULL;
-}
 
 
 // Initialize the StringRepository instance
@@ -94,11 +79,10 @@ StringRepository * dOS_initStringRepository(uint8_t size) {
     if (repository == NULL) { return NULL; }
     else {
         repository->addString = addString;
-        repository->getStringFromRamElseLoadFromFlash = getStringFromRamElseLoadFromFlash;
+        repository->getString = getStringFromRamElseLoadFromFlash;
         repository->freeString = freeString;
         repository->freeMemoryRandom = freeMemoryRandom;
         repository->removeStringFromManagement = removeStringFromManagement;
-        repository->loadStringFromFile = loadStringFromFile;
         if (size > 0) {
             repository->arrayOfManagedLazyStringPointers = malloc(size * sizeof(LazyLoadingString *));
             for (int i = 0; i < size; i++) {

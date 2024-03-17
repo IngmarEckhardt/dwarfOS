@@ -2,14 +2,16 @@
 #define DWARFOS_FLASH_HELPER_H
 
 #include <stdint.h>
+// ToDo Documentation of Functions
 
+// managment of arrays in <64kb Progmem, can be generated with pgm_testfile_generator
 typedef struct {
     char * pointerToNearProgMemString;
     const uint8_t amountOfEntries;
     const uint8_t indexAmount;
     const uint16_t maxLengthOfStrings;
 } NearTextFile;
-
+// same for far progmem
 #ifdef __AVR_HAVE_ELPM__
 typedef struct {
     const uint32_t farPointer;
@@ -45,7 +47,6 @@ typedef struct {
     void (* loadNearStringFromFlash)(char * stringBuffer, const char * pointerToNearProgMemString);
 
 #ifdef __AVR_HAVE_ELPM__
-
     char * (* createFarStringFromFlash)(uint32_t farFlashString); // uint_farptr_t == uint32_t
 
     void (* loadFarStringFromFlash)(char * stringBuffer, uint32_t farFlashString);

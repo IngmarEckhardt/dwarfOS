@@ -28,16 +28,12 @@ struct InputQueue{
 
     /**
     * Function to get a character from the queue.
-    * This function checks the clock after every call to give the serial connection a delay to receive additional signs.
-    * If the clock has a difference of 2 ticks or more, the function will return -1 and set the EOF flag.
+    * This function is blocking as a normal terminal stdin. If no sign is available it will pause the execution of your
+    * program.
     */
     int16_t (* get_char)(InputQueue * inputQueue);
 };
 
-// @param clock A pointer to a clock variable, after every call to get_char, the clock will be checked to see if the
-// difference between the current time and the time of the last call to give the serial connection a delay to receive
-// additional signs. If the clock has a difference of 2 ticks or more, the function will return -1 and set the
-// EOF flag.
 InputQueue * cca_initInputQueue(void);
 
 #endif //COLOSSAL_CAVE_ADVENTURE_INPUTQUEUE_H

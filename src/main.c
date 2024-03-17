@@ -13,8 +13,7 @@
 //the clock has states, instance it one time and hold a reference somewhere if you use it
 McuClock * mcuClock;
 
-#ifdef DWARFOS_WATCH_QUARTZ
-#else
+#ifndef DWARFOS_WATCH_QUARTZ
 const uint8_t adjustValue = ADJUST_TO_SECOND_VALUE;
 volatile uint8_t adjustCounter = 0;
 #endif /* DWARFOS_WATCH_QUARTZ */
@@ -22,8 +21,7 @@ volatile uint8_t adjustCounter = 0;
 // just for the example
 uint8_t lastTime;
 
-#ifdef DWARFOS_WATCH_QUARTZ
-#else
+#ifndef DWARFOS_WATCH_QUARTZ
 void adjustTo1Sec(void);
 #endif
 
@@ -39,8 +37,7 @@ int main(void) {
 
         sleep_mode();
 
-#ifdef DWARFOS_WATCH_QUARTZ
-#else
+#ifndef DWARFOS_WATCH_QUARTZ
         adjustTo1Sec();
 #endif /* DWARFOS_WATCH_QUARTZ */
 
@@ -63,8 +60,7 @@ ISR(TIMER2_OVF_vect) {
 #endif /* DWARFOS_WATCH_QUARTZ */
 }
 
-#ifdef DWARFOS_WATCH_QUARTZ
-#else
+#ifndef DWARFOS_WATCH_QUARTZ
 // counter overflow in this setup is connected to system clock
 // 16Mhz / (pre scaling 1024 x overflow interrupt 256 x 61) = ca 1.0001hz, good enough for logging
 void adjustTo1Sec(void) {

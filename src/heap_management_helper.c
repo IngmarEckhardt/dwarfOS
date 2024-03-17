@@ -12,7 +12,7 @@ int16_t getFreeMemory(void) {
 }
 
 int16_t getStackpointerValue (void) {
-    return  SP;
+    return SP;
 }
 HeapManagementHelper * dOS_initHeapManagementHelper(void) {
     HeapManagementHelper * helper = malloc(sizeof(HeapManagementHelper));

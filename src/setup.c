@@ -53,10 +53,10 @@ void setCpuParamRegister(void) {
 
     //turn off Analog Comparator
     ACSR |= (1 << ACD);
-#ifdef DWARFOS_328p
+#ifdef __AVR_ATmega328P__
     //turning off other modules except timer 2 and USART
     PRR |= (1 << PRTWI) | (1 << PRTIM1) | (1 << PRTIM0) | (1 << PRSPI) | (1 << PRADC);
-#elif DWARFOS_2560
+#elif __AVR_ATmega2560__
     PRR0 |= (1 << PRTWI) | (1 << PRTIM1) | (1 << PRTIM0) | (1 << PRSPI) | (1 << PRADC);
 #endif
 

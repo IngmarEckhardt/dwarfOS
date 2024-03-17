@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-//
+
 /**
  * @brief Helper functions for heap memory management.
  *
@@ -18,6 +18,11 @@ typedef struct {
      * @return The amount of free heap memory in bytes.
      */
     int16_t (* getFreeMemory)(void);
+    /**
+     * @brief Retrieves the value of the address of the stackpointer
+     *
+     * @return value of the address of the stackpointer
+     */
     int16_t (* getStackPointerValue)(void);
 } HeapManagementHelper;
 

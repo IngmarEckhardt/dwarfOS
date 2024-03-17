@@ -129,8 +129,16 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
                          const int * entry_counts, const char * camelCase, const char * pascalCase, FILE * file) {
 
     fprintf(file, "#define LOAD_FROM(NUM) \\\n");
+#ifdef __AVR_HAVE_ELPM__
     fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(FarTextFile) { \\\n");
+#else
+    fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(NearTextFile) { \\\n");
+#endif
+#ifdef __AVR_HAVE_ELPM__
     fprintf(file, "\t\t.farPointer = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
+#else
+    fprintf(file, "\t\t.entries = (void *) %ss_##NUM,\\\n", camelCase);
+#endif
     fprintf(file, "\t\t.maxLengthOfStrings = %s_DESCRIPTION_##NUM##_LENGTH, \\\n", prefix);
     fprintf(file, "\t\t.sizeOfIndexArray = MAX_AMOUNT_OF_%s_DESCRIPTIONS_##NUM##_WITH_SAME_LENGTH, \\\n", prefix);
     fprintf(file, "\t\t.amountOfEntries = AMOUNT_OF_%s_DESCRIPTIONS_##NUM, \\\n", prefix);

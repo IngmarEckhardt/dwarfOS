@@ -10,14 +10,9 @@ uint32_t getSystemClock(void) {
     return returnValue;
 }
 
-void setSystemClock(uint32_t timestamp) {
-    ATOMIC_OPERATION(mcuClock->systemClock = timestamp)
-}
+void setSystemClock(uint32_t timestamp) { ATOMIC_OPERATION(mcuClock->systemClock = timestamp) }
 
-void incrementClockOneSec(void) {
-    ATOMIC_OPERATION(mcuClock->systemClock++)
-
-}
+void incrementClockOneSec(void) { ATOMIC_OPERATION(mcuClock->systemClock++) }
 
 McuClock * dOS_initMcuClock(uint32_t initTime) {
     mcuClock = malloc(sizeof(McuClock));

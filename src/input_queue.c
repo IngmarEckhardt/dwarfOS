@@ -3,16 +3,11 @@
 #include <string.h>
 
 
-
-
 void increaseSize(InputQueue * inputQueue);
 
 void decreaseSize(InputQueue * inputQueue);
 
 uint8_t countElementsInQueue(InputQueue * inputQueue);
-
-uint8_t calculateTimeDifference(uint8_t a, uint8_t b, InputQueue * inputQueue);
-
 
 void enqueue(uint8_t item, InputQueue * inputQueue) {
 

@@ -8,7 +8,7 @@
 typedef struct {
     char * pointerToNearProgMemString;
     const uint8_t amountOfEntries;
-    const uint8_t indexAmount;
+    const uint8_t sizeOfIndexArray;
     const uint16_t maxLengthOfStrings;
 } NearTextFile;
 // same for far progmem

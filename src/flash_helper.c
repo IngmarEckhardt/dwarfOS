@@ -19,14 +19,14 @@ int16_t compareWithFlashString(const char * string, const char * flashString) { 
 uint16_t readNearWord(const uint16_t * intAdress) { return pgm_read_word(intAdress); }
 
 char * loadNearStringFromFile(NearTextFile * textFile, const uint8_t index) {
-    size_t entrySize = textFile->indexAmount * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
+    size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
 
     for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
         uint8_t * pointerToIndexArray = (uint8_t *) &textFile + i * entrySize;
         char * pointerToString = (char *) ((uint8_t *) &textFile + i * entrySize +
-                                           textFile->indexAmount * sizeof(uint8_t));
+                                           textFile->sizeOfIndexArray * sizeof(uint8_t));
 
-        for (uint8_t j = 0; j < textFile->indexAmount; j++) {
+        for (uint8_t j = 0; j < textFile->sizeOfIndexArray; j++) {
             if (index == pgm_read_byte(pointerToIndexArray + j)) {
                 char * stringToReturn = (char *) malloc(textFile->maxLengthOfStrings);
                 strcpy_P(stringToReturn, pointerToString);

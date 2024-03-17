@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SRC_DIR "src"
+#define SRC_DIR "src/test"
 #define FILE_EXTENSION 'c'
 
 // structure to manage a single string
@@ -132,12 +132,12 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
 #ifdef __AVR_HAVE_ELPM__
     fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(FarTextFile) { \\\n");
 #else
-    fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(NearTextFile) { \\\n");
+    fprintf(file, "\tstringToReturn = helper->loadNearStringFromFile(&(NearTextFile) { \\\n");
 #endif
 #ifdef __AVR_HAVE_ELPM__
     fprintf(file, "\t\t.farPointer = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
 #else
-    fprintf(file, "\t\t.entries = (void *) %ss_##NUM,\\\n", camelCase);
+    fprintf(file, "\t\t.pointerToNearProgMemString = (void *) %ss_##NUM,\\\n", camelCase);
 #endif
     fprintf(file, "\t\t.maxLengthOfStrings = %s_DESCRIPTION_##NUM##_LENGTH, \\\n", prefix);
     fprintf(file, "\t\t.sizeOfIndexArray = MAX_AMOUNT_OF_%s_DESCRIPTIONS_##NUM##_WITH_SAME_LENGTH, \\\n", prefix);
@@ -151,8 +151,13 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
                 entries[datasets - 1][j].indices[0]);
         fprintf(file, "\t\tstringToReturn = (char *) malloc(%s_DESCRIPTION_%d_LENGTH);\n", prefix,
                 entries[datasets - 1][j].indices[0]);
+#ifdef __AVR_HAVE_ELPM__
         fprintf(file, "\t\thelper->loadFarStringFromFlash(stringToReturn, pgm_get_far_address(%s_%d));\n",
                 camelCase, entries[datasets - 1][j].indices[0]);
+#else
+        fprintf(file, "\t\thelper->loadNearStringFromFlash(stringToReturn, %s_%d);\n",
+        camelCase, entries[datasets - 1][j].indices[0]);
+#endif
         fprintf(file, "\t}\n");
     }
     for (int i = 0; i < datasets - 1; i++) { fprintf(file, "\tLOAD_FROM(%d)\n", i + 1); }
@@ -165,7 +170,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
 }
 
 void calcMaxLengthOfStrings(const uint8_t datasets, Entry * const * entries, const int * entry_counts,
-                               uint16_t * maxLengthOfStrings) {
+                            uint16_t * maxLengthOfStrings) {
     for (int i = 0; i < datasets - 1; i++) {
         maxLengthOfStrings[i] = 0;
         for (int j = 0; j < entry_counts[i]; j++) {
@@ -213,7 +218,7 @@ void writeSourceFile(const char * prefix, const uint8_t datasets,
     writeGetterFunction(prefix, datasets, entries, entry_counts, camelCase, pascalCase, file);
 }
 
-void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t * bordersArray, uint8_t amountBorders,
+void parseDatas(const char ** textsArray, uint16_t amount, const uint16_t * bordersArray, uint8_t amountBorders,
                 uint8_t * datasets, Entry *** entries, int ** entry_counts) {
     (*datasets) = amountBorders + 1;
     (*entries) = malloc(*datasets * sizeof(Entry *));
@@ -230,7 +235,7 @@ void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t
         uint8_t placed = 0;
 
         for (int indexOfDataset = 0; indexOfDataset < (*datasets); indexOfDataset++) {
-            //placement with string lenght or as fallback placing in the last dataset
+            //placement with string length or as fallback placing in the last dataset
             if ((strLength <= bordersArray[indexOfDataset]) || (*datasets) - 1 == indexOfDataset) {
                 char * convertedString = addEscapeCharsToNonPrintableChars(textsArray[indexOfComputedString]);
                 for (int indexOfEntryInTheDataset = 0;
@@ -258,7 +263,7 @@ void parseDatas(const char * const * textsArray, uint16_t amount, const uint16_t
     }
 }
 
-void convertTextArrayToProgMemTextFiles(const char * textsArray[], uint16_t amount, const uint16_t bordersArray[],
+void convertTextArrayToProgMemTextFiles(const char ** textsArray, uint16_t amount, const uint16_t bordersArray[],
                                         uint8_t amountBorders, char * prefix) {
     uint8_t datasets;
     Entry ** entries;

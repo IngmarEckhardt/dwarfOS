@@ -11,7 +11,7 @@ endif ()
 set(NAME "DwarfOS")
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 project(${NAME} LANGUAGES C)
 
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)

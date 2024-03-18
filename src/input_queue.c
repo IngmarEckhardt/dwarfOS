@@ -47,7 +47,7 @@ int16_t getCharacter(InputQueue * inputQueue) {
 }
 
 
-InputQueue * cca_initInputQueue(void) {
+InputQueue * dOS_initInputQueue(void) {
     InputQueue * queue = malloc(sizeof(InputQueue));
     if (queue == NULL) { return NULL; }
     else {

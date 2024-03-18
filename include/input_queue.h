@@ -34,6 +34,6 @@ struct InputQueue{
     int16_t (* get_char)(InputQueue * inputQueue);
 };
 
-InputQueue * cca_initInputQueue(void);
+InputQueue * dOS_initInputQueue(void);
 
 #endif //COLOSSAL_CAVE_ADVENTURE_INPUTQUEUE_H

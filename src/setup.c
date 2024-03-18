@@ -8,6 +8,9 @@ void setCpuParamRegister(void);
 
 void loadInitStringAndSendInitMsg(UartHelper * uartHelper);
 
+
+// ToDo could get options for setup (such as .withUSART = 1,) as a Interface in the function parameters
+
 void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
 
     setCpuParamRegister();

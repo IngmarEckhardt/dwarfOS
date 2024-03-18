@@ -14,7 +14,7 @@ void test_addString(void) {
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL; // Initialize pointerToString
     // Add the string to the repository
-    LazyLoadingString** addedString = repositoryUnderTest->addString(lazyString, repositoryUnderTest->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    LazyLoadingString** addedString = repositoryUnderTest->addString(lazyString, repositoryUnderTest->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Check if the string was added successfully
     TEST_ASSERT_NOT_NULL(addedString);
     TEST_ASSERT_EQUAL_PTR(lazyString, *addedString);
@@ -29,7 +29,7 @@ void test_getString(void) {
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
-    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    stringRepository->addString(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Try to retrieve the string
     char* retrievedString = stringRepository->getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for FlashHelper
     // Check if the retrieved string is not NULL
@@ -45,7 +45,7 @@ void test_freeString(void) {
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
     lazyString->flashString = (const char *) 0xff;
-    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    stringRepository->addString(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Free the string
     LazyLoadingString* freedString = stringRepository->freeString(lazyString);
     // Check if the freed string is the same as the original one
@@ -63,13 +63,13 @@ void test_removeStringFromManagement(void) {
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
-    stringRepository->addString(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    stringRepository->addString(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Remove the string from management
-    LazyLoadingString* removedString = stringRepository->removeStringFromManagement(lazyString, stringRepository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    LazyLoadingString* removedString = stringRepository->removeFromManagement(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Check if the removed string is the same as the original one
     TEST_ASSERT_EQUAL_PTR(lazyString, removedString);
     // Check if the string is no longer in the repository
-    TEST_ASSERT_NULL(stringRepository->arrayOfManagedLazyStringPointers[0]);
+    TEST_ASSERT_NULL(stringRepository->lazyStringArray[0]);
     free(stringRepository);
 }
 
@@ -82,20 +82,20 @@ void test_freeMemoryRandom(void) {
     for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
         LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
         lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
-        repository->arrayOfManagedLazyStringPointers[i] = lazyString;
+        repository->lazyStringArray[i] = lazyString;
 
         //ignore all pointer warning, they have 2 byte with 8bit avr-gcc, and this is just to get a value here.
-        repository->arrayOfManagedLazyStringPointers[i]->flashString = (const char *) (i + 0xff);
+        repository->lazyStringArray[i]->flashString = (const char *) (i + 0xff);
 
     }
 
     // Free memory randomly with a percentage of 50%
-    repository->freeMemoryRandom(50, repository->arrayOfManagedLazyStringPointers, SIZE_OF_INIT_STRING_REPO);
+    repository->freeMemoryRandom(50, repository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
 
     // Check if approximately half of the strings are deallocated
     int deallocatedCount = 0;
     for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        if (repository->arrayOfManagedLazyStringPointers[i]->pointerToString == NULL) {
+        if (repository->lazyStringArray[i]->pointerToString == NULL) {
             deallocatedCount++;
         }
     }
@@ -105,9 +105,9 @@ void test_freeMemoryRandom(void) {
 
     // Free the remaining strings
     for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        if (repository->arrayOfManagedLazyStringPointers[i] != NULL) {
-            free(repository->arrayOfManagedLazyStringPointers[i]->pointerToString);
-            free(repository->arrayOfManagedLazyStringPointers[i]);
+        if (repository->lazyStringArray[i] != NULL) {
+            free(repository->lazyStringArray[i]->pointerToString);
+            free(repository->lazyStringArray[i]);
         }
     }
     free(repository);
@@ -117,7 +117,7 @@ void test_initManagedLazyLoadingStringArray(void) {
     const char * const flashStrings[] = {"string1", "string2", "string3"};
     uint8_t numStrings = sizeof(flashStrings) / sizeof(flashStrings[0]);
 
-    LazyLoadingString ** result = initManagedLazyLoadingStringArray(flashStrings, numStrings);
+    LazyLoadingString ** result = înitLazyStringArray(flashStrings, numStrings);
 
     // Check if the returned array is not NULL
     TEST_ASSERT_NOT_NULL(result);

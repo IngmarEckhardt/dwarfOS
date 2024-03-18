@@ -2,11 +2,11 @@
 #include <stdlib.h>
 
 // Hashing function (limited to 255 managed strings)
-uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size);
+static uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size);
 
 // Find a string in the managed database, has to be int16_t to return -1 as fail, and hold all positive values for uint8
-int16_t
-findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
+static int16_t
+getIndex(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size);
 
 
 // Add a string to the database of managed strings, enabling lazy loading and availability for freeMemoryRandom function.
@@ -27,8 +27,10 @@ addString(LazyLoadingString * stringToAdd, LazyLoadingString ** arrayOfManagedLa
     return NULL;
 }
 
+// ToDo version for far progmem
+
 // Retrieve a string from RAM, loading it from flash if not present
-char * getStringFromRamElseLoadFromFlash(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
+char * getString(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
     if (flashHelper == NULL || stringToFetch == NULL) { return NULL; }
 
     if (stringToFetch->pointerToString == NULL) {
@@ -44,6 +46,7 @@ LazyLoadingString * freeString(LazyLoadingString * stringToKill) {
     return stringToKill;
 }
 
+// ToDo Freeing at least one element only works if this element is at last position, free String should report if it really freed a string
 
 // Free memory based on a percentage, ensuring at least one element is freed
 void freeMemoryRandom(uint8_t percentage, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
@@ -62,7 +65,7 @@ LazyLoadingString *
 removeStringFromManagement(LazyLoadingString * stringToKill, LazyLoadingString ** arrayOfManagedLazyStringPointers,
                            uint8_t size) {
 
-    int16_t index = findStringInDb(stringToKill, arrayOfManagedLazyStringPointers, size);
+    int16_t index = getIndex(stringToKill, arrayOfManagedLazyStringPointers, size);
     if (index >= 0) {
         freeString(stringToKill);
         arrayOfManagedLazyStringPointers[index] = NULL;
@@ -71,25 +74,27 @@ removeStringFromManagement(LazyLoadingString * stringToKill, LazyLoadingString *
     return NULL;
 }
 
-
-
 // Initialize the StringRepository instance
 StringRepository * dOS_initStringRepository(uint8_t size) {
     StringRepository * repository = malloc(sizeof(StringRepository));
     if (repository == NULL) { return NULL; }
     else {
         repository->addString = addString;
-        repository->getString = getStringFromRamElseLoadFromFlash;
+        repository->getString = getString;
         repository->freeString = freeString;
         repository->freeMemoryRandom = freeMemoryRandom;
-        repository->removeStringFromManagement = removeStringFromManagement;
+        repository->removeFromManagement = removeStringFromManagement;
         if (size > 0) {
-            repository->arrayOfManagedLazyStringPointers = malloc(size * sizeof(LazyLoadingString *));
+            repository->lazyStringArray = malloc(size * sizeof(LazyLoadingString *));
+            if (repository->lazyStringArray == NULL) {
+                free(repository);
+                return NULL;
+            }
             for (int i = 0; i < size; i++) {
-                repository->arrayOfManagedLazyStringPointers[i] = NULL;
+                repository->lazyStringArray[i] = NULL;
             }
         } else {
-            repository->arrayOfManagedLazyStringPointers = NULL;
+            repository->lazyStringArray = NULL;
         }
 
         return repository;
@@ -97,7 +102,7 @@ StringRepository * dOS_initStringRepository(uint8_t size) {
 }
 
 LazyLoadingString **
-initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings) {
+initLazyStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings) {
 
     LazyLoadingString ** managedLazyLoadingStringArray = malloc(amountOfFlashStrings * sizeof(LazyLoadingString *));
     if (managedLazyLoadingStringArray == NULL) { return NULL; }
@@ -127,7 +132,7 @@ uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size) {
 }
 
 int16_t
-findStringInDb(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
+getIndex(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
     if (stringToFetch == NULL) { return -1; }
 
     uint8_t placement = getHash(stringToFetch, size);

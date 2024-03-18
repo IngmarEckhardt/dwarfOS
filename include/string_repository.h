@@ -28,7 +28,7 @@ typedef struct {
      * string (pointerToString) manually or add the string to the array and use rudimentary memory management that aims
      * for a low overhead of management.
      * */
-    LazyLoadingString ** arrayOfManagedLazyStringPointers;
+    LazyLoadingString ** lazyStringArray;
 
     /**
      * @brief Adds a string to the array of managed lazy loading strings.
@@ -82,9 +82,9 @@ typedef struct {
     * @param stringToKill The string to remove from management.
     * @return A pointer to the removed LazyLoadingString.
     */
-    LazyLoadingString * (* removeStringFromManagement)(LazyLoadingString * stringToKill,
-                                                       LazyLoadingString ** arrayOfManagedLazyStringPointers,
-                                                       uint8_t size);
+    LazyLoadingString * (* removeFromManagement)(LazyLoadingString * stringToKill,
+                                                 LazyLoadingString ** arrayOfManagedLazyStringPointers,
+                                                 uint8_t size);
 
 } StringRepository;
 
@@ -107,6 +107,6 @@ StringRepository * dOS_initStringRepository(uint8_t size);
 
 
 LazyLoadingString **
-initManagedLazyLoadingStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
+initLazyStringArray(const char * const arrayWithFlashStrings[], uint8_t amountOfFlashStrings);
 
 #endif /* DWARFOS_STRING_REPOSITORY_H */

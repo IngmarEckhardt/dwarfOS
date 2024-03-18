@@ -9,7 +9,7 @@
 // The arrays must have constant-sized placeholders for the individual sized strings to fit into PROGMEM.
 // Strings that do not fit into your array sizes will be stored as single strings in PROGMEM.
 // The usage of this converter can be observed in the colossal-cave-adventure repository (located in the /test folder, with the output included in the project).
-void convertTextArrayToProgMemTextFiles(const char ** textsArray, uint16_t amount, const uint16_t bordersArray[],
-                                        uint8_t amountBorders, char * prefix);
+void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amountOfStrings, const uint16_t maxSizesOfStringsInPGMArrays[],
+                                 uint8_t desiredAmountPGMArrays, char * desiredNamingAllUpperCase);
 
 #endif //DWARFOS_PGM_TEXTFILE_GENERATOR_H

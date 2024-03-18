@@ -183,6 +183,9 @@ void calcMaxLengthOfStrings(const uint8_t datasets, Entry * const * entries, con
         }
     }
 }
+
+// Is there a way how this function or its helpers can fail and should report this?
+
 void writeSourceFile(const char * prefix, const uint8_t datasets,
                      Entry * const * entries, const uint8_t * entry_counts,
                      const char * camelCase, const char * pascalCase, FILE * file) {
@@ -222,8 +225,10 @@ void writeSourceFile(const char * prefix, const uint8_t datasets,
     writeGetterFunction(prefix, datasets, entries, entry_counts, camelCase, pascalCase, file);
 }
 
-uint8_t parseDatas(const char ** textsArray, const uint16_t amount, const uint16_t * bordersArray,
-                   const uint8_t datasets, Entry *** entries, uint8_t ** entry_counts) {
+// Did we have to clean the allocated memory, work everytime with calloc?
+
+uint8_t parseData(const char ** textsArray, const uint16_t amount, const uint16_t * bordersArray,
+                  const uint8_t datasets, Entry *** entries, uint8_t ** entry_counts) {
 
     (*entries) = malloc(datasets * sizeof(Entry *));
     if ((*entries) == NULL) {
@@ -297,23 +302,28 @@ void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amount
     uint8_t datasets =  desiredAmountPGMArrays + 1;
     Entry ** entries;
     uint8_t * entry_counts;
-
-    parseDatas(arrayWithStrings, amountOfStrings, maxSizesOfStringsInPGMArrays, datasets, &entries, &entry_counts);
-
-    //write the file into the /src directory, if this is getting started from a subfolder of project root /
     char * fileNameC = createFileName(SRC_DIR, desiredNamingAllUpperCase, FILE_EXTENSION);
     char * camelCase = toCamelCase(desiredNamingAllUpperCase);
     char * pascalCase = malloc(strlen(camelCase) + 1);
+
+    //try to parse the data, handle all possible fails in allocating memory in one step
+    if (!parseData(arrayWithStrings, amountOfStrings, maxSizesOfStringsInPGMArrays, datasets, &entries, &entry_counts) ||
+    fileNameC == NULL || camelCase == NULL ||pascalCase == NULL){
+        return;
+    }
     strcpy(pascalCase, camelCase);
     pascalCase[0] = toupper(camelCase[0]);
 
 
+
+
+    //write the file into the /src directory, if this is getting started from a subfolder of project root /
     FILE * file = fopen(fileNameC, "w");
     if (file == NULL) {
         free(fileNameC);
         free(camelCase);
         free(pascalCase);
-        for (uint8_t i = 0; i < desiredAmountPGMArrays; i++) { free(entries[i]); }
+        for (uint8_t i = 0; i < datasets; i++) { free(entries[i]); }
         free(entries);
         free(entry_counts);
         printf("Error opening file!\n");
@@ -327,7 +337,7 @@ void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amount
     free(fileNameC);
     free(camelCase);
     free(pascalCase);
-    for (uint8_t i = 0; i < desiredAmountPGMArrays; i++) { free(entries[i]); }
+    for (uint8_t i = 0; i < datasets; i++) { free(entries[i]); }
     free(entries);
     free(entry_counts);
 }

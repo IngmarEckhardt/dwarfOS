@@ -52,41 +52,47 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
     }
 }
 
+#ifdef DWARFOS_TIME_H
+char * getTimeString(void) {
+    return ctime(NULL);
+}
+#else
+char * getTimeString() {
+    return '\0'; // Placeholder for timestamp
+}
+#endif /*DWARFOS_TIME_H */
+
+void freeTimeString(char * timeString) {
+#ifdef DWARFOS_TIME_H
+    free(timeString);
+#endif /*DWARFOS_TIME_H */
+}
+
 // Send a message with timestamp via USART
 void sendMsgWithTimestamp(uint8_t amountOfStrings, char * strings[]) {
-
-#ifdef DWARFOS_TIME_H
-    char * localtimeStringpointer = ctime(NULL);
-#endif /*DWARFOS_TIME_H */
+    char * localtimeStringpointer = getTimeString();
 
     // Create a new array to hold the sorted pointers with purpose to insert timestamp at the start of line
     char ** sortedStrings = (char **) malloc((amountOfStrings + 1) * sizeof(char *));
 
-    if (sortedStrings == NULL) {
-#ifdef DWARFOS_TIME_H
-        free(localtimeStringpointer);
-#endif /*DWARFOS_TIME_H */
-        return;
-    }
-
-    // Set the timestamp at the first position
-#ifdef DWARFOS_TIME_H
-    sortedStrings[0] = localtimeStringpointer;
-#else
-    // If time.h is not available, you may want to handle this case accordingly
-    sortedStrings[0] = '\0'; // Placeholder for timestamp
-#endif /* DWARFOS_TIME_H */
+    if (sortedStrings != NULL) {
+        // Set the timestamp at the first position
+        sortedStrings[0] = localtimeStringpointer;
+    } else {return;}
 
     for (uint8_t i = 0; i < amountOfStrings; i++) { sortedStrings[i + 1] = strings[i]; }
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
+    if (asciiHelper==NULL){
+        freeTimeString(localtimeStringpointer);
+        free(sortedStrings);
+        return;
+    }
     char * concatenatedString = asciiHelper->concatStrings(amountOfStrings + 1, sortedStrings);
     free(asciiHelper);
 
     if (concatenatedString == NULL) {
-#ifdef DWARFOS_TIME_H
-        free(localtimeStringpointer);
-#endif /*DWARFOS_TIME_H */
+        freeTimeString(localtimeStringpointer);
         free(sortedStrings);
         return;
     }
@@ -95,9 +101,7 @@ void sendMsgWithTimestamp(uint8_t amountOfStrings, char * strings[]) {
     free(sortedStrings);
     free(concatenatedString);
 
-#ifdef DWARFOS_TIME_H
-    free(localtimeStringpointer);
-#endif /*DWARFOS_TIME_H */
+    freeTimeString(localtimeStringpointer);
 }
 
 UartHelper * dOS_initUartHelper(void) {

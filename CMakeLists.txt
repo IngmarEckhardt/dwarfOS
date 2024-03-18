@@ -3,10 +3,11 @@
 cmake_minimum_required(VERSION 3.27)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
+
+# define MCU before to avoid this fallback
 if (NOT DEFINED MCU)
     set(MCU atmega328p)
 endif ()
-
 
 set(NAME "DwarfOS")
 set(VERSION_MAJOR 1)
@@ -16,6 +17,8 @@ project(${NAME} LANGUAGES C)
 
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
 option(DWARF_WATCH_QUARTZ "Build ${PROJECT_NAME} with watch quartz" OFF)
+
+# options to handle cross compiling configurations for tests with normal gcc
 option(DWARF_TEST "Build ${PROJECT_NAME} Tests with standard gcc" OFF)
 option(DWARF_TEST_TIME "Build ${PROJECT_NAME} with standard gcc but without time_t defined" OFF)
 
@@ -25,6 +28,9 @@ option(DWARF_TEST_TIME "Build ${PROJECT_NAME} with standard gcc but without time
 if (DWARF_TEST)
 else ()
     # set(CMAKE_C_COMPILER avr-gcc)
+endif ()
+if (DWARF_WATCH_QUARTZ)
+    add_definitions(-DDWARFOS_WATCH_QUARTZ)
 endif ()
 
 
@@ -41,11 +47,11 @@ set(AVR_OBJDUMP "${TOOLCHAIN_PATH}avr-objdump.exe")
 set(AVR_SIZE "${TOOLCHAIN_PATH}avr-size${FILE_EXT}")
 
 
-
 # compiler flags
 
 set(CSTANDARD "-std=gnu99")
 if (DWARF_TEST)
+    # unity wants to know on which system its getting compiled, change this to your environment
     set(CMAKE_SYSTEM_NAME Windows)
     set(CDEBUG "-g -ggdb --coverage")
 else ()
@@ -61,13 +67,7 @@ set(CFLAGS "${CMCU} ${COPT} ${CWARN} ${CSTANDARD} ${CTUNING} ${CDEBUG}")
 set(CMAKE_C_FLAGS "${CFLAGS}")
 
 
-if (DWARF_WATCH_QUARTZ)
-    add_definitions(-DDWARFOS_WATCH_QUARTZ)
-endif ()
-
-
 # files and folders
-
 set(INCL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/extern")
@@ -112,7 +112,7 @@ else ()
         target_include_directories(${PROJECT_NAME} PUBLIC ${INCL_PATH}
         )
     else ()
-        # add main.c
+        # add main.c, produces a elf file that you can burn to a device or use in simavr
         set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/main.c")
         add_executable(${PROJECT_NAME} ${SRC_FILES})
         set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
@@ -123,24 +123,27 @@ else ()
 
         # display size of solution
         add_custom_target(size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
+
         # show the complete content of the flash memory
-        add_custom_target(objdump "${AVR_OBJDUMP}" -h -s "${PROJECT_NAME}.elf" > objdump_output.txt)
+        add_custom_target(objdump "${AVR_OBJDUMP}" -h -s "${PROJECT_NAME}.elf" > flash_memory_content.txt)
     endif ()
 endif ()
 
 
+# ToDo look through tests after refactoring in version 1.1
 # test - targets
 
 if (DWARF_TEST)
 
     add_definitions(-DDWARFOS_TEST)
+    # get rid of time.h from standard gcc and the time_t definitions of host system
     if (DWARF_TEST_TIME)
         add_definitions(-DTIME_H)
         add_definitions(-D_TIME_T_DEFINED)
     else ()
         add_definitions(-DDWARFOS_TIME_H)
     endif ()
-    # adjust to your system
+
 
     set(TEST_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tests")
     # build Unity

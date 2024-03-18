@@ -1,7 +1,7 @@
 #ifndef DWARFOS_SETUP_H
 #define DWARFOS_SETUP_H
 
-#include <mcu_clock.h>
+#include "mcu_clock.h"
 
 #ifndef INIT_TIME
 // Default initial time: 2024-02-18 19:50:00 (CET)
@@ -33,8 +33,6 @@
  * To configure the MCU setup, call this function once in your program, typically at the beginning.
  *
  * @param pointerToGlobalMcuClockPointer A pointer to a pointer to the McuClock structure.
- * @param pointerToGlobalStringRepoPointer A pointer to a pointer to the StringRepository structure.
- * @param pointerToGlobalUartHelperPointer A pointer to a pointer to the UartHelper structure.
  */
 void setupMcu(McuClock ** pointerToGlobalMcuClockPointer);
 

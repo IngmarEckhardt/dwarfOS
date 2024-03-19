@@ -123,7 +123,7 @@ void testOSMethod(void) {
 #ifdef __AVR_HAVE_ELPM__
     flashHelper->loadString_PF(memoryString, pgm_get_far_address(memoryStringOnFlash));
 #else
-    flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
+    flashHelper->loadString_P(memoryString, memoryStringOnFlash);
 #endif
     // you can find easily memory leaks if you make such a check at several places in your code
     if (lastTime % 2) {
@@ -132,7 +132,7 @@ void testOSMethod(void) {
 #ifdef __AVR_HAVE_ELPM__
         flashHelper->loadString_PF(actionString,  pgm_get_far_address(longLocation_126));
 #else
-        flashHelper->loadNearStringFromFlash(actionString, longLocation_126);
+        flashHelper->loadString_P(actionString, longLocation_126);
 #endif
         uartHelper->usartTransmitString(actionString);
         free(actionString);

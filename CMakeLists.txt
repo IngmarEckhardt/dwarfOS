@@ -11,8 +11,8 @@ endif ()
 
 set(NAME "DwarfOS")
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 1)
-set(VERSION_PATCH 2)
+set(VERSION_MINOR 2)
+set(VERSION_PATCH 0)
 project(${NAME} LANGUAGES C)
 
 option(BUILD_DWARFOS_AS_LIBRARY "Build ${PROJECT_NAME} as a library" OFF)
@@ -108,7 +108,7 @@ if (DWARF_TEST)
 else ()
 
     # generates the version.h in the include folder, containing the String with ProjectName and Version, as in version.h.in
-    configure_file(version.h.in dwarf-os/version.h @ONLY)
+    configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/dwarf-os/version.h @ONLY)
 
     if (BUILD_DWARFOS_AS_LIBRARY)
         add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${HEADER_FILES})

@@ -131,7 +131,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
 
     fprintf(file, "#define LOAD_FROM(NUM) \\\n");
 #ifdef __AVR_HAVE_ELPM__
-    fprintf(file, "\tstringToReturn = helper->loadFarStringFromFile(&(FarTextFile) { \\\n");
+    fprintf(file, "\tstringToReturn = helper->createFarStringFromFile(&(FarTextFile) { \\\n");
 #else
     fprintf(file, "\tstringToReturn = helper->loadNearStringFromFile(&(NearTextFile) { \\\n");
 #endif

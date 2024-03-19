@@ -3,7 +3,7 @@
 #include <string.h>
 
 
-char* createStringFromFlash(const char* flashString) {
+char* createNearStringFromFlash(const char* flashString) {
 
     return flashString;
 }
@@ -26,7 +26,7 @@ FlashHelper * dOS_initFlashHelper(void) {
         return NULL;
     } else {
         storage->initMsg=initMsg;
-        storage->createStringFromFlash=createStringFromFlash;
+        storage->createNearStringFromFlash=createNearStringFromFlash;
         storage->readProgMemByte=readProgMemByte;
         storage->loadFromFlash=loadFromFlash;
         return storage;

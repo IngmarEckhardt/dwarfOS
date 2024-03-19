@@ -1,6 +1,7 @@
 #include <dwarf-os/string_repository.h>
 #include <stdlib.h>
 
+#ifndef __AVR_HAVE_ELPM__ // actual implementation doch work with far pointer
 // Hashing function (limited to 255 managed strings)
 static uint8_t getHash(LazyLoadingString * stringToAdd, uint8_t size);
 
@@ -34,7 +35,10 @@ char * getString(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
     if (flashHelper == NULL || stringToFetch == NULL) { return NULL; }
 
     if (stringToFetch->pointerToString == NULL) {
-        stringToFetch->pointerToString = flashHelper->createStringFromFlash(stringToFetch->flashString);
+
+
+        stringToFetch->pointerToString = flashHelper->createString_P(stringToFetch->flashString);
+
     }
     return stringToFetch->pointerToString;
 }
@@ -143,3 +147,4 @@ getIndex(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedL
     }
     return -1;
 }
+#endif

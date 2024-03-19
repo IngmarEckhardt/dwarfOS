@@ -121,7 +121,7 @@ void testOSMethod(void) {
 
     // cou can get rid of the ugly ifdef when you can decide on which device your code is running
 #ifdef __AVR_HAVE_ELPM__
-    flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(memoryStringOnFlash));
+    flashHelper->loadString_PF(memoryString, pgm_get_far_address(memoryStringOnFlash));
 #else
     flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
 #endif
@@ -130,7 +130,7 @@ void testOSMethod(void) {
 
         char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-        flashHelper->loadFarStringFromFlash(actionString,  pgm_get_far_address(longLocation_126));
+        flashHelper->loadString_PF(actionString,  pgm_get_far_address(longLocation_126));
 #else
         flashHelper->loadNearStringFromFlash(actionString, longLocation_126);
 #endif
@@ -142,9 +142,9 @@ void testOSMethod(void) {
     } else {
         char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-        flashHelper->loadFarStringFromFlash(action2String,  pgm_get_far_address(action_142));
+        flashHelper->loadString_PF(action2String,  pgm_get_far_address(action_142));
 #else
-        flashHelper->loadNearStringFromFlash(action2String, action_142);
+        flashHelper->loadString_P(action2String, action_142);
 #endif
 
         uartHelper->usartTransmitString(action2String);

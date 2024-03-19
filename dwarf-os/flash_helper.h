@@ -104,7 +104,6 @@ typedef struct {
     int16_t (* putFileString_P)(NearTextFile * textFile, const uint8_t index);
 
 #ifdef __AVR_HAVE_ELPM__
-    #ifdef __AVR_HAVE_ELPM__
     /**
      * @brief Loads a string from extended program memory to RAM.
      *
@@ -152,8 +151,8 @@ typedef struct {
      * @return 0 on success, or EOF on error.
      */
     int16_t (* putFileString_PF)(FarTextFile * textFile, const uint8_t index);
-#endif
-     uint32_t initMsg; /**< Initialization message. */
+    
+    uint32_t initMsg; /**< Initialization message. */
 #else
     const char * initMsg; /**< Initialization message. */
 #endif

@@ -1,4 +1,4 @@
-#include "input_queue.h"
+#include <dwarf-os/input_queue.h>
 #include <stdlib.h>
 #include <string.h>
 

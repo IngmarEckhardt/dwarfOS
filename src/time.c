@@ -1,5 +1,5 @@
-#include "time.h"
-#include "ascii_helper.h"
+#include <dwarf-os/time.h>
+#include <dwarf-os/ascii_helper.h>
 
 uint32_t (* takeTimeFromClock)(void) = NULL;
 

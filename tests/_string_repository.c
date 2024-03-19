@@ -1,5 +1,5 @@
 #include <unity.h>
-#include <string_repository.h>
+#include "dwarf-os/string_repository.h"
 #include <malloc.h>
 #define SIZE_OF_INIT_STRING_REPO 8
 void setUp(void) {}

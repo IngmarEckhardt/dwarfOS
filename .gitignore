@@ -1,6 +1,6 @@
 /cmake-*
 .*
-/include/version.h
+/dwarf-os/version.h
 /tests/cmake-*
 Debug
 Release

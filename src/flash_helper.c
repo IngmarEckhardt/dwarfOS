@@ -1,7 +1,7 @@
-#include "flash_helper.h"
+#include <dwarf-os/flash_helper.h>
 #include <avr/pgmspace.h>
 #include <stdlib.h>
-#include "version.h"
+#include <dwarf-os/version.h>
 
 char * createStringFromFlash(const char * flashString) {
     char * result = (char *) malloc((strlen_P(flashString) + 1) * sizeof(char));

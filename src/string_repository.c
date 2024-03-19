@@ -1,4 +1,4 @@
-#include "string_repository.h"
+#include <dwarf-os/string_repository.h>
 #include <stdlib.h>
 
 // Hashing function (limited to 255 managed strings)

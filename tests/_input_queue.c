@@ -1,5 +1,5 @@
 #include <unity.h>
-#include <input_queue.h>
+#include "dwarf-os/input_queue.h"
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>

@@ -1,4 +1,4 @@
-#include "mcu_clock.h"
+#include <dwarf-os/mcu_clock.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 

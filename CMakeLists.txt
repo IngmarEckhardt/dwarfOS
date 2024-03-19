@@ -68,7 +68,8 @@ set(CMAKE_C_FLAGS "${CFLAGS}")
 
 
 # files and folders
-set(INCL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(INCL_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+set(INCL_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}/dwarf-os")
 set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/extern")
 set(SRC_FILES
@@ -79,21 +80,23 @@ set(SRC_FILES
         "${SRC_PATH}/mcu_clock.c"
         "${SRC_PATH}/pgm_textfile_generator.c"
         "${SRC_PATH}/setup.c"
+        "${SRC_PATH}/stdio.c"
         "${SRC_PATH}/string_repository.c"
         "${SRC_PATH}/time.c"
         "${SRC_PATH}/uart_helper.c"
 )
 set(HEADER_FILES
-        "${INCL_PATH}/ascii_helper.h"
-        "${INCL_PATH}/flash_helper.h"
-        "${INCL_PATH}/heap_management_helper.h"
-        "${INCL_PATH}/input_queue.h"
-        "${INCL_PATH}/mcu_clock.h"
-        "${INCL_PATH}/pgm_textfile_generator.h"
-        "${INCL_PATH}/setup.h"
-        "${INCL_PATH}/string_repository.h"
-        "${INCL_PATH}/time.h"
-        "${INCL_PATH}/uart_helper.h"
+        "${INCL_SUBDIR}/ascii_helper.h"
+        "${INCL_SUBDIR}/flash_helper.h"
+        "${INCL_SUBDIR}/heap_management_helper.h"
+        "${INCL_SUBDIR}/input_queue.h"
+        "${INCL_SUBDIR}/mcu_clock.h"
+        "${INCL_SUBDIR}/pgm_textfile_generator.h"
+        "${INCL_SUBDIR}/setup.h"
+        "${INCL_SUBDIR}/stdio.h"
+        "${INCL_SUBDIR}/string_repository.h"
+        "${INCL_SUBDIR}/time.h"
+        "${INCL_SUBDIR}/uart_helper.h"
 )
 
 include_directories(${INCL_PATH})
@@ -105,7 +108,7 @@ if (DWARF_TEST)
 else ()
 
     # generates the version.h in the include folder, containing the String with ProjectName and Version, as in version.h.in
-    configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h @ONLY)
+    configure_file(version.h.in dwarf-os/version.h @ONLY)
 
     if (BUILD_DWARFOS_AS_LIBRARY)
         add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${HEADER_FILES})

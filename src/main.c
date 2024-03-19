@@ -7,13 +7,13 @@
 #endif
 
 //DwarfOS
-#include "setup.h"
-#include "ascii_helper.h"
-#include "mcu_clock.h"
-#include "uart_helper.h"
-#include "heap_management_helper.h"
-#include "time.h"
-#include "flash_helper.h"
+#include <dwarf-os/setup.h>
+#include <dwarf-os/ascii_helper.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/time.h>
+#include <dwarf-os/flash_helper.h>
 
 //the clock has states, instance it one time and hold a reference somewhere if you use it
 McuClock * mcuClock;

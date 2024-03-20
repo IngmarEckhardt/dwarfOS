@@ -76,7 +76,7 @@ struct FlashHelper {
     * @param stringBuffer A pointer to the buffer in RAM.
     * @param pointerToNearProgMemString A pointer to the string in program memory.
     */
-    void (* loadString_P)(char * stringBuffer, uint32_t flashString);
+    char * (* loadString_P)(char * stringBuffer, uint32_t flashString);
 
     /**
     * @brief Writes a string from a text file in program memory to the standard output.

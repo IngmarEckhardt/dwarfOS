@@ -1,21 +1,16 @@
 #include <dwarf-os/flash_helper.h>
 #include <avr/pgmspace.h>
 #include <stdlib.h>
-#include <dwarf-os/version.h>
 #include <stdio.h>
+#include <dwarf-os/version.h>
 #include <dwarf-os/stdio.h>
 
-int compareStringNear(const char * string, uint32_t flashString) {return strcmp_P(string, (const char *) flashString);}
-//int compareStringFar(const char * string, uint32_t flashString) { return strcmp_PF(string, flashString); }
-
-
-
-void copyStringNear(char * stringBuffer, uint32_t pointerToFlashString) {
-    strcpy_P(stringBuffer, (const char *) pointerToFlashString);
+int compareStringNear(const char * string, uint32_t flashString) {
+    return strcmp_P(string, (const char *) flashString);
 }
 
-void copyStringFar(char * stringBuffer, uint32_t pointerToFlashString) {
-    strcpy_PF(stringBuffer, pointerToFlashString);
+char * copyStringNear(char * stringBuffer, uint32_t pointerToFlashString) {
+    return strcpy_P(stringBuffer, (const char *) pointerToFlashString);
 }
 
 
@@ -23,25 +18,22 @@ uint16_t (* lengthOf)(uint32_t flashString);
 
 uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *) flashString); }
 
-uint16_t lengthOfFar(uint32_t flashString) { return strlen_PF(flashString); }
-
 
 int (* putStringToStdOut)(uint32_t flashString);
 
 int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *) flashString); }
 
-int putStringToStdOutFar(uint32_t flashString) { return puts_PF(flashString); }
-
 
 uint8_t (* readProgMemByte)(uint32_t address);
 
 uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *) address); }
+
 #ifdef __AVR_HAVE_ELPM__
+
 uint8_t readProgMemByteFar(uint32_t address) { return pgm_read_byte_far(address); }
+
 #endif
-
 #define isEqual(index, pointerToByte) index == readProgMemByte(pointerToByte)
-
 
 uint32_t findStringInFile(TextFile * textFile, const uint8_t index) {
     size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
@@ -85,8 +77,8 @@ char * createString_P(uint32_t flashString, FlashHelper * helper) {
     return result;
 }
 
-// need a implementation, returns true for safety until then
-uint8_t farProgmemIsUsed(void) {return 1;}
+// need an implementation, returns true for safety until then, should measure if the user on a ELPM Device uses the pgm beyond 64kB
+uint8_t farProgmemIsUsed(void) { return 1; }
 
 const __attribute__((__progmem__)) char initMsgOnFlash[] = DWARFOS_IDENTSTRING;
 
@@ -96,25 +88,25 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState) {
     if (helper == NULL) { return NULL; }
     else {
         helper->createString_P = createString_P;
-        helper->loadString_P = copyStringNear;
         helper->createFromFile_P = createFromFile_P;
         helper->putFileString_P = putFileString_P;
+
         helper->compareString_P = compareStringNear;
+        helper->loadString_P = copyStringNear;
         lengthOf = lengthOfNear;
         putStringToStdOut = putStringToStdOutNear;
         readProgMemByte = readProgMemByteNear;
         helper->initMsg = (uint32_t) &initMsgOnFlash;
-#ifdef __AVR_HAVE_ELPM__
-        if (!desiredState) {
-            desiredState = farProgmemIsUsed() + 1;
-        }
-        if (desiredState == 2) {
-            lengthOf = lengthOfFar;
-            putStringToStdOut = putStringToStdOutFar;
-            readProgMemByte = readProgMemByteFar;
-            helper->loadString_P = copyStringFar;
-        }
 
+#ifdef __AVR_HAVE_ELPM__
+        if (!desiredState) { desiredState = farProgmemIsUsed() + 1; }
+        if (desiredState == 2) {
+            helper->compareString_P =  strcmp_PF;
+            lengthOf = strlen_PF;
+            putStringToStdOut = puts_PF;
+            readProgMemByte = readProgMemByteFar;
+            helper->loadString_P = strcpy_PF;
+        }
         helper->initMsg = pgm_get_far_address(initMsgOnFlash);
 #endif
         return helper;

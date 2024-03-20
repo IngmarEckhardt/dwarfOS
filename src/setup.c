@@ -27,12 +27,12 @@ void setupMcu(McuClock ** pointerToGlobalMcuClockPointer) {
 void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
     if (uartHelper == NULL) { return; }
 
-    FlashHelper * flashHelper = dOS_initFlashHelper();
+    FlashHelper * flashHelper = dOS_initFlashHelper(2);
     if (flashHelper == NULL) { return; }
 #ifdef __AVR_HAVE_ELPM__
-    char * initmsg = flashHelper->createString_PF(flashHelper->initMsg);
+    char * initmsg = flashHelper->createString_P(flashHelper->initMsg, flashHelper);
 #else
-    char * initmsg = flashHelper->createString_P(flashHelper->initMsg);
+    char * initmsg = flashHelper->createString_P(flashHelper->initMsg, flashHelper);
 #endif
     uartHelper->sendMsgWithTimestamp(1, (char * []) {initmsg});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode

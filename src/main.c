@@ -80,7 +80,6 @@ void adjustTo1Sec(void) {
 #endif /* DWARFOS_WATCH_QUARTZ */
 
 
-
 void freeAll(HeapManagementHelper * heapHelper, AsciiHelper * asciiHelper, FlashHelper * flashHelper,
              UartHelper * uartHelper, char * memoryAmountString, char * memoryString) {
     free(heapHelper);
@@ -108,7 +107,7 @@ void testOSMethod(void) {
     int16_t memoryAmount = heapHelper->getFreeMemory();
 
     AsciiHelper * asciiHelper = dOS_initAsciiHelper();
-    FlashHelper * flashHelper = dOS_initFlashHelper();
+    FlashHelper * flashHelper = dOS_initFlashHelper(2);
     UartHelper * uartHelper = dOS_initUartHelper();
     char * memoryAmountString = calloc(5, sizeof(char));
     char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
@@ -121,7 +120,7 @@ void testOSMethod(void) {
 
     // cou can get rid of the ugly ifdef when you can decide on which device your code is running
 #ifdef __AVR_HAVE_ELPM__
-    flashHelper->loadString_PF(memoryString, pgm_get_far_address(memoryStringOnFlash));
+    flashHelper->loadString_P(memoryString, pgm_get_far_address(memoryStringOnFlash));
 #else
     flashHelper->loadString_P(memoryString, memoryStringOnFlash);
 #endif
@@ -130,7 +129,7 @@ void testOSMethod(void) {
 
         char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-        flashHelper->loadString_PF(actionString,  pgm_get_far_address(longLocation_126));
+        flashHelper->loadString_P(actionString, pgm_get_far_address(longLocation_126));
 #else
         flashHelper->loadString_P(actionString, longLocation_126);
 #endif
@@ -142,7 +141,7 @@ void testOSMethod(void) {
     } else {
         char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-        flashHelper->loadString_PF(action2String,  pgm_get_far_address(action_142));
+        flashHelper->loadString_P(action2String, pgm_get_far_address(action_142));
 #else
         flashHelper->loadString_P(action2String, action_142);
 #endif

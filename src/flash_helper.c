@@ -5,125 +5,117 @@
 #include <stdio.h>
 #include <dwarf-os/stdio.h>
 
-char * createNearStringFromFlash(const char * flashString) {
-    char * result = (char *) malloc((strlen_P(flashString) + 1) * sizeof(char));
-    if (result == NULL) { return NULL; }
-    strcpy_P(result, flashString);
-    return result;
+int compareStringNear(const char * string, uint32_t flashString) {return strcmp_P(string, (const char *) flashString);}
+//int compareStringFar(const char * string, uint32_t flashString) { return strcmp_PF(string, flashString); }
+
+
+
+void copyStringNear(char * stringBuffer, uint32_t pointerToFlashString) {
+    strcpy_P(stringBuffer, (const char *) pointerToFlashString);
 }
 
-void loadNearStringFromFlash(char * stringBuffer, const char * flashString) { strcpy_P(stringBuffer, flashString); }
-
-uint8_t readProgMemByte(const uint8_t * addressOfByte) { return pgm_read_byte(addressOfByte); }
-
-int16_t compareWithNearFlashString(const char * string, const char * flashString) { return strcmp_P(string, flashString); }
-
-uint16_t readNearWord(const uint16_t * intAdress) { return pgm_read_word(intAdress); }
-
-char * findStringInNearFile(NearTextFile * textFile, const uint8_t index) {
-    size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
-
-    for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
-        uint8_t * pointerToIndexArray = (uint8_t *) &textFile + i * entrySize;
-        char * pointerToString = (char *) ((uint8_t *) &textFile + i * entrySize +
-                                           textFile->sizeOfIndexArray * sizeof(uint8_t));
-
-        for (uint8_t j = 0; j < textFile->sizeOfIndexArray; j++) {
-            if (index == pgm_read_byte(pointerToIndexArray + j)) {
-                return pointerToString;
-            }
-        }
-    }
-    return NULL;
+void copyStringFar(char * stringBuffer, uint32_t pointerToFlashString) {
+    strcpy_PF(stringBuffer, pointerToFlashString);
 }
 
-char * createNearStringFromFile(NearTextFile * textFile, const uint8_t index) {
-    char * nearPgmStringToLoad = findStringInNearFile(textFile, index);
-    if (nearPgmStringToLoad != NULL) {
-        char * stringToReturn = (char *) malloc(textFile->maxLengthOfStrings);
-        strcpy_P(stringToReturn, nearPgmStringToLoad);
-        return stringToReturn;
-    }
-    return NULL;
-}
 
-int16_t putFileString_P(NearTextFile * textFile, const uint8_t index) {
-    char * nearPgmStringToPut = findStringInNearFile(textFile, index);
-    if (nearPgmStringToPut != NULL) {
-        return puts_P(nearPgmStringToPut);
-    }
-    return -1;
-}
+uint16_t (* lengthOf)(uint32_t flashString);
 
+uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *) flashString); }
+
+uint16_t lengthOfFar(uint32_t flashString) { return strlen_PF(flashString); }
+
+
+int (* putStringToStdOut)(uint32_t flashString);
+
+int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *) flashString); }
+
+int putStringToStdOutFar(uint32_t flashString) { return puts_PF(flashString); }
+
+
+uint8_t (* readProgMemByte)(uint32_t address);
+
+uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *) address); }
 #ifdef __AVR_HAVE_ELPM__
-char * createFarStringFromFlash(uint_farptr_t farFlashString) {
+uint8_t readProgMemByteFar(uint32_t address) { return pgm_read_byte_far(address); }
+#endif
 
-    char * result = (char *) malloc((strlen_PF(farFlashString) + 1) * sizeof(char));
-    if (result == NULL) { return NULL; }
-    strcpy_PF(result, farFlashString);
-    return result;
-}
+#define isEqual(index, pointerToByte) index == readProgMemByte(pointerToByte)
 
-uint32_t findStringInFarFile(FarTextFile * textFile, const uint8_t index) {
+
+uint32_t findStringInFile(TextFile * textFile, const uint8_t index) {
     size_t entrySize = textFile->sizeOfIndexArray * sizeof(uint8_t) + textFile->maxLengthOfStrings * sizeof(char);
-
+    //without an array with numbers, we just return the string that is found at the array index position
+    if (!textFile->sizeOfIndexArray) { return (textFile->pointerToArray + index * entrySize); }
     for (uint8_t i = 0; i < textFile->amountOfEntries; i++) {
-        uint32_t pointerToEntry = textFile->farPointer + i * entrySize;
+        uint32_t pointerToEntry = textFile->pointerToArray + i * entrySize;
         uint32_t pointerToNumbers = pointerToEntry;
         uint32_t pointerToStringInEntry = pointerToEntry + textFile->sizeOfIndexArray * sizeof(uint8_t);
         for (uint8_t j = 0; j < textFile->sizeOfIndexArray; j++) {
-            if (index == pgm_read_byte_far(pointerToNumbers + j)) {
-                return pointerToStringInEntry;
-            }
+            if (isEqual(index, pointerToNumbers)) { return pointerToStringInEntry; }
+            else { pointerToNumbers++; }
         }
     }
     return 0;
 }
 
-char * createFarStringFromFile(FarTextFile * textFile, const uint8_t index) {
-    uint32_t pointerToString = findStringInFarFile(textFile, index);
-    if (pointerToString != 0) {
-        char * stringToReturn = (char *) malloc(textFile->maxLengthOfStrings);
-        strcpy_PF(stringToReturn, pointerToString);
-        return stringToReturn;
+//the pointerToArray has to be set before with pgm get far address or just cast the normal 16 bit pointer into the uint32_t for near pgm
+char * createFromFile_P(TextFile * textFile, const uint8_t index, FlashHelper * helper) {
+    char * stringToReturn = NULL;
+    uint32_t flashString = findStringInFile(textFile, index);
+
+    if (flashString != 0) {
+        stringToReturn = (char *) malloc(textFile->maxLengthOfStrings);
+        if (stringToReturn) { helper->loadString_P(stringToReturn, flashString); }
     }
-    return NULL;
+    return stringToReturn;
 }
-int16_t putFileString_PF(FarTextFile * textFile, const uint8_t index) {
-    uint32_t pointerToString = findStringInFarFile(textFile, index);
-    if (pointerToString != 0) {
-        return puts_PF(pointerToString);
-    }
+
+//the pointerToArray has to be set before with pgm get far address or just cast the normal 16 bit pointer into the uint32_t for near pgm
+int16_t putFileString_P(TextFile * textFile, const uint8_t index) {
+    uint32_t flashString = findStringInFile(textFile, index);
+    if (flashString != 0) { return putStringToStdOut(flashString); }
     return -1;
 }
 
-
-void loadFarStringFromFlash(char * stringBuffer, uint_farptr_t farFlashString) {
-    strcpy_PF(stringBuffer, farFlashString);
+char * createString_P(uint32_t flashString, FlashHelper * helper) {
+    char * result = (char *) malloc((lengthOf(flashString) + 1) * sizeof(char));
+    if (result == NULL) { return NULL; }
+    helper->loadString_P(result, flashString);
+    return result;
 }
 
-
-#endif
+// need a implementation, returns true for safety until then
+uint8_t farProgmemIsUsed(void) {return 1;}
 
 const __attribute__((__progmem__)) char initMsgOnFlash[] = DWARFOS_IDENTSTRING;
 
-FlashHelper * dOS_initFlashHelper(void) {
+// desiredState for ELPM devices 0, we measure if 64kB Flash is used, 1 use near pgm getter, 2 use far pgm getters
+FlashHelper * dOS_initFlashHelper(uint8_t desiredState) {
     FlashHelper * helper = malloc(sizeof(FlashHelper));
     if (helper == NULL) { return NULL; }
     else {
-        helper->createString_P = createNearStringFromFlash;
-        helper->compareString_P = compareWithNearFlashString;
-        helper->loadString_P = loadNearStringFromFlash;
-        helper->createFromFile_P = createNearStringFromFile;
+        helper->createString_P = createString_P;
+        helper->loadString_P = copyStringNear;
+        helper->createFromFile_P = createFromFile_P;
         helper->putFileString_P = putFileString_P;
+        helper->compareString_P = compareStringNear;
+        lengthOf = lengthOfNear;
+        putStringToStdOut = putStringToStdOutNear;
+        readProgMemByte = readProgMemByteNear;
+        helper->initMsg = (uint32_t) &initMsgOnFlash;
 #ifdef __AVR_HAVE_ELPM__
-        helper->createString_PF = createFarStringFromFlash;
-        helper->loadString_PF = loadFarStringFromFlash;
-        helper->createFromFile_PF = createFarStringFromFile;
-        helper->putFileString_PF = putFileString_PF;
+        if (!desiredState) {
+            desiredState = farProgmemIsUsed() + 1;
+        }
+        if (desiredState == 2) {
+            lengthOf = lengthOfFar;
+            putStringToStdOut = putStringToStdOutFar;
+            readProgMemByte = readProgMemByteFar;
+            helper->loadString_P = copyStringFar;
+        }
+
         helper->initMsg = pgm_get_far_address(initMsgOnFlash);
-#else
-        helper->initMsg = initMsgOnFlash;
 #endif
         return helper;
     }

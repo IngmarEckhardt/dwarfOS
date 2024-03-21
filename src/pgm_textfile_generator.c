@@ -55,24 +55,20 @@ char * toCamelCase(char * allUpperCaseNaming) {
     return stringToReturn;
 }
 
-char * createFileName(char * additionalPrefix, char * prefix, char fileEnding) {
+
+char * createFileName(char * prefix, char fileEnding) {
     uint16_t lengthPrefix = strlen(prefix);
-    uint16_t lengthAdditionalPrefix = strlen(additionalPrefix);
-    char * stringToReturn = malloc(
-            lengthPrefix + lengthAdditionalPrefix + 8); // 8 extra chars for "../", "/", "/", "s.", and null terminator
+
+    char * stringToReturn = malloc(lengthPrefix + 4);
     if (stringToReturn == NULL) { return NULL; }
 
-    strcpy(stringToReturn, "../");
-    strcat(stringToReturn, additionalPrefix);
-    strcat(stringToReturn, "/");
-    strcat(stringToReturn, prefix);
     for (uint16_t i = 0; i < lengthPrefix; i++) {
-        stringToReturn[i + lengthAdditionalPrefix + 4] = tolower(prefix[i]);
+        stringToReturn[i] = tolower(prefix[i]);
     } // 4 extra chars for "../"
-    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 4] = 's'; // 4 extra chars for "../"
-    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 5] = '.';
-    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 6] = fileEnding;
-    stringToReturn[lengthPrefix + lengthAdditionalPrefix + 7] = '\0';
+    stringToReturn[lengthPrefix++] = 's';
+    stringToReturn[lengthPrefix++] = '.';
+    stringToReturn[lengthPrefix++] = fileEnding;
+    stringToReturn[lengthPrefix] = '\0';
     return stringToReturn;
 }
 
@@ -88,22 +84,31 @@ void calcMaxAmountOfIndexArray(const uint8_t datasets, Entry * const * entries, 
     }
 }
 
-void writeProgMemArrays(const char * prefix, const uint8_t datasets, Entry * const * entries, const uint8_t * entry_counts,
-                        const char * camelCase, FILE * file) {
+void
+writeProgMemArrays(const char * prefix, const uint8_t datasets, Entry * const * entries, const uint8_t * entry_counts,
+                   const char * camelCase, uint8_t withIndexArray, FILE * file) {
     for (int i = 0; i < datasets - 1; i++) {
         fprintf(file, "\ntypedef struct {\n");
-        fprintf(file, "\tuint8_t numbers[%s_%d_INDEX_ARRAY_SIZE];\n", prefix, i + 1);
+        if (withIndexArray) {
+            fprintf(file, "\tuint8_t numbers[%s_%d_INDEX_ARRAY_SIZE];\n", prefix, i + 1);
+        }
         fprintf(file, "\tchar stringInProgramMem[%s_%d_STRING_LENGTH];\n", prefix, i + 1);
         fprintf(file, "} %s_%d;\n\n", prefix, i + 1);
         fprintf(file, "const __attribute__((__progmem__)) %s_%d %ss_%d[AMOUNT_%s_%d_STRINGS] = {\n", prefix,
                 i + 1, camelCase, i + 1,
                 prefix, i + 1);
         for (int j = 0; j < entry_counts[i]; j++) {
-            fprintf(file, "\t\t{{");
-            // print indizes
-            for (int k = 0; k < entries[i][j].index_count; k++) { fprintf(file, "%d,", entries[i][j].indices[k]); }
+            fprintf(file, "\t\t{");
+
+            if (withIndexArray) {
+                fprintf(file, "{");
+                // print indizes
+                for (int k = 0; k < entries[i][j].index_count; k++) { fprintf(file, "%d,", entries[i][j].indices[k]); }
+                fprintf(file, "},");
+            }
+
             // print String
-            fprintf(file, "},\"%s\"},\n", entries[i][j].text);
+            fprintf(file, "\"%s\"},\n", entries[i][j].text);
         }
         fprintf(file, "};\n");
     }
@@ -115,7 +120,7 @@ void writeSingleRemainingStrings(const char * prefix, const uint8_t datasets, En
         fprintf(file, "#define %s_%d_STRING_LENGTH %u\n",
                 prefix,
                 entries[datasets - 1][i].indices[0],
-                (strlen(entries[datasets - 1][i].text))+1);
+                (strlen(entries[datasets - 1][i].text)) + 1);
         fprintf(file, "const __attribute__((__progmem__)) char %s_%d[%s_%d_STRING_LENGTH] = \"%s\";\n",
                 camelCase,
                 entries[datasets - 1][i].indices[0],
@@ -127,24 +132,45 @@ void writeSingleRemainingStrings(const char * prefix, const uint8_t datasets, En
 }
 
 void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * const * entries,
-                         const uint8_t * entry_counts, const char * camelCase, const char * pascalCase, FILE * file) {
+                         const uint8_t * entry_counts, const char * camelCase, const char * pascalCase,
+                         uint8_t desiredWithIndexArray, uint8_t farMemPointer, FILE * file) {
 
     fprintf(file, "#define LOAD_FROM(NUM) \\\n");
-#ifdef __AVR_HAVE_ELPM__
-    fprintf(file, "\tstringToReturn = helper->createFarStringFromFile(&(FarTextFile) { \\\n");
-#else
-    fprintf(file, "\tstringToReturn = helper->loadNearStringFromFile(&(NearTextFile) { \\\n");
-#endif
-#ifdef __AVR_HAVE_ELPM__
-    fprintf(file, "\t\t.farPointer = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
-#else
-    fprintf(file, "\t\t.pointerToNearProgMemString = (void *) %ss_##NUM,\\\n", camelCase);
-#endif
+    fprintf(file, "\tstringToReturn = helper->createFromFile_P(&(TextFile) { \\\n");
+    if (farMemPointer) {
+        fprintf(file, "\t\t.pointerToArray = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
+    } else {
+        fprintf(file, "\t\t.pointerToArray = (uint32_t) &%ss_##NUM,\\\n", camelCase);
+    }
     fprintf(file, "\t\t.maxLengthOfStrings = %s_##NUM##_STRING_LENGTH, \\\n", prefix);
-    fprintf(file, "\t\t.sizeOfIndexArray = %s_##NUM##_INDEX_ARRAY_SIZE, \\\n", prefix);
+    if (desiredWithIndexArray) {
+        fprintf(file, "\t\t.sizeOfIndexArray = %s_##NUM##_INDEX_ARRAY_SIZE, \\\n", prefix);
+    } else {
+        fprintf(file, "\t\t.sizeOfIndexArray = 0, \\\n");
+    }
+
     fprintf(file, "\t\t.amountOfEntries = AMOUNT_%s_##NUM##_STRINGS, \\\n", prefix);
-    fprintf(file, "\t}, %sNumber); \\\n", camelCase);
+    fprintf(file, "\t}, %sNumber, helper); \\\n", camelCase);
     fprintf(file, "\tif (stringToReturn != NULL) { return stringToReturn; }\n\n");
+
+
+    fprintf(file, "#define PUT_FROM(NUM) \\\n");
+    fprintf(file, "\treturn helper->putFileString_P(&(TextFile) { \\\n");
+    if (farMemPointer) {
+        fprintf(file, "\t\t.pointerToArray = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
+    } else {
+        fprintf(file, "\t\t.pointerToArray = (uint32_t) &%ss_##NUM,\\\n", camelCase);
+    }
+    fprintf(file, "\t\t.maxLengthOfStrings = %s_##NUM##_STRING_LENGTH, \\\n", prefix);
+    if (desiredWithIndexArray) {
+        fprintf(file, "\t\t.sizeOfIndexArray = %s_##NUM##_INDEX_ARRAY_SIZE, \\\n", prefix);
+    } else {
+        fprintf(file, "\t\t.sizeOfIndexArray = 0, \\\n");
+    }
+    fprintf(file, "\t\t.amountOfEntries = AMOUNT_%s_##NUM##_STRINGS, \\\n", prefix);
+    fprintf(file, "\t}, %sNumber, helper); \\\n\n", camelCase);
+
+
     fprintf(file, "char * load%s(FlashHelper * helper, uint8_t %sNumber) {\n", pascalCase, camelCase);
     fprintf(file, "\tchar * stringToReturn = NULL;\n\n");
     for (int j = 0; j < entry_counts[datasets - 1]; j++) {
@@ -152,22 +178,49 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
                 entries[datasets - 1][j].indices[0]);
         fprintf(file, "\t\tstringToReturn = (char *) malloc(%s_%d_STRING_LENGTH);\n", prefix,
                 entries[datasets - 1][j].indices[0]);
-#ifdef __AVR_HAVE_ELPM__
-        fprintf(file, "\t\thelper->loadFarStringFromFlash(stringToReturn, pgm_get_far_address(%s_%d));\n",
-                camelCase, entries[datasets - 1][j].indices[0]);
-#else
-        fprintf(file, "\t\thelper->loadNearStringFromFlash(stringToReturn, %s_%d);\n",
-                camelCase, entries[datasets - 1][j].indices[0]);
-#endif
+        if (farMemPointer) {
+            fprintf(file, "\t\thelper->loadString_P(stringToReturn,  pgm_get_far_address(%s_%d));\n",
+                    camelCase, entries[datasets - 1][j].indices[0]);
+        } else {
+            fprintf(file, "\t\thelper->loadString_P(stringToReturn,  (uint32_t) %s_%d);\n",
+                    camelCase, entries[datasets - 1][j].indices[0]);
+        }
         fprintf(file, "\t}\n");
     }
     for (uint8_t i = 0; i < datasets - 1; i++) { fprintf(file, "\tLOAD_FROM(%d)\n", i + 1); }
     fprintf(file, "\n");
     fprintf(file, "\treturn stringToReturn;\n");
     fprintf(file, "}\n\n");
+
+
+    fprintf(file, "int16_t putFileStr%s(FlashHelper * helper, uint8_t %sNumber) {\n", pascalCase, camelCase);
+    for (int j = 0; j < entry_counts[datasets - 1]; j++) {
+        fprintf(file, "\tif (%sNumber == %d) {\n", camelCase,
+                entries[datasets - 1][j].indices[0]);
+        if (farMemPointer) {
+            fprintf(file, "\t\thelper->putString_P(pgm_get_far_address(%s_%d));\n",
+                    camelCase, entries[datasets - 1][j].indices[0]);
+        } else {
+            fprintf(file, "\t\thelper->putString_P((uint32_t) %s_%d);\n",
+                    camelCase, entries[datasets - 1][j].indices[0]);
+        }
+        fprintf(file, "\t}\n");
+    }
+    for (uint8_t i = 0; i < datasets - 1; i++) { fprintf(file, "\tPUT_FROM(%d)\n", i + 1); }
+    fprintf(file, "\n");
+    fprintf(file, "\treturn 0;\n");
+    fprintf(file, "}\n\n");
+
+
     fprintf(file, "//getter function expects an initialized instance of FlashHelper as reachable global reference\n");
     fprintf(file, "char * get%s(int %sNumber) {\n", pascalCase, camelCase);
     fprintf(file, "\treturn load%s(flashHelper, %sNumber);\n", pascalCase, camelCase);
+    fprintf(file, "}\n");
+
+
+    fprintf(file, "//getter function expects an initialized instance of FlashHelper as reachable global reference\n");
+    fprintf(file, "char * put%s(int %sNumber) {\n", pascalCase, camelCase);
+    fprintf(file, "\treturn putFileStr%s(flashHelper, %sNumber);\n", pascalCase, camelCase);
     fprintf(file, "}");
 }
 
@@ -177,7 +230,7 @@ void calcMaxLengthOfStrings(const uint8_t datasets, Entry * const * entries, con
         maxLengthOfStrings[i] = 0;
         for (uint8_t j = 0; j < entry_counts[i]; j++) {
             uint16_t intermedLength = strlen(entries[i][j].text);
-            if (intermedLength  > maxLengthOfStrings[i]) {
+            if (intermedLength > maxLengthOfStrings[i]) {
                 maxLengthOfStrings[i] = intermedLength;
             }
         }
@@ -188,41 +241,46 @@ void calcMaxLengthOfStrings(const uint8_t datasets, Entry * const * entries, con
 
 void writeSourceFile(const char * prefix, const uint8_t datasets,
                      Entry * const * entries, const uint8_t * entry_counts,
-                     const char * camelCase, const char * pascalCase, FILE * file) {
+                     const char * camelCase, const char * pascalCase, FILE * file, uint8_t desiredWithIndexArray,
+                     uint8_t farMemPointer) {
 
     uint8_t maxIndizes[datasets];
     uint16_t maxLengthOfStrings[datasets];
     calcMaxAmountOfIndexArray(datasets, entries, entry_counts, maxIndizes);
 
-    calcMaxLengthOfStrings(datasets, entries, entry_counts,maxLengthOfStrings);
-    char * prefixLowercase = malloc(strlen(prefix) + 1);
-    for (uint16_t i = 0; i < strlen(prefix); i++){
+    calcMaxLengthOfStrings(datasets, entries, entry_counts, maxLengthOfStrings);
+    char * prefixLowercase = calloc(strlen(prefix) + 1, 1);
+    for (uint16_t i = 0; i < strlen(prefix); i++) {
         prefixLowercase[i] = tolower(prefix[i]);
     }
-    fprintf(file, "//#include \"%ss.h\"\n",prefixLowercase);
+    fprintf(file, "//#include \"%ss.h\"\n", prefixLowercase);
     fprintf(file, "#include <stdlib.h>\n");
     fprintf(file, "#include <avr/pgmspace.h>\n");
-    fprintf(file, "#include \"flash_helper.h\"\n\n");
+    fprintf(file, "#include <dwarf-os/flash_helper.h>\n\n");
     for (uint8_t i = 0; i < datasets - 1; i++) {
         fprintf(file, "#define %s_%d_STRING_LENGTH %d\n", prefix,
-                i + 1,  maxLengthOfStrings[i] + 1);
+                i + 1, maxLengthOfStrings[i] + 1);
     }
     for (uint8_t i = 0; i < datasets - 1; i++) {
         fprintf(file, "#define AMOUNT_%s_%d_STRINGS %d\n", prefix,
                 i + 1, entry_counts[i]);
     }
-    for (uint8_t i = 0; i < datasets - 1; i++) {
-        fprintf(file, "#define %s_%d_INDEX_ARRAY_SIZE %d\n", prefix,
-                i + 1,maxIndizes[i]);
+    if (desiredWithIndexArray) {
+        for (uint8_t i = 0; i < datasets - 1; i++) {
+            fprintf(file, "#define %s_%d_INDEX_ARRAY_SIZE %d\n", prefix,
+                    i + 1, maxIndizes[i]);
+        }
     }
 
-    writeProgMemArrays(prefix, datasets, entries, entry_counts, camelCase, file);
+
+    writeProgMemArrays(prefix, datasets, entries, entry_counts, camelCase, desiredWithIndexArray, file);
     fprintf(file, "\n");
 
     writeSingleRemainingStrings(prefix, datasets, entries, entry_counts, camelCase, file);
     fprintf(file, "\n");
 
-    writeGetterFunction(prefix, datasets, entries, entry_counts, camelCase, pascalCase, file);
+    writeGetterFunction(prefix, datasets, entries, entry_counts, camelCase, pascalCase, desiredWithIndexArray,
+                        farMemPointer, file);
 }
 
 // Did we have to clean the allocated memory, work everytime with calloc?
@@ -271,7 +329,8 @@ uint8_t parseData(const char ** textsArray, const uint16_t amount, const uint16_
                 char * convertedString = addEscapeCharsToNonPrintableChars(textsArray[indexOfComputedString]);
 
                 // we look if we already have an identical string parsed before and can just add the additional index-information
-                for (uint8_t indexOfEntryInTheDataset = 0; indexOfEntryInTheDataset < (*entry_counts)[indexOfDataset]; indexOfEntryInTheDataset++) {
+                for (uint8_t indexOfEntryInTheDataset = 0;
+                     indexOfEntryInTheDataset < (*entry_counts)[indexOfDataset]; indexOfEntryInTheDataset++) {
                     //we found the string
                     if (strcmp(convertedString, (*entries)[indexOfDataset][indexOfEntryInTheDataset].text) == 0) {
                         //add the new index to its index array
@@ -297,18 +356,22 @@ uint8_t parseData(const char ** textsArray, const uint16_t amount, const uint16_
     return 1;
 }
 
-void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amountOfStrings, const uint16_t maxSizesOfStringsInPGMArrays[],
-                                 uint8_t desiredAmountPGMArrays, char * desiredNamingAllUpperCase) {
-    uint8_t datasets =  desiredAmountPGMArrays + 1;
+void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amountOfStrings,
+                                 const uint16_t maxSizesOfStringsInPGMArrays[],
+                                 uint8_t desiredAmountPGMArrays, char * desiredNamingAllUpperCase,
+                                 uint8_t desiredWithIndexArray,
+                                 uint8_t farMemPointer) {
+    uint8_t datasets = desiredAmountPGMArrays + 1;
     Entry ** entries;
     uint8_t * entry_counts;
-    char * fileNameC = createFileName(SRC_DIR, desiredNamingAllUpperCase, FILE_EXTENSION);
+    char * fileNameC = createFileName(desiredNamingAllUpperCase, FILE_EXTENSION);
     char * camelCase = toCamelCase(desiredNamingAllUpperCase);
     char * pascalCase = malloc(strlen(camelCase) + 1);
 
     //try to parse the data, handle all possible fails in allocating memory in one step
-    if (!parseData(arrayWithStrings, amountOfStrings, maxSizesOfStringsInPGMArrays, datasets, &entries, &entry_counts) ||
-    fileNameC == NULL || camelCase == NULL ||pascalCase == NULL){
+    if (!parseData(arrayWithStrings, amountOfStrings, maxSizesOfStringsInPGMArrays, datasets, &entries,
+                   &entry_counts) ||
+        fileNameC == NULL || camelCase == NULL || pascalCase == NULL) {
         return;
     }
     strcpy(pascalCase, camelCase);
@@ -330,7 +393,8 @@ void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amount
         return;
     }
 
-    writeSourceFile(desiredNamingAllUpperCase, datasets, entries, entry_counts, camelCase, pascalCase, file);
+    writeSourceFile(desiredNamingAllUpperCase, datasets, entries, entry_counts, camelCase, pascalCase, file,
+                    desiredWithIndexArray, farMemPointer);
 
 
     fclose(file);

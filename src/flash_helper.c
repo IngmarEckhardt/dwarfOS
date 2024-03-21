@@ -18,9 +18,6 @@ uint16_t (* lengthOf)(uint32_t flashString);
 
 uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *) flashString); }
 
-
-int (* putStringToStdOut)(uint32_t flashString);
-
 int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *) flashString); }
 
 
@@ -64,9 +61,9 @@ char * createFromFile_P(TextFile * textFile, const uint8_t index, FlashHelper * 
 }
 
 //the pointerToArray has to be set before with pgm get far address or just cast the normal 16 bit pointer into the uint32_t for near pgm
-int16_t putFileString_P(TextFile * textFile, const uint8_t index) {
+int16_t putFileString_P(TextFile * textFile, const uint8_t index, FlashHelper * helper) {
     uint32_t flashString = findStringInFile(textFile, index);
-    if (flashString != 0) { return putStringToStdOut(flashString); }
+    if (flashString != 0) { return helper->putString_P(flashString); }
     return -1;
 }
 
@@ -94,7 +91,7 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState) {
         helper->compareString_P = compareStringNear;
         helper->loadString_P = copyStringNear;
         lengthOf = lengthOfNear;
-        putStringToStdOut = putStringToStdOutNear;
+        helper->putString_P = putStringToStdOutNear;
         readProgMemByte = readProgMemByteNear;
         helper->initMsg = (uint32_t) &initMsgOnFlash;
 
@@ -103,7 +100,7 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState) {
         if (desiredState == 2) {
             helper->compareString_P =  strcmp_PF;
             lengthOf = strlen_PF;
-            putStringToStdOut = puts_PF;
+            helper->putString_P = puts_PF;
             readProgMemByte = readProgMemByteFar;
             helper->loadString_P = strcpy_PF;
         }

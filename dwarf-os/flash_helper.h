@@ -78,6 +78,8 @@ struct FlashHelper {
     */
     char * (* loadString_P)(char * stringBuffer, uint32_t flashString);
 
+    int16_t (*putString_P)(uint32_t farPointerToString);
+
     /**
     * @brief Writes a string from a text file in program memory to the standard output.
     *
@@ -89,7 +91,7 @@ struct FlashHelper {
     * @param index The index of the string in the text file.
     * @return 0 on success, or EOF on error.
     */
-    int16_t (* putFileString_P)(TextFile * textFile, const uint8_t index);
+    int16_t (* putFileString_P)(TextFile * textFile, const uint8_t index, FlashHelper * helper);
 
     uint32_t initMsg; /**< Initialization message. */
 };

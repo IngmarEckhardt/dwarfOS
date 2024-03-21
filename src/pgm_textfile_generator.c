@@ -140,7 +140,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
     if (farMemPointer) {
         fprintf(file, "\t\t.pointerToArray = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
     } else {
-        fprintf(file, "\t\t.pointerToArray = (uint32_t) &%ss_##NUM,\\\n", camelCase);
+        fprintf(file, "\t\t.pointerToArray = (uint32_t) %ss_##NUM,\\\n", camelCase);
     }
     fprintf(file, "\t\t.maxLengthOfStrings = %s_##NUM##_STRING_LENGTH, \\\n", prefix);
     if (desiredWithIndexArray) {
@@ -159,7 +159,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
     if (farMemPointer) {
         fprintf(file, "\t\t.pointerToArray = pgm_get_far_address(%ss_##NUM), \\\n", camelCase);
     } else {
-        fprintf(file, "\t\t.pointerToArray = (uint32_t) &%ss_##NUM,\\\n", camelCase);
+        fprintf(file, "\t\t.pointerToArray = (uint32_t) %ss_##NUM,\\\n", camelCase);
     }
     fprintf(file, "\t\t.maxLengthOfStrings = %s_##NUM##_STRING_LENGTH, \\\n", prefix);
     if (desiredWithIndexArray) {

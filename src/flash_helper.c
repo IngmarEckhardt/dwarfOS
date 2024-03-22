@@ -1,5 +1,5 @@
 #include <dwarf-os/flash_helper.h>
-#include <avr/pgmspace.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <dwarf-os/version.h>

@@ -164,7 +164,7 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
  * @brief Macro to get the address of a string in program memory.
  *
  * This macro takes a string in program memory and returns its address. The address is returned as a 32-bit integer.
- * The macro uses different methods to get the address depending on whether the device supports Extended Linear Addressing (ELPM).
+ * The macro uses different methods to get the address depending on whether the device supports Extended Load Program Memory (ELPM).
  *
  * @param flashString The string in program memory.
  * @return The address of the string.
@@ -175,7 +175,7 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
  * @brief Macro to get the address of a string in program memory.
  *
  * This macro takes a string in program memory and returns its address. The address is returned as a 32-bit integer.
- * The macro uses different methods to get the address depending on whether the device supports Extended Linear Addressing (ELPM).
+ * The macro uses different methods to get the address depending on whether the device supports Extended Load Program Memory (ELPM).
  *
  * @param flashString The string in program memory.
  * @return The address of the string.

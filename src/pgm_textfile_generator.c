@@ -240,7 +240,6 @@ void writeSourceFile(const char * prefix, const uint8_t datasets,
     }
     fprintf(file, "//#include \"%ss.h\"\n", prefixLowercase);
     fprintf(file, "#include <stdlib.h>\n");
-    fprintf(file, "#include <avr/pgmspace.h>\n");
     fprintf(file, "#include <dwarf-os/flash_helper.h>\n\n");
     for (uint8_t i = 0; i < datasets - 1; i++) {
         fprintf(file, "#define %s_%d_STRING_LENGTH %d\n", prefix,

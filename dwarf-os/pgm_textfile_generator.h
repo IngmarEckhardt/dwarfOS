@@ -10,6 +10,6 @@
 // Strings that do not fit into your array sizes will be stored as single strings in PROGMEM.
 // The usage of this converter can be observed in the colossal-cave-adventure repository (located in the /test folder, with the output included in the project).
 void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amountOfStrings, const uint16_t maxSizesOfStringsInPGMArrays[],
-                                 uint8_t desiredAmountPGMArrays, char * desiredNamingAllUpperCase, uint8_t desiredWithIndexArray,uint8_t farMemPointer);
+                                 uint8_t desiredAmountPGMArrays, char * desiredNamingAllUpperCase, uint8_t desiredWithIndexArray);
 
 #endif //DWARFOS_PGM_TEXTFILE_GENERATOR_H

@@ -27,7 +27,7 @@ FlashHelper * dOS_initFlashHelper(void) {
     } else {
         storage->initMsg=initMsg;
         storage->createNearStringFromFlash=createNearStringFromFlash;
-        storage->readProgMemByte=readProgMemByte;
+        storage->readByte_P=readProgMemByte;
         storage->loadFromFlash=loadFromFlash;
         return storage;
     }

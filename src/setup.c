@@ -29,11 +29,8 @@ void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
 
     FlashHelper * flashHelper = dOS_initFlashHelper(2);
     if (flashHelper == NULL) { return; }
-#ifdef __AVR_HAVE_ELPM__
-    char * initmsg = flashHelper->createString_P(flashHelper->initMsg, flashHelper);
-#else
-    char * initmsg = flashHelper->createString_P(flashHelper->initMsg, flashHelper);
-#endif
+
+    char * initmsg = flashHelper->getOrPutDosMessage(IDENT_STRING, 1, flashHelper);
     uartHelper->sendMsgWithTimestamp(1, (char * []) {initmsg});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
     uartHelper->usartTransmitChar('\0');

@@ -40,6 +40,22 @@ struct FlashHelper {
    * @return A pointer to the newly created string in RAM.
    */
     char * (* createString_P)(uint32_t flashString, FlashHelper * helper);
+    /**
+    * @brief Loads a string from program memory to a buffer in RAM.
+    *
+    * This function takes a pointer to a buffer in RAM and a pointer to a string in program memory,
+    * and loads the string from program memory to the buffer in RAM.
+    *
+    * @param stringBuffer A pointer to the buffer in RAM.
+    * @param pointerToNearProgMemString A pointer to the string in program memory.
+    */
+    char * (* copyString_P)(char * stringBuffer, uint32_t flashString);
+
+    int16_t (*putString_P)(uint32_t farPointerToString);
+
+    uint16_t (* lengthOfString_P)(uint32_t flashString);
+
+    uint8_t (* readByte_P)(uint32_t address);
 
     /**
     * @brief Compares a string in RAM with a string in flash memory.
@@ -65,20 +81,8 @@ struct FlashHelper {
     * @param index The index of the string in the text file.
     * @return A pointer to the newly created string in RAM.
     */
-    char * (* createFromFile_P)(TextFile * textFile, const uint8_t index, FlashHelper * helper);
+    char * (* createFileString_P)(TextFile * textFile, const uint8_t index, FlashHelper * helper);
 
-    /**
-    * @brief Loads a string from program memory to a buffer in RAM.
-    *
-    * This function takes a pointer to a buffer in RAM and a pointer to a string in program memory,
-    * and loads the string from program memory to the buffer in RAM.
-    *
-    * @param stringBuffer A pointer to the buffer in RAM.
-    * @param pointerToNearProgMemString A pointer to the string in program memory.
-    */
-    char * (* loadString_P)(char * stringBuffer, uint32_t flashString);
-
-    int16_t (*putString_P)(uint32_t farPointerToString);
 
     /**
     * @brief Writes a string from a text file in program memory to the standard output.
@@ -93,7 +97,8 @@ struct FlashHelper {
     */
     int16_t (* putFileString_P)(TextFile * textFile, const uint8_t index, FlashHelper * helper);
 
-    uint32_t initMsg; /**< Initialization message. */
+//if desired String in Ram is 1 the function returns the string, otherwise it puts the string into stdout
+    char * (*getOrPutDosMessage)(uint8_t message, uint8_t desiredStringInRam, FlashHelper * helper);
 };
 
 /**
@@ -107,5 +112,14 @@ struct FlashHelper {
  * @return A pointer to the initialized FlashHelper structure.
  */
 FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
+
+#ifdef __AVR_HAVE_ELPM__
+#define addressOf(flashString) pgm_get_far_address(flashString)
+#else
+#define addressOf(flashString) ((uint32_t) &flashString)
+#endif
+
+#define IDENT_STRING 0
+#define FREE_MEMORY_STRING 1
 
 #endif //DWARFOS_FLASH_HELPER_H

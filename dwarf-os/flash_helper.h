@@ -23,8 +23,6 @@ typedef struct {
     const uint16_t maxLengthOfStrings; /**< The maximum length of the strings in the text file. */
 } TextFile;
 
-typedef struct FlashHelper FlashHelper;
-
 /**
  * @brief Structure for managing string storage
  *
@@ -33,6 +31,7 @@ typedef struct FlashHelper FlashHelper;
  * The actual functions pointed to by these pointers can vary depending on whether the device supports
  * Extended Load Program Memory (ELPM). This is determined at startup.
  */
+typedef struct FlashHelper FlashHelper;
 struct FlashHelper {
     /**
    * @brief Loads a string from flash memory to RAM.

@@ -26,10 +26,10 @@ typedef struct {
 typedef struct FlashHelper FlashHelper;
 
 /**
- * @brief Structure for managing string storage and lazy loading.
+ * @brief Structure for managing string storage
  *
  * FlashHelper manages the loading of strings from flash memory to RAM.
- * It contains function pointers to initialize string storage and load strings from flash memory.
+ * It contains function pointers to load strings from flash memory.
  * The actual functions pointed to by these pointers can vary depending on whether the device supports
  * Extended Linear Addressing (ELPM). This is determined at startup.
  */
@@ -151,6 +151,10 @@ struct FlashHelper {
  * with free() if you require the memory.
  *
  * @note Make sure to check if the returned pointer is not NULL before using the functions.
+ * @param desiredState Specifies the type of Getters to use. Options are:
+ *                     0 - Automatic decision between ELPM or non-ELPM
+ *                     1 - Use non-ELPM Getters
+ *                     2 - Use ELPM Getters*
  * @return A pointer to the initialized FlashHelper structure.
  */
 FlashHelper * dOS_initFlashHelper(uint8_t desiredState);

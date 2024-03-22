@@ -19,8 +19,6 @@
  * @param desiredAmountPGMArrays The desired number of program memory arrays.
  * @param desiredNamingAllUpperCase A string representing the desired naming in all uppercase with underlines as separators.
  * @param desiredWithIndexArray A flag indicating whether to include index array. If set to 1, index array will be included.
- *
- * @note The usage of this converter can be observed in the colossal-cave-adventure repository (located in the /test folder, with the output included in the project).
  */
 void convertStringsToPGMTextFile(const char ** arrayWithStrings, uint16_t amountOfStrings,
                                  const uint16_t maxSizesOfStringsInPGMArrays[],

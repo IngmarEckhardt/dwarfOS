@@ -31,7 +31,7 @@ typedef struct FlashHelper FlashHelper;
  * FlashHelper manages the loading of strings from flash memory to RAM.
  * It contains function pointers to load strings from flash memory.
  * The actual functions pointed to by these pointers can vary depending on whether the device supports
- * Extended Linear Addressing (ELPM). This is determined at startup.
+ * Extended Load Program Memory (ELPM). This is determined at startup.
  */
 struct FlashHelper {
     /**

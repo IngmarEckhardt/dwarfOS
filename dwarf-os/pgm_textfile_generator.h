@@ -15,7 +15,7 @@
  *
  * @param arrayWithStrings A constant array with non-constant strings.
  * @param amountOfStrings The number of strings in the array.
- * @param maxSizesOfStringsInPGMArrays An array specifying the maximum number of strings for each individual array.
+ * @param maxSizesOfStringsInPGMArrays An array specifying the maximum length of strings for each individual array.
  * @param desiredAmountPGMArrays The desired number of program memory arrays.
  * @param desiredNamingAllUpperCase A string representing the desired naming in all uppercase with underlines as separators.
  * @param desiredWithIndexArray A flag indicating whether to include index array. If set to 1, index array will be included.

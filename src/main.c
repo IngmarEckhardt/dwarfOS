@@ -78,18 +78,15 @@ void adjustTo1Sec(void) {
 #endif /* DWARFOS_WATCH_QUARTZ */
 
 void freeAll(HeapManagementHelper * heapHelper, AsciiHelper * asciiHelper, FlashHelper * flashHelper,
-             UartHelper * uartHelper, char * memoryAmountString, char * memoryString) {
+             UartHelper * uartHelper, char * memoryAmountString) {
     free(heapHelper);
     free(flashHelper);
     free(asciiHelper);
     free(uartHelper);
     free(memoryAmountString);
-    free(memoryString);
 }
 
 // example placement of string in Progmem
-#define MEMORY_STRING_LENGTH 25
-const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH+1] = ": free Memory is (byte): ";
 #define LONG_LOCATION_126_STRING_LENGTH 1299
 const __attribute__((__progmem__)) char longLocation_126[LONG_LOCATION_126_STRING_LENGTH+1] = "You are on the edge of a breath-taking view.  Far below you is an \nactive volcano, from which great gouts of molten lava come surging \nout, cascading back down into the depths. The glowing rock fills the \nfarthest reaches of the cavern with a blood-red glare, giving \neverything an eerie, macabre appearance.\nThe air is filled with flickering sparks of ash and a heavy smell of \nbrimstone.  The walls are hot to the touch, and the thundering of the \nvolcano drowns out all other sounds.  Embedded in the jagged roof far \noverhead are myriad formations composed of pure white alabaster, which \nscatter their murky light into sinister apparitions upon the walls.\nTo one side is a deep gorge, filled with a bizarre chaos of tortured \nrock which seems to have been crafted by the Devil Himself.  An \nimmense river of fire crashes out from the depths of the volcano, \nburns its way through the gorge, and plummets into a bottomless pit \nfar off to your left.  \nTo the right, an immense geyser of blistering steam erupts \ncontinuously from a barren island in the center of a sulfurous lake, \nwhich bubbles ominously. The far right wall is aflame with an \nincandescence of its own, which lends an additional infernal splendor \nto the already hellish scene.  \nA dark, foreboding passage exits to the south.\n";
 #define ACTION_142_STRING_LENGTH 1395
@@ -107,17 +104,16 @@ void testOSMethod(void) {
     FlashHelper * flashHelper = dOS_initFlashHelper(2);
     UartHelper * uartHelper = dOS_initUartHelper();
     char * memoryAmountString = calloc(5, sizeof(char));
-    char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
 
-    if (!(asciiHelper && flashHelper && uartHelper && memoryString && memoryAmountString)) {
-        freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString, memoryString);
+
+    if (!(asciiHelper && flashHelper && uartHelper && memoryAmountString)) {
+        freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString);
         return;
     }
+    char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING,1,flashHelper);
     asciiHelper->integerToAscii(memoryAmountString, memoryAmount, 4, 0);
 
-    // cou can get rid of the ugly ifdef when you can decide on which device your code is running
 
-    flashHelper->copyString_P(memoryString, addressOf(memoryStringOnFlash));
 
     // you can find easily memory leaks if you make such a check at several places in your code
     if (lastTime % 2) {
@@ -143,6 +139,6 @@ void testOSMethod(void) {
         uartHelper->usartTransmitChar('\0');
     }
     uartHelper->sendMsgWithTimestamp(2, (char * []) {memoryString, memoryAmountString});
-
-    freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString, memoryString);
+    free(memoryString);
+    freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString);
 }

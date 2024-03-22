@@ -121,5 +121,6 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
 
 #define IDENT_STRING 0
 #define FREE_MEMORY_STRING 1
+#define FATAL_ERROR_STRING 2
 
 #endif //DWARFOS_FLASH_HELPER_H

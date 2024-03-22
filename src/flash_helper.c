@@ -28,9 +28,10 @@ static uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uin
 #define isEqual(index, pointerToByte) index == helper->readByte_P(pointerToByte)
 
 #define MAXLENGTH_DOS_STRINGS 30
-const __attribute__((__progmem__)) char dOS_messages[2][MAXLENGTH_DOS_STRINGS + 1] = {
+const __attribute__((__progmem__)) char dOS_messages[3][MAXLENGTH_DOS_STRINGS + 1] = {
         DWARFOS_IDENTSTRING,
         ": free Memory is (byte): ",
+        "FATAL ERROR! Code: "
 };
 
 uint32_t findStringInFile(TextFile * textFile, const uint8_t index, FlashHelper * helper) {
@@ -90,6 +91,13 @@ char * getOrPutDosMessage(uint8_t message, uint8_t desiredStringInRam, FlashHelp
                 stringToReturn = (char *) malloc(helper->lengthOfString_P(addressOf(dOS_messages[1])) + 1);
                 if (stringToReturn) { helper->copyString_P(stringToReturn, addressOf(dOS_messages[1])); }
             } else { helper->putString_P(addressOf(dOS_messages[1])); }
+            break;
+        }
+        case FATAL_ERROR_STRING: {
+            if (desiredStringInRam) {
+                stringToReturn = (char *) malloc(helper->lengthOfString_P(addressOf(dOS_messages[2])) + 1);
+                if (stringToReturn) { helper->copyString_P(stringToReturn, addressOf(dOS_messages[2])); }
+            } else { helper->putString_P(addressOf(dOS_messages[2])); }
             break;
         }
         default: {

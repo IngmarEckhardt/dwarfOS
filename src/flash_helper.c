@@ -15,15 +15,15 @@ static uint8_t farProgmemIsUsed(void) { return 1; }
 
 #endif
 
-static char * copyNear(char * strBuf, uint32_t flashStrgPtr) { return strcpy_P(strBuf, (const char *) flashStrgPtr); }
+static char * copyNear(char * strBuf, uint32_t flashStrgPtr) {return strcpy_P(strBuf, (const char *)(uintptr_t)flashStrgPtr);}
 
-static int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *) flashString); }
+static int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *)(uintptr_t) flashString); }
 
-static int compareNear(const char * string, uint32_t flashStrg) { return strcmp_P(string, (const char *) flashStrg); }
+static int compareNear(const char * string, uint32_t flashStrg) { return strcmp_P(string, (const char *)(uintptr_t) flashStrg); }
 
-static uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *) flashString); }
+static uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *)(uintptr_t) flashString); }
 
-static uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *) address); }
+static uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *)(uintptr_t) address); }
 
 #define isEqual(index, pointerToByte) index == helper->readByte_P(pointerToByte)
 

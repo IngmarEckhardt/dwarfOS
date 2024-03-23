@@ -37,7 +37,7 @@ char * getString(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
     if (stringToFetch->pointerToString == NULL) {
 
 
-        stringToFetch->pointerToString = flashHelper->createString_P((uint32_t)stringToFetch->pointerToString, flashHelper);
+        stringToFetch->pointerToString = flashHelper->createString_P(addressOf(stringToFetch->pointerToString), flashHelper);
 
     }
     return stringToFetch->pointerToString;

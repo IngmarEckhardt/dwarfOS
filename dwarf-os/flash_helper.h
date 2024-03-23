@@ -179,7 +179,7 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
  * @param flashString The string in program memory.
  * @return The address of the string.
  */
-#define addressOf(flashString) ((uint32_t) &flashString)
+#define addressOf(flashString) ((uintptr_t) &flashString)
 #endif
 
 /*

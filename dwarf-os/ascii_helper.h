@@ -13,14 +13,14 @@ typedef struct {
     /**
      * @brief Converts an integer to ASCII representation.
      *
-     * This function converts the given integer to its ASCII representation and stores it in the provided buffer.
-     * The size parameter specifies the maximum size of the result buffer, and the position parameter specifies
-     * the position within the buffer to start writing the ASCII representation.
+     * This function converts the given integer to its ASCII representation and stores it in the provided stdoutCopyBuffer.
+     * The size parameter specifies the maximum size of the result stdoutCopyBuffer, and the position parameter specifies
+     * the position within the stdoutCopyBuffer to start writing the ASCII representation.
      *
-     * @param result The buffer to store the ASCII representation.
+     * @param result The stdoutCopyBuffer to store the ASCII representation.
      * @param num The integer to convert to ASCII.
-     * @param size The maximum size of the result buffer.
-     * @param position The position within the buffer to start writing the ASCII representation.
+     * @param size The maximum size of the result stdoutCopyBuffer.
+     * @param position The position within the stdoutCopyBuffer to start writing the ASCII representation.
      */
     void (* integerToAscii)(char * result, uint32_t num, uint8_t size, uint8_t position);
     /**

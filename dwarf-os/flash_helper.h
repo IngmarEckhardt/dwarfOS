@@ -45,12 +45,12 @@ struct FlashHelper {
     char * (* createString_P)(uint32_t flashString, FlashHelper * helper);
 
     /**
-    * @brief Loads a string from program memory to a buffer in RAM.
+    * @brief Loads a string from program memory to a stdoutCopyBuffer in RAM.
     *
-    * This function takes a pointer to a buffer in RAM and a pointer to a string in program memory,
-    * and loads the string from program memory to the buffer in RAM.
+    * This function takes a pointer to a stdoutCopyBuffer in RAM and a pointer to a string in program memory,
+    * and loads the string from program memory to the stdoutCopyBuffer in RAM.
     *
-    * @param stringBuffer A pointer to the buffer in RAM.
+    * @param stringBuffer A pointer to the stdoutCopyBuffer in RAM.
     * @param pointerToProgMemString A pointer to the string in program memory.
     */
     char * (* copyString_P)(char * stringBuffer, uint32_t flashString);

@@ -132,7 +132,7 @@ struct tm * localtime(const time_t * timer);
  * This function is a stub in this implementation; the returned size_t is always zero.
  *
  * @param s        Buffer where the formatted string will be stored.
- * @param maxsize  Maximum number of characters to be stored in the buffer.
+ * @param maxsize  Maximum number of characters to be stored in the stdoutCopyBuffer.
  * @param format   Format string specifying the format of the output.
  * @param timeptr  Pointer to the `struct tm` object representing the time.
  * @return Always returns zero in this implementation

@@ -1,0 +1,502 @@
+        -:    0:Source:C:/Users/eckha/AtmelStudio/DwarfOS/DwarfOS/tests/standard-gcc/_input_queue.c
+        -:    0:Graph:C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\tests\standard-gcc\cmake-build-tests\CMakeFiles\DwarfOS-test_inputQueue.dir\_input_queue.c.gcno
+        -:    0:Data:C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\tests\standard-gcc\cmake-build-tests\CMakeFiles\DwarfOS-test_inputQueue.dir\_input_queue.c.gcda
+        -:    0:Runs:1
+        -:    1:#include <unity.h>
+        -:    2:#include "dwarf-os/input_queue.h"
+        -:    3:#include <stdlib.h>
+        -:    4:#include <unistd.h>
+        -:    5:
+        -:    6:void print_queue(InputQueue * inputQueue);
+        -:    7:
+function setUp called 12 returned 100% blocks executed 100%
+       12:    8:void setUp(void) {}
+        -:    9:
+function tearDown called 12 returned 100% blocks executed 100%
+       12:   10:void tearDown(void) {
+       12:   11:}
+        -:   12:
+function enqueue_initSizeEnqueueTwoElements_hasStillInitSize called 1 returned 100% blocks executed 86%
+        1:   13:void enqueue_initSizeEnqueueTwoElements_hasStillInitSize(void) {
+        1:   14:    InputQueue * queue = dOS_initInputQueue();
+        1:   14-block  0
+call    0 returned 1
+       1*:   15:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   15-block  0
+call    2 never executed
+        1:   16:    queue->enqueue(1, queue);
+        1:   16-block  0
+call    0 returned 1
+        1:   17:    queue->enqueue(2, queue);
+call    0 returned 1
+        1:   18:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+call    0 returned 1
+        1:   19:    free(queue->buffer);
+        1:   20:    free(queue);
+        1:   21:}
+        -:   22:
+        -:   23:
+function enqueueUint8MaxValuesShouldIncreaseSizeAtleastUntilHalfOfUint8Max called 1 returned 100% blocks executed 89%
+        1:   24:void enqueueUint8MaxValuesShouldIncreaseSizeAtleastUntilHalfOfUint8Max(void) {
+        1:   25:    InputQueue * queue = dOS_initInputQueue();
+        1:   25-block  0
+call    0 returned 1
+       1*:   26:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   26-block  0
+call    2 never executed
+      255:   27:    for (int i = 0; i < UINT8_MAX - 1; ++i) {
+        1:   27-block  0
+      255:   27-block  1
+branch  0 taken 254
+branch  1 taken 1 (fallthrough)
+      254:   28:        queue->enqueue(i, queue);
+      254:   28-block  0
+call    0 returned 254
+        -:   29:    }
+        1:   30:    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(UINT8_MAX / 2, queue->size);
+        1:   30-block  0
+call    0 returned 1
+        1:   31:    free(queue->buffer);
+        1:   32:    free(queue);
+        1:   33:}
+        -:   34:
+function test_queue_empty_after_init called 1 returned 100% blocks executed 83%
+        1:   35:void test_queue_empty_after_init(void) {
+        1:   36:    InputQueue * queue = dOS_initInputQueue();
+        1:   36-block  0
+call    0 returned 1
+       1*:   37:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   37-block  0
+call    2 never executed
+        1:   38:    TEST_ASSERT_EQUAL(0, queue->head);
+        1:   38-block  0
+call    0 returned 1
+        1:   39:    TEST_ASSERT_EQUAL(0, queue->tail);
+call    0 returned 1
+        1:   40:    free(queue->buffer);
+        1:   41:    free(queue);
+        1:   42:}
+        -:   43:
+function test_element13enqueueDequeue_expectedBehaviour called 1 returned 100% blocks executed 89%
+        1:   44:void test_element13enqueueDequeue_expectedBehaviour(void) {
+        1:   45:    InputQueue * queue = dOS_initInputQueue();
+        1:   45-block  0
+call    0 returned 1
+       1*:   46:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   46-block  0
+call    2 never executed
+        1:   47:    TEST_ASSERT_EQUAL(0, queue->head);
+        1:   47-block  0
+call    0 returned 1
+        1:   48:    TEST_ASSERT_EQUAL(0, queue->tail);
+call    0 returned 1
+        1:   49:    queue->enqueue(13, queue);
+call    0 returned 1
+        1:   50:    TEST_ASSERT_EQUAL(13, queue->dequeue(queue));
+call    0 returned 1
+call    1 returned 1
+        1:   51:    free(queue->buffer);
+        1:   52:    free(queue);
+        1:   53:}
+        -:   54:
+function test_queue_resize called 1 returned 100% blocks executed 95%
+        1:   55:void test_queue_resize(void) {
+        1:   56:    InputQueue * queue = dOS_initInputQueue();
+        1:   56-block  0
+call    0 returned 1
+       1*:   57:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   57-block  0
+call    2 never executed
+       14:   58:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 2) - 1; ++i) {
+        1:   58-block  0
+       14:   58-block  1
+branch  0 taken 13
+branch  1 taken 1 (fallthrough)
+       13:   59:        queue->enqueue(i, queue);
+       13:   59-block  0
+call    0 returned 13
+        -:   60:    }
+        1:   61:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 2, queue->size);
+        1:   61-block  0
+call    0 returned 1
+       14:   62:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 2) - 1; ++i) {
+       14:   62-block  0
+branch  0 taken 13
+branch  1 taken 1 (fallthrough)
+       13:   63:        queue->enqueue(i, queue);
+       13:   63-block  0
+call    0 returned 13
+        -:   64:    }
+        1:   65:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 4, queue->size);
+        1:   65-block  0
+call    0 returned 1
+       28:   66:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 4) - 1; ++i) {
+       28:   66-block  0
+branch  0 taken 27
+branch  1 taken 1 (fallthrough)
+       27:   67:        queue->dequeue(queue);
+       27:   67-block  0
+call    0 returned 27
+        -:   68:    }
+        1:   69:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+        1:   69-block  0
+call    0 returned 1
+        1:   70:    free(queue->buffer);
+        1:   71:    free(queue);
+        1:   72:}
+        -:   73:
+function test_dequeue called 1 returned 100% blocks executed 88%
+        1:   74:void test_dequeue(void) {
+        1:   75:    InputQueue * queue = dOS_initInputQueue();
+        1:   75-block  0
+call    0 returned 1
+       1*:   76:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   76-block  0
+call    2 never executed
+        1:   77:    queue->enqueue(1, queue);
+        1:   77-block  0
+call    0 returned 1
+        1:   78:    queue->enqueue(2, queue);
+call    0 returned 1
+        1:   79:    uint8_t item = queue->dequeue(queue);
+call    0 returned 1
+        1:   80:    TEST_ASSERT_EQUAL(1, item);
+call    0 returned 1
+        1:   81:    free(queue->buffer);
+        1:   82:    free(queue);
+        1:   83:}
+        -:   84:
+function test_elements_position called 1 returned 100% blocks executed 92%
+        1:   85:void test_elements_position(void) {
+        1:   86:    InputQueue * queue = dOS_initInputQueue();
+        1:   86-block  0
+call    0 returned 1
+       1*:   87:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   87-block  0
+call    2 never executed
+      224:   88:    for (uint8_t i = 0; i < 223; ++i) {
+        1:   88-block  0
+      224:   88-block  1
+branch  0 taken 223
+branch  1 taken 1 (fallthrough)
+      223:   89:        queue->enqueue(i, queue);
+      223:   89-block  0
+call    0 returned 223
+        -:   90:    }
+      224:   91:    for (uint8_t i = 0; i < 223; ++i) {
+        1:   91-block  0
+      224:   91-block  1
+branch  0 taken 223
+branch  1 taken 1 (fallthrough)
+      223:   92:        uint8_t item = queue->dequeue(queue);
+      223:   92-block  0
+call    0 returned 223
+      223:   93:        TEST_ASSERT_EQUAL(i, item);
+call    0 returned 223
+        -:   94:    }
+       1*:   95:    TEST_ASSERT_NOT_NULL(queue);
+        1:   95-block  0
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:   95-block  1
+call    2 never executed
+      224:   96:    for (uint8_t i = 0; i < 223; ++i) {
+        1:   96-block  0
+      224:   96-block  1
+branch  0 taken 223
+branch  1 taken 1 (fallthrough)
+      223:   97:        queue->enqueue(i, queue);
+      223:   97-block  0
+call    0 returned 223
+        -:   98:    }
+      224:   99:    for (uint8_t i = 0; i < 223; ++i) {
+        1:   99-block  0
+      224:   99-block  1
+branch  0 taken 223
+branch  1 taken 1 (fallthrough)
+      223:  100:        uint8_t item = queue->dequeue(queue);
+      223:  100-block  0
+call    0 returned 223
+      223:  101:        TEST_ASSERT_EQUAL(i, item);
+call    0 returned 223
+        -:  102:    }
+        1:  103:}
+        -:  104:
+function test_enqueue_when_queue_is_full called 1 returned 100% blocks executed 91%
+        1:  105:void test_enqueue_when_queue_is_full(void) {
+        1:  106:    InputQueue * queue = dOS_initInputQueue();
+        1:  106-block  0
+call    0 returned 1
+       1*:  107:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:  107-block  0
+call    2 never executed
+        7:  108:    for (int i = 0; i < INPUT_BUFFER_START_SIZE - 1; ++i) {
+        1:  108-block  0
+        7:  108-block  1
+branch  0 taken 6
+branch  1 taken 1 (fallthrough)
+        6:  109:        queue->enqueue(i, queue);
+        6:  109-block  0
+call    0 returned 6
+        -:  110:    }
+        1:  111:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+        1:  111-block  0
+call    0 returned 1
+        1:  112:    queue->enqueue(100, queue);
+call    0 returned 1
+        1:  113:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 2, queue->size);
+call    0 returned 1
+        1:  114:    free(queue->buffer);
+        1:  115:    free(queue);
+        1:  116:}
+        -:  117:
+function test_dequeue_when_queue_is_empty called 1 returned 100% blocks executed 83%
+        1:  118:void test_dequeue_when_queue_is_empty(void) {
+        1:  119:    InputQueue * queue = dOS_initInputQueue();
+        1:  119-block  0
+call    0 returned 1
+       1*:  120:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:  120-block  0
+call    2 never executed
+        1:  121:    int16_t item = queue->dequeue(queue);
+        1:  121-block  0
+call    0 returned 1
+        1:  122:    TEST_ASSERT_EQUAL(-1, item);
+call    0 returned 1
+        1:  123:    free(queue->buffer);
+        1:  124:    free(queue);
+        1:  125:}
+        -:  126:
+        -:  127:
+        -:  128:
+function test_increaseSize_when_queue_is_full called 1 returned 100% blocks executed 91%
+        1:  129:void test_increaseSize_when_queue_is_full(void) {
+        1:  130:    InputQueue * queue = dOS_initInputQueue();
+        1:  130-block  0
+call    0 returned 1
+       1*:  131:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:  131-block  0
+call    2 never executed
+        7:  132:    for (int i = 0; i < INPUT_BUFFER_START_SIZE - 1; ++i) {
+        1:  132-block  0
+        7:  132-block  1
+branch  0 taken 6
+branch  1 taken 1 (fallthrough)
+        6:  133:        queue->enqueue(i, queue);
+        6:  133-block  0
+call    0 returned 6
+        -:  134:    }
+        1:  135:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+        1:  135-block  0
+call    0 returned 1
+        1:  136:    queue->enqueue(100, queue);
+call    0 returned 1
+        1:  137:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 2, queue->size);
+call    0 returned 1
+        1:  138:    free(queue->buffer);
+        1:  139:    free(queue);
+        1:  140:}
+        -:  141:
+function test_decreaseSize_when_queue_is_less_than_quarter_full called 1 returned 100% blocks executed 95%
+        1:  142:void test_decreaseSize_when_queue_is_less_than_quarter_full(void) {
+        1:  143:    InputQueue * queue = dOS_initInputQueue();
+        1:  143-block  0
+call    0 returned 1
+       1*:  144:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:  144-block  0
+call    2 never executed
+       28:  145:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 4) - 1; ++i) {
+        1:  145-block  0
+       28:  145-block  1
+branch  0 taken 27
+branch  1 taken 1 (fallthrough)
+       27:  146:        queue->enqueue(i, queue);
+       27:  146-block  0
+call    0 returned 27
+        -:  147:    }
+        1:  148:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 4, queue->size);
+        1:  148-block  0
+call    0 returned 1
+       22:  149:    for (int i = 0; i < INPUT_BUFFER_START_SIZE * 3; ++i) {
+       22:  149-block  0
+branch  0 taken 21
+branch  1 taken 1 (fallthrough)
+       21:  150:        queue->dequeue(queue);
+       21:  150-block  0
+call    0 returned 21
+        -:  151:    }
+        1:  152:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 2, queue->size);
+        1:  152-block  0
+call    0 returned 1
+        7:  153:    for (int i = 0; i < INPUT_BUFFER_START_SIZE - 1; ++i) {
+        7:  153-block  0
+branch  0 taken 6
+branch  1 taken 1 (fallthrough)
+        6:  154:        queue->dequeue(queue);
+        6:  154-block  0
+call    0 returned 6
+        -:  155:    }
+        1:  156:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+        1:  156-block  0
+call    0 returned 1
+        -:  157:
+        1:  158:    free(queue->buffer);
+        1:  159:    free(queue);
+        1:  160:}
+        -:  161:
+function test_decreaseSize_when_tail_is_less_than_head called 1 returned 100% blocks executed 96%
+        1:  162:void test_decreaseSize_when_tail_is_less_than_head(void) {
+        1:  163:    InputQueue * queue = dOS_initInputQueue();
+        1:  163-block  0
+call    0 returned 1
+       1*:  164:    TEST_ASSERT_NOT_NULL(queue);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    %%%%%:  164-block  0
+call    2 never executed
+       28:  165:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 4) - 1; ++i) {
+        1:  165-block  0
+       28:  165-block  1
+branch  0 taken 27
+branch  1 taken 1 (fallthrough)
+       27:  166:        queue->enqueue(i, queue);
+       27:  166-block  0
+call    0 returned 27
+        -:  167:    }
+        -:  168:    // head: 0, tail:27, size: 28
+        1:  169:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 4, queue->size);
+        1:  169-block  0
+call    0 returned 1
+        -:  170:
+        8:  171:    for (int i = 0; i < INPUT_BUFFER_START_SIZE; ++i) {
+        8:  171-block  0
+branch  0 taken 7
+branch  1 taken 1 (fallthrough)
+        7:  172:        queue->dequeue(queue);
+        7:  172-block  0
+call    0 returned 7
+        -:  173:    }
+        1:  174:    queue->enqueue(1, queue); // head: 7, tail: 0, size: 28
+        1:  174-block  0
+call    0 returned 1
+       16:  175:    for (int i = 0; i < (INPUT_BUFFER_START_SIZE * 2) + 1; ++i) {
+       16:  175-block  0
+branch  0 taken 15
+branch  1 taken 1 (fallthrough)
+       15:  176:        queue->dequeue(queue);
+       15:  176-block  0
+call    0 returned 15
+        -:  177:    }
+        1:  178:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE * 2, queue->size);
+        1:  178-block  0
+call    0 returned 1
+        5:  179:    for (int i = 0; i < 4; ++i) {
+        5:  179-block  0
+branch  0 taken 4
+branch  1 taken 1 (fallthrough)
+        4:  180:        queue->dequeue(queue);
+        4:  180-block  0
+call    0 returned 4
+        -:  181:    }
+        1:  182:    TEST_ASSERT_EQUAL(INPUT_BUFFER_START_SIZE, queue->size);
+        1:  182-block  0
+call    0 returned 1
+        1:  183:    free(queue->buffer);
+        1:  184:    free(queue);
+        1:  185:}
+        -:  186:
+function main called 1 returned 100% blocks executed 100%
+        1:  187:int main(void) {
+        1:  188:    UNITY_BEGIN();
+        1:  188-block  0
+call    0 returned 1
+        -:  189:
+        1:  190:    RUN_TEST(enqueue_initSizeEnqueueTwoElements_hasStillInitSize);
+call    0 returned 1
+        1:  191:    RUN_TEST(enqueueUint8MaxValuesShouldIncreaseSizeAtleastUntilHalfOfUint8Max);
+call    0 returned 1
+        1:  192:    RUN_TEST(test_queue_empty_after_init);
+call    0 returned 1
+        1:  193:    RUN_TEST(test_element13enqueueDequeue_expectedBehaviour);
+call    0 returned 1
+        1:  194:    RUN_TEST(test_queue_resize);
+call    0 returned 1
+        1:  195:    RUN_TEST(test_dequeue);
+call    0 returned 1
+        1:  196:    RUN_TEST(test_elements_position);
+call    0 returned 1
+        1:  197:    RUN_TEST(test_enqueue_when_queue_is_full);
+call    0 returned 1
+        1:  198:    RUN_TEST(test_dequeue_when_queue_is_empty);
+call    0 returned 1
+        1:  199:    RUN_TEST(test_increaseSize_when_queue_is_full);
+call    0 returned 1
+        1:  200:    RUN_TEST(test_decreaseSize_when_queue_is_less_than_quarter_full);
+call    0 returned 1
+        1:  201:    RUN_TEST(test_decreaseSize_when_tail_is_less_than_head);
+call    0 returned 1
+        -:  202:
+        1:  203:    return UNITY_END();
+call    0 returned 1
+        -:  204:}
+        -:  205:
+function printBits called 0 returned 0% blocks executed 0%
+    #####:  206:void printBits(uint8_t num) {
+    #####:  207:    for (int bit = 7; bit >= 0; --bit) {
+    %%%%%:  207-block  0
+    %%%%%:  207-block  1
+branch  0 never executed
+branch  1 never executed (fallthrough)
+    #####:  208:        printf("%d", (num >> bit) & 1);
+    %%%%%:  208-block  0
+call    0 never executed
+        -:  209:    }
+    #####:  210:    printf("\n");
+    %%%%%:  210-block  0
+call    0 never executed
+    #####:  211:}
+        -:  212:
+function print_queue called 0 returned 0% blocks executed 0%
+    #####:  213:void print_queue(InputQueue * inputQueue) {
+    #####:  214:    printf("Head: %d\n", inputQueue->head);
+    %%%%%:  214-block  0
+call    0 never executed
+    #####:  215:    printf("Tail: %d\n", inputQueue->tail);
+call    0 never executed
+    #####:  216:    printf("Elements in the queue: ");
+call    0 never executed
+    #####:  217:    for (uint8_t i = 0; i < inputQueue->size; i++) {
+    %%%%%:  217-block  0
+branch  0 never executed
+branch  1 never executed (fallthrough)
+        -:  218://        printBits(inputQueue->buffer[i]);
+    #####:  219:        printf("%d ", inputQueue->buffer[i]);
+    %%%%%:  219-block  0
+call    0 never executed
+        -:  220:    }
+    #####:  221:    printf("\n");
+    %%%%%:  221-block  0
+call    0 never executed
+    #####:  222:}

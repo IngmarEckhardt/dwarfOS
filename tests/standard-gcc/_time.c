@@ -15,7 +15,7 @@ uint8_t             calcUtcOffset(uint32_t epochTimeY2K);
 uint8_t             calcMonth(uint32_t *days, uint16_t year);
 uint8_t             isDst(uint16_t year, uint8_t month, uint8_t day);
 uint8_t             calcZellerCongruence(uint16_t year, uint8_t month, uint8_t day);
-#include "../src/time.c"
+#include "src/time.c"
 
 void setUp(void) {}
 void tearDown(void) {}

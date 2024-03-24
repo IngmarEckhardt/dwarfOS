@@ -1,7 +1,6 @@
 #include <unity.h>
 #include "dwarf-os/input_queue.h"
 #include <stdlib.h>
-#include <pthread.h>
 #include <unistd.h>
 
 void print_queue(InputQueue * inputQueue);

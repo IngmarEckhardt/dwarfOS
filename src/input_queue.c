@@ -1,7 +1,9 @@
 #include <dwarf-os/input_queue.h>
 #include <stdlib.h>
 #include <string.h>
-
+#ifndef TEST_NON_AVR
+#include <avr/sleep.h>
+#endif
 
 void increaseSize(InputQueue * inputQueue);
 
@@ -38,9 +40,12 @@ int16_t dequeue(InputQueue * inputQueue) {
     return item;
 }
 
-int16_t getCharacter(InputQueue * inputQueue) {
+int16_t getCharacter(InputQueue * inputQueue, uint8_t enableSleep) {
     int16_t nextChar = inputQueue->dequeue(inputQueue);
     while (nextChar == -1) {
+#ifndef TEST_NON_AVR
+        if (enableSleep) { sleep_mode();}
+#endif
         nextChar = inputQueue->dequeue(inputQueue);
     }
     return nextChar;

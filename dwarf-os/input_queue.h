@@ -8,8 +8,8 @@
 #define INPUT_BUFFER_START_SIZE 7
 #endif
 /**
- * InputQueue is a circular buffer data structure for storing uint8_t items as stdin implementation.
- * It provides enqueue, dequeue, and get_char operations, also dynamically resizing the buffer.
+ * InputQueue is a circular stdoutCopyBuffer data structure for storing uint8_t items as stdin implementation.
+ * It provides enqueue, dequeue, and get_char operations, also dynamically resizing the stdoutCopyBuffer.
  */
 typedef struct InputQueue InputQueue;
 
@@ -31,7 +31,7 @@ struct InputQueue{
     * This function is blocking as a normal terminal stdin. If no sign is available it will pause the execution of your
     * program.
     */
-    int16_t (* get_char)(InputQueue * inputQueue);
+    int16_t (* get_char)(InputQueue * inputQueue, uint8_t enableSleep);
 };
 
 InputQueue * dOS_initInputQueue(void);

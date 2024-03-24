@@ -33,7 +33,7 @@ void loadInitStringAndSendInitMsg(UartHelper * uartHelper) {
     char * initmsg = flashHelper->getOrPutDosMessage(IDENT_STRING, 1, flashHelper);
     uartHelper->sendMsgWithTimestamp(1, (char * []) {initmsg});
     //make sure that the receiver read our char, with a small delay, before a user sends us to sleep mode
-    uartHelper->usartTransmitChar('\0');
+    uartHelper->usartTransmitChar('\0',  NULL);
     free(initmsg);
     free(flashHelper);
 }

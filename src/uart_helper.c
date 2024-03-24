@@ -3,22 +3,24 @@
 #include <dwarf-os/time.h>
 #include <dwarf-os/ascii_helper.h>
 
+
 // Transmit a single byte via USART
-void usartTransmitChar(uint8_t byte) {
+int usartTransmitChar(char byte, FILE * stream) {
 
     // wait for free transmit Buffer
     while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = byte;
     while (!(UCSR0A & (1 << UDRE0)));
+    return 0;
 }
 
 // Transmit a null-terminated string via USART
 void usartTransmitString(char * str) {
     if (str == NULL) { return; }
 
-    while (*str != '\0') { usartTransmitChar(*str++); }
-    usartTransmitChar('\r');
-    usartTransmitChar('\n');
+    while (*str != '\0') { usartTransmitChar(*str++, NULL); }
+    usartTransmitChar('\r', NULL);
+    usartTransmitChar('\n', NULL);
 }
 
 // Receive a single byte via USART
@@ -35,7 +37,7 @@ void usartReceiveLine(char * buffer, uint8_t bufferSize) {
     uint8_t receivedChar;
 
     while (1) {
-        // if buffer is full, we have to null terminate the buffer
+        // if stdoutCopyBuffer is full, we have to null terminate the stdoutCopyBuffer
         if (index >= bufferSize - 1) {
             buffer[index] = '\0';
             break;

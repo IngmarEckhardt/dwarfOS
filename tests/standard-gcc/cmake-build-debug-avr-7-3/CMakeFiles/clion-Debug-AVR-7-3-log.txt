@@ -1,0 +1,40 @@
+"C:\Program Files\JetBrains\CLion 2023.3.4\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.4/bin/ninja/win/x64/ninja.exe" "-DCMAKE_C_COMPILER=C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/avr-gcc.exe" "-DCMAKE_CXX_COMPILER=C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/avr-g++.exe" -G Ninja -S C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\tests\standard-gcc -B C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\tests\standard-gcc\cmake-build-debug-avr-7-3
+-- The C compiler identification is GNU 7.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - failed
+-- Check for working C compiler: C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/avr-gcc.exe
+-- Check for working C compiler: C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/avr-gcc.exe - broken
+CMake Error at C:/Program Files/JetBrains/CLion 2023.3.4/bin/cmake/win/x64/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:67 (message):
+  The C compiler
+
+    "C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/avr-gcc.exe"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: 'C:/Users/eckha/AtmelStudio/DwarfOS/DwarfOS/tests/standard-gcc/cmake-build-debug-avr-7-3/CMakeFiles/CMakeScratch/TryCompile-eauv5t'
+    
+    Run Build Command(s): "C:/Program Files/JetBrains/CLion 2023.3.4/bin/ninja/win/x64/ninja.exe" -v cmTC_43d22
+    [1/2] C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\AVR8-G~1\bin\avr-gcc.exe   -std=gnu99 -fdiagnostics-color=always -o CMakeFiles/cmTC_43d22.dir/testCCompiler.c.obj -c C:/Users/eckha/AtmelStudio/DwarfOS/DwarfOS/tests/standard-gcc/cmake-build-debug-avr-7-3/CMakeFiles/CMakeScratch/TryCompile-eauv5t/testCCompiler.c
+    [2/2] cmd.exe /C "cd . && C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\AVR8-G~1\bin\avr-gcc.exe   CMakeFiles/cmTC_43d22.dir/testCCompiler.c.obj -o cmTC_43d22.exe -Wl,--out-implib,libcmTC_43d22.dll.a -Wl,--major-image-version,0,--minor-image-version,0  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 && cd ."
+    FAILED: cmTC_43d22.exe 
+    cmd.exe /C "cd . && C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\AVR8-G~1\bin\avr-gcc.exe   CMakeFiles/cmTC_43d22.dir/testCCompiler.c.obj -o cmTC_43d22.exe -Wl,--out-implib,libcmTC_43d22.dll.a -Wl,--major-image-version,0,--minor-image-version,0  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 && cd ."
+    c:/progra~1/jetbra~1/clion2~1.4/bin/avr8-g~1/bin/../lib/gcc/avr/7.3.0/../../../../avr/bin/ld.exe: unrecognized option '--out-implib'
+    c:/progra~1/jetbra~1/clion2~1.4/bin/avr8-g~1/bin/../lib/gcc/avr/7.3.0/../../../../avr/bin/ld.exe: use the --help option for usage information
+    collect2.exe: error: ld returned 1 exit status
+    ninja: build stopped: subcommand failed.
+    
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:11 (project)
+
+
+-- Configuring incomplete, errors occurred!
+
+Cannot get compiler information:
+	Cannot start process, the working directory 'C:\Users\eckha\AtmelStudio\DwarfOS\DwarfOS\tests\standard-gcc\cmake-build-debug-avr-7-3\extern_build' does not exist

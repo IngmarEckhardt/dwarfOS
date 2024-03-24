@@ -14,30 +14,34 @@
 #include <dwarf-os/heap_management_helper.h>
 #include <dwarf-os/time.h>
 #include <dwarf-os/flash_helper.h>
+#include <dwarf-os/readme_data.h>
+#include <dwarf-os/input_queue.h>
 
-//the clock has states, instance it one time and hold a reference somewhere if you use it
+// The clock has states, instantiate it once and maintain a reference if you use it
 McuClock * mcuClock;
-// we want to call the test function only one time per second
+// The clock has states, instantiate it once and maintain a reference if you use it
 uint8_t lastTime;
 
-// we can use the CPU Frequency as a clock with very less accuracy just for logging purpose
+// We can use the CPU Frequency as a clock with low accuracy for logging purposes
 #ifndef DWARFOS_WATCH_QUARTZ
 volatile uint8_t adjustCounter = 0;
 const uint8_t adjustValue = ADJUST_TO_SECOND_VALUE;
+void adjustTo1Sec(void);
 #endif /* DWARFOS_WATCH_QUARTZ */
 
-void adjustTo1Sec(void);
 
-//
+
+void sendMemoryAmountSmallModules(void);
+void setupStdInOut(void);
 void testOSMethod(void);
 
 
+
 int main(void) {
-
-    setupMcu(&mcuClock);
-    //global Interrupts on, could be moved to setup if you don't have other tasks before entering the loop
-    sei();
-
+    setupMcu(&mcuClock); // Perform general OS setup
+    sendMemoryAmountSmallModules(); // Display the minimal amount of RAM usage
+    setupStdInOut();
+    sei(); // Enable global interrupts, this could be moved to setup if there are no other tasks before entering the loop
     while (1) {
 
         sleep_mode();
@@ -46,99 +50,150 @@ int main(void) {
         adjustTo1Sec();
 #endif /* DWARFOS_WATCH_QUARTZ */
 
-        // for the example its enough to show you something every second, else we go immediately back to sleep
+        // For this example, we only need to execute an action once every second. Otherwise, we immediately return to sleep mode.
         if ((uint8_t) time(NULL) != lastTime) {
-
             lastTime = time(NULL);
             testOSMethod();
         }
     }
 }
-
-
-// This overflow interrupt is connected to counter 2, but counter 2 runs on the system clock
-// for real time functionality you need a watch quartz at the TOSC1 and TOSC2 pins and change the setup to use it
-ISR(TIMER2_OVF_vect) {
+// This overflow interrupt is linked to counter 2, which operates on the system clock.
+// For real-time functionality, a watch quartz is required at the TOSC1 and TOSC2 pins, and the setup needs to be adjusted accordingly.
+ISR(TIMER2_OVF_vect){
 #ifdef DWARFOS_WATCH_QUARTZ
     mcuClock->incrementClockOneSec();
-}
 #else
     adjustCounter++;
+#endif /* DWARFOS_WATCH_QUARTZ */
+}
+FlashHelper * flashHelper;
+void printUserSelectedStringFromFile(void);
+
+void testOSMethod(void) {
+    /** Without a specified state, the helper autonomously determines whether to use near program memory getters for memory less than 64KB
+    * or far getters (ELPM). */
+    flashHelper = dOS_initFlashHelper(0);
+    /** The addressOf macro autonomously determines how to retrieve the address. If state 1 is used on devices with ELPM,
+    * this macro will still fetch far addresses. Although this will work, it would be slower than using the near address.
+    * Therefore, it is recommended to use near addresses without the macro at this point.
+    *
+    * As it uses stdout, sending the string with putString_p does not consume any memory. DwarfOS has its own
+    * puts_PF implementation to facilitate this for devices that support ELPM. */
+    flashHelper->putString_P(addressOf(readme_data));
+    /**
+     * The following function will prompt the user to select a string from the file short_locations and actions.
+     * The user can select a string by entering a number. The function will then print the selected string.
+     * */
+    printUserSelectedStringFromFile();
 }
 
-// counter overflow in this setup is connected to system clock
-// 16Mhz / (pre scaling 1024 x overflow interrupt 256 x 61) = ca 1.0001hz, good enough for logging
+/**
+ * Each array in these files consumes 2 bytes of RAM. You have the flexibility to decide the number of arrays
+ * you want to create when using the pgm_textfiles_generator. Each getter also consumes 2 bytes of RAM. However,
+ * a text file with 3 arrays of strings only uses 10 bytes of RAM. The function PutFileString_P does not consume
+ * any memory because it utilizes stdout for output.
+ * */
+
+// Function declarations are provided here for the functions that will be used in the testOSMethod. Instead of including them in a header file,
+// the corresponding source files are directly included when DwarfOS is not built as a library along with this main file.
+int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber);
+int16_t putFileStrShortLocation(FlashHelper * helper, uint8_t shortLocationNumber);
+
+void printUserSelectedStringFromFile(void) {
+    printf("Enter the number of the desired string from the file 'short_locations':\n");
+    int file;
+    if (scanf("%d", &file) != 1) { file = 0; }
+    if (file) {
+        // A file with an array containing index information will search through this information
+        // and return the string that matches the given number.
+        putFileStrShortLocation(flashHelper,121);
+    }
+
+    printf("Enter the number of the desired string from the file 'actions':\n");
+    if (scanf("%d", &file) != 1) { file = 0; }
+    if (file) {
+        // A file without an array index will return strings from the first array position in this case.
+        // For a more intelligent selection, you could enhance the implementation.
+        putFileStrAction(flashHelper, file-1);
+    }
+}
+
+/**
+ * The following 30 lines demonstrate how to use helper functions to send information via UART serial output.
+ * This is achieved without the need for large libraries, instead utilizing very small modules.
+ *
+ * */
+
+void freeAll(HeapManagementHelper * heapHelper, AsciiHelper * asciiHelper, FlashHelper * flHelper,
+             UartHelper * uartHelper, char * memoryAmountString) {
+    free(heapHelper);
+    free(flHelper);
+    free(asciiHelper);
+    free(uartHelper);
+    free(memoryAmountString);
+}
+
+void sendMemoryAmountSmallModules(void) {
+    HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
+    if (!heapHelper) { return; }
+    int16_t memoryAmount = heapHelper->getFreeMemory();
+
+    AsciiHelper * asciiHelper = dOS_initAsciiHelper();
+    FlashHelper * flHelper = dOS_initFlashHelper(2);
+    UartHelper * uartHelper = dOS_initUartHelper();
+    char * memoryAmountString = calloc(5, sizeof(char));
+
+    if (!(asciiHelper && flHelper && uartHelper && memoryAmountString)) {
+        freeAll(heapHelper, asciiHelper, flHelper, uartHelper, memoryAmountString);
+        return;
+    }
+    char * memoryString = flHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flHelper);
+    asciiHelper->integerToAscii(memoryAmountString, memoryAmount, 4, 0);
+    uartHelper->sendMsgWithTimestamp(2, (char * []) {memoryString, memoryAmountString});
+    freeAll(heapHelper, asciiHelper, flHelper, uartHelper, memoryAmountString);
+    free(memoryString);
+}
+
+/**
+ * The following 20 lines are dedicated to setting up stdin with an input queue that starts with a size of 7 bytes,
+ * and stdout with a UART helper.
+ *
+ * */
+
+InputQueue * inputQueue;
+UartHelper * uartHelper;
+
+#ifdef __AVR_ATmega328P__ // For other devices, you need to manually find the appropriate interrupt vector.
+ISR(USART_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+#elif __AVR_ATmega2560__
+ISR(USART0_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+#endif
+
+int get_char(FILE * stream) { return inputQueue->get_char(inputQueue, 1); }
+
+void setupStdInOut(void) {
+    uartHelper = dOS_initUartHelper();
+    inputQueue = dOS_initInputQueue();
+    //setting up stdout and stdin
+    fdevopen(uartHelper->usartTransmitChar, get_char);
+    // Enable receiver and transmitter and Interrupt additionally
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+}
+
+/**
+ * This function is utilized to obtain a seconds value with relatively low accuracy. It is primarily used for logging
+ * and testing purposes in the absence of a 32kHz watch quartz.
+ *
+ * */
+
+#ifndef DWARFOS_WATCH_QUARTZ
+// In this setup, the counter overflow is linked to the system clock.
+// With a clock speed of 16MHz, and considering the pre-scaling factor of 1024, an overflow interrupt of 256, and a multiplier of 61,
+// the resulting frequency is approximately 1.0001Hz. This level of accuracy is sufficient for logging purposes.
 void adjustTo1Sec(void) {
     if (adjustCounter == adjustValue) {
         mcuClock->incrementClockOneSec();
         adjustCounter = 0;
     }
 }
-
-#endif /* DWARFOS_WATCH_QUARTZ */
-
-void freeAll(HeapManagementHelper * heapHelper, AsciiHelper * asciiHelper, FlashHelper * flashHelper,
-             UartHelper * uartHelper, char * memoryAmountString) {
-    free(heapHelper);
-    free(flashHelper);
-    free(asciiHelper);
-    free(uartHelper);
-    free(memoryAmountString);
-}
-
-// example placement of string in Progmem
-#define LONG_LOCATION_126_STRING_LENGTH 1299
-const __attribute__((__progmem__)) char longLocation_126[LONG_LOCATION_126_STRING_LENGTH+1] = "You are on the edge of a breath-taking view.  Far below you is an \nactive volcano, from which great gouts of molten lava come surging \nout, cascading back down into the depths. The glowing rock fills the \nfarthest reaches of the cavern with a blood-red glare, giving \neverything an eerie, macabre appearance.\nThe air is filled with flickering sparks of ash and a heavy smell of \nbrimstone.  The walls are hot to the touch, and the thundering of the \nvolcano drowns out all other sounds.  Embedded in the jagged roof far \noverhead are myriad formations composed of pure white alabaster, which \nscatter their murky light into sinister apparitions upon the walls.\nTo one side is a deep gorge, filled with a bizarre chaos of tortured \nrock which seems to have been crafted by the Devil Himself.  An \nimmense river of fire crashes out from the depths of the volcano, \nburns its way through the gorge, and plummets into a bottomless pit \nfar off to your left.  \nTo the right, an immense geyser of blistering steam erupts \ncontinuously from a barren island in the center of a sulfurous lake, \nwhich bubbles ominously. The far right wall is aflame with an \nincandescence of its own, which lends an additional infernal splendor \nto the already hellish scene.  \nA dark, foreboding passage exits to the south.\n";
-#define ACTION_142_STRING_LENGTH 1395
-const __attribute__((__progmem__)) char action_142[ACTION_142_STRING_LENGTH+1] = "If you want to end your adventure early, say \"quit\".  To suspend your \nadventure such that you can continue later say \"suspend\" (or \"pause\" \nor \"save\").  To load a previously saved game, say 'load' or 'restore'.  \nTo see how well you're doing, say \"score\".  To get full credit for a \ntreasure, you must have left it safely in the building, though you get \npartial credit just for locating it. You lose points for getting \nkilled, or for quitting, though the former costs you more. \nThere are also points based on how much (If any) of the cave you've \nmanaged to explore;  in particular, there is a large bonus just for \ngetting in (to distinguish the beginners from the rest of the pack), \nand there are other ways to determine whether you've been through some \nof the more harrowing sections. \nIf you think you've found all the treasures, just keep exploring for a \nwhile.  If nothing interesting happens, you haven't found them all \nyet.  If something interesting DOES happen, it means you're getting a \nbonus and have an opportunity to garner many more points in the \nmaster's section.\nI may occasionally offer hints in you seem to be having trouble.  If I \ndo, I'll warn you in advance how much it will affect your score to \naccept the hints.  Finally, to save paper, you may specify \"brief\", \nwhich tells me never to repeat the full description of a place unless \nyou explicitly ask me to.\n";
-
-void testOSMethod(void) {
-
-    HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
-    if (!heapHelper) { return; }
-
-    // result 2003 byte on AtMega328p, overhead incl heapHelper only 45byte
-    int16_t memoryAmount = heapHelper->getFreeMemory();
-
-    AsciiHelper * asciiHelper = dOS_initAsciiHelper();
-    FlashHelper * flashHelper = dOS_initFlashHelper(2);
-    UartHelper * uartHelper = dOS_initUartHelper();
-    char * memoryAmountString = calloc(5, sizeof(char));
-
-
-    if (!(asciiHelper && flashHelper && uartHelper && memoryAmountString)) {
-        freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString);
-        return;
-    }
-    char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING,1,flashHelper);
-    asciiHelper->integerToAscii(memoryAmountString, memoryAmount, 4, 0);
-
-
-
-    // you can find easily memory leaks if you make such a check at several places in your code
-    if (lastTime % 2) {
-
-        char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
-
-        flashHelper->copyString_P(actionString, addressOf(longLocation_126));
-
-        uartHelper->usartTransmitString(actionString);
-        free(actionString);
-        //need a small delay until we go to sleep, that the receiver can read the end of our message,
-        // otherwise only \r is read not \n
-        uartHelper->usartTransmitChar('\0');
-    } else {
-        char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
-
-        flashHelper->copyString_P(action2String, addressOf(action_142));
-
-        uartHelper->usartTransmitString(action2String);
-        free(action2String);
-        //need a small delay until we go to sleep, that the receiver can read the end of our message,
-        // otherwise only \r is read not \n
-        uartHelper->usartTransmitChar('\0');
-    }
-    uartHelper->sendMsgWithTimestamp(2, (char * []) {memoryString, memoryAmountString});
-    free(memoryString);
-    freeAll(heapHelper, asciiHelper, flashHelper, uartHelper, memoryAmountString);
-}
+#endif

@@ -114,7 +114,7 @@ void printUserSelectedStringFromFile(void) {
     }
     sendMemoryAmountSmallModules();
 #ifdef __AVR_HAVE_ELPM__ // With 'actions', program memory would be too full for devices without ELPM support
-    flashHelper->putString_P(addressOf(*(PSTR("Enter the number of the desired string from numberOfString 'actions':\n"))));
+    printf("Enter the number of the desired string from numberOfString 'actions':\n");
     if (scanf("%d", &numberOfString) != 1) { numberOfString = 0; }
     if (numberOfString) {
         // A numberOfString without an array index will return strings from the first array position in this case.

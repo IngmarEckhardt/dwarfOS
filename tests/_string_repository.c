@@ -47,9 +47,9 @@ void test_freeString(void) {
     lazyString->flashString = (const char *) 0xff;
     stringRepository->addString(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Free the string
-    LazyLoadingString* freedString = stringRepository->freeString(lazyString);
+    int8_t resultOfFreeString = stringRepository->freeString(lazyString);
     // Check if the freed string is the same as the original one
-    TEST_ASSERT_EQUAL_PTR(lazyString, freedString);
+    TEST_ASSERT_EQUAL_INT8(0,resultOfFreeString);
     // Check if the pointerToString is NULL after freeing
     TEST_ASSERT_NULL(lazyString->pointerToString);
     free(stringRepository);
@@ -113,6 +113,27 @@ void test_freeMemoryRandom(void) {
     free(repository);
 }
 
+void test_freeMemoryRandom_frees_at_least_one_element(void) {
+    // Initialize the repository
+    StringRepository * repository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
+    TEST_ASSERT_NOT_NULL(repository);
+
+    // Add one string to the repository for testing
+    LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
+    lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
+    repository->lazyStringArray[SIZE_OF_INIT_STRING_REPO-2] = lazyString;
+
+    // Free memory randomly with a percentage of 50%
+    repository->freeMemoryRandom(1, repository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
+
+    // Check if the string is deallocated
+    TEST_ASSERT_NULL(repository->lazyStringArray[ (SIZE_OF_INIT_STRING_REPO-2)]->pointerToString);
+
+    // Free the remaining strings
+    free(repository->lazyStringArray[0]);
+    free(repository);
+}
+
 void test_initManagedLazyLoadingStringArray(void) {
     const char * const flashStrings[] = {"string1", "string2", "string3"};
     uint8_t numStrings = sizeof(flashStrings) / sizeof(flashStrings[0]);
@@ -154,6 +175,8 @@ int main(void) {
     RUN_TEST(test_freeString);
     RUN_TEST(test_removeStringFromManagement);
     RUN_TEST(test_freeMemoryRandom);
+    RUN_TEST(test_freeMemoryRandom_frees_at_least_one_element);
     RUN_TEST(test_initManagedLazyLoadingStringArray);
+
     return UNITY_END();
 }

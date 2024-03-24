@@ -44,10 +44,13 @@ char * getString(LazyLoadingString * stringToFetch, FlashHelper * flashHelper) {
 }
 
 // Free memory of a single string while retaining management for lazy loading
-LazyLoadingString * freeString(LazyLoadingString * stringToKill) {
+int8_t freeString(LazyLoadingString * stringToKill) {
+    if (stringToKill == NULL || stringToKill->pointerToString == NULL) {
+        return -1;
+    }
     free(stringToKill->pointerToString);
     stringToKill->pointerToString = NULL;
-    return stringToKill;
+    return 0;
 }
 
 // ToDo Freeing at least one element only works if this element is at last position, free String should report if it really freed a string
@@ -55,12 +58,22 @@ LazyLoadingString * freeString(LazyLoadingString * stringToKill) {
 // Free memory based on a percentage, ensuring at least one element is freed
 void freeMemoryRandom(uint8_t percentage, LazyLoadingString ** arrayOfManagedLazyStringPointers, uint8_t size) {
     uint8_t step = 100 / percentage;
+    uint8_t amount = (percentage * size)/100;
     //we delete at least one element
     if (step > (size - 1)) {
         step = size - 1;
+        amount = 1;
+    } else if (step == 0) {
+        step = 1;
+        amount = size;
     }
-    for (uint8_t i = 0; i < size; i += step) {
-        freeString(arrayOfManagedLazyStringPointers[i]);
+    for (uint16_t i = 0, freedElements = 0; freedElements < amount; freedElements++) {
+        if(freeString(arrayOfManagedLazyStringPointers[(i%size)])) {
+            i++;
+            freedElements--;
+        } else {
+            i += step;
+        }
     }
 }
 

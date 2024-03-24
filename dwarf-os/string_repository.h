@@ -55,9 +55,9 @@ typedef struct {
      * This function frees a string from the repository.
      *
      * @param stringToKill The string to free.
-     * @return A pointer to the freed LazyLoadingString structure.
+     * @return 0 on success, -1 on fail
      */
-    LazyLoadingString * (* freeString)(LazyLoadingString * stringToKill);
+    int8_t (* freeString)(LazyLoadingString * stringToKill);
 
     /**
      *

@@ -22,15 +22,17 @@ uint8_t lastTime;
 #ifndef DWARFOS_WATCH_QUARTZ
 volatile uint8_t adjustCounter = 0;
 const uint8_t adjustValue = ADJUST_TO_SECOND_VALUE;
+
 void adjustTo1Sec(void);
+
 #endif /* DWARFOS_WATCH_QUARTZ */
 
 
-
 void sendMemoryAmountSmallModules(void);
-void setupStdInOut(void);
-void testOSMethod(void);
 
+void setupStdInOut(void);
+
+void testOSMethod(void);
 
 
 int main(void) {
@@ -55,14 +57,16 @@ int main(void) {
 }
 // This overflow interrupt is linked to counter 2, which operates on the system clock.
 // For real-time functionality, a watch quartz is required at the TOSC1 and TOSC2 pins, and the setup needs to be adjusted accordingly.
-ISR(TIMER2_OVF_vect){
+ISR(TIMER2_OVF_vect) {
 #ifdef DWARFOS_WATCH_QUARTZ
     mcuClock->incrementClockOneSec();
 #else
     adjustCounter++;
 #endif /* DWARFOS_WATCH_QUARTZ */
 }
+
 FlashHelper * flashHelper;
+
 void printUserSelectedStringFromFile(void);
 
 void testOSMethod(void) {
@@ -94,25 +98,27 @@ void testOSMethod(void) {
 // Function declarations are provided here for the functions that will be used in the testOSMethod. Instead of including them in a header file,
 // the corresponding source files are directly included when DwarfOS is not built as a library along with this main file.
 int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber);
+
 int16_t putFileStrShortLocation(FlashHelper * helper, uint8_t shortLocationNumber);
 
 void printUserSelectedStringFromFile(void) {
-    printf("Enter the number of the desired string from the file 'short_locations':\n");
+    flashHelper->putString_P(
+            addressOf(*(PSTR("Enter the number of the desired string from file 'short_locations':\n"))));
     int file;
     if (scanf("%d", &file) != 1) { file = 0; }
     if (file) {
         // A file with an array containing index information will search through this information
         // and return the string that matches the given number.
-        putFileStrShortLocation(flashHelper,121);
+        putFileStrShortLocation(flashHelper, 121);
     }
     sendMemoryAmountSmallModules();
 #ifdef __AVR_HAVE_ELPM__ // With 'actions', program memory would be too full for devices without ELPM support
-    printf("Enter the number of the desired string from the file 'actions':\n");
+    flashHelper->putString_P(addressOf(*(PSTR("Enter the number of the desired string from file 'actions':\n"))));
     if (scanf("%d", &file) != 1) { file = 0; }
     if (file) {
         // A file without an array index will return strings from the first array position in this case.
         // For a more intelligent selection, you could enhance the implementation.
-        putFileStrAction(flashHelper, file-1);
+        putFileStrAction(flashHelper, file - 1);
     }
 #endif
 }
@@ -165,7 +171,9 @@ UartHelper * uartHelper;
 #ifdef __AVR_ATmega328P__ // For other devices, you need to manually find the appropriate interrupt vector.
 ISR(USART_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
 #elif __AVR_ATmega2560__
+
 ISR(USART0_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+
 #endif
 
 int get_char(FILE * stream) { return inputQueue->get_char(inputQueue, 1); }
@@ -186,6 +194,7 @@ void setupStdInOut(void) {
  * */
 
 #ifndef DWARFOS_WATCH_QUARTZ
+
 // In this setup, the counter overflow is linked to the system clock.
 // With a clock speed of 16MHz, and considering the pre-scaling factor of 1024, an overflow interrupt of 256, and a multiplier of 61,
 // the resulting frequency is approximately 1.0001Hz. This level of accuracy is sufficient for logging purposes.
@@ -195,4 +204,5 @@ void adjustTo1Sec(void) {
         adjustCounter = 0;
     }
 }
+
 #endif

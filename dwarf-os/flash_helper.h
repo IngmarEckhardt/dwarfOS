@@ -159,6 +159,10 @@ struct FlashHelper {
 FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
 
 #ifdef __AVR_HAVE_ELPM__
+
+// the user need the reference here to get access to the pgm_get_far_address macro, but for easier testing its not included per default
+
+#include <avr/pgmspace.h>
 /**
  * @brief Macro to get the address of a string in program memory.
  *

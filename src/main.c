@@ -1,6 +1,7 @@
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 
 //DwarfOS
 #include <dwarf-os/setup.h>

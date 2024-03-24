@@ -106,6 +106,7 @@ void printUserSelectedStringFromFile(void) {
         putFileStrShortLocation(flashHelper,121);
     }
     sendMemoryAmountSmallModules();
+#ifdef __AVR_HAVE_ELPM__ // With 'actions', program memory would be too full for devices without ELPM support
     printf("Enter the number of the desired string from the file 'actions':\n");
     if (scanf("%d", &file) != 1) { file = 0; }
     if (file) {
@@ -113,6 +114,7 @@ void printUserSelectedStringFromFile(void) {
         // For a more intelligent selection, you could enhance the implementation.
         putFileStrAction(flashHelper, file-1);
     }
+#endif
 }
 
 /**

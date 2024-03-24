@@ -2,10 +2,6 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#ifdef __AVR_HAVE_ELPM__
-#include <avr/pgmspace.h>
-#endif
-
 //DwarfOS
 #include <dwarf-os/setup.h>
 #include <dwarf-os/ascii_helper.h>

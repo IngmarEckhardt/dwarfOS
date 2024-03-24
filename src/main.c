@@ -80,6 +80,7 @@ void testOSMethod(void) {
     * As it uses stdout, sending the string with putString_p does not consume any memory. DwarfOS has its own
     * puts_PF implementation to facilitate this for devices that support ELPM. */
     flashHelper->putString_P(addressOf(readme_data));
+    sendMemoryAmountSmallModules();
     /**
      * The following function will prompt the user to select a string from the file short_locations and actions.
      * The user can select a string by entering a number. The function will then print the selected string.
@@ -108,7 +109,7 @@ void printUserSelectedStringFromFile(void) {
         // and return the string that matches the given number.
         putFileStrShortLocation(flashHelper,121);
     }
-
+    sendMemoryAmountSmallModules();
     printf("Enter the number of the desired string from the file 'actions':\n");
     if (scanf("%d", &file) != 1) { file = 0; }
     if (file) {

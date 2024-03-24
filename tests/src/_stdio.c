@@ -24,35 +24,33 @@ McuClock * mcuClock;
 UartHelper * uartHelper;
 InputQueue * inputQueue;
 
-char * stdoutCopyBuffer;
 #define BUFFERSIZE (uint8_t) UINT8_MAX
-uint8_t buffer_index = 0;
-
 const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
-uint8_t lastTime;
-volatile uint8_t adjustCounter;
-
 uint32_t farProgMemStringUnderInspektion;
 uint16_t farMemStringIndex;
+uint8_t buffer_index = 0;
+uint8_t lastTime = 0;
+volatile uint8_t adjustCounter;
+char * stdoutCopyBuffer;
 
 void setUp(void) {}
 
-void tearDown(void) {stdout->put = uartHelper->usartTransmitChar;}
+void tearDown(void) { stdout->put = uartHelper->usartTransmitChar; }
 
 void setup(void);
 
 void adjustTo1Sec(void);
 
-void printToSerialOutput(void);
+void printFreeMemoryAmountToSerialOutput(void);
 
-void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
-             char * timeStamp);
+void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memStrg, char * formatStrg, char * timeStamp);
 
 void test_puts_PF(void);
 
 void test_puts_PF_empty_string(void);
 
 void test_puts_PF_long_string(void);
+
 void test_puts_PF_loremIpsum(void);
 
 int main(void) {
@@ -66,7 +64,7 @@ int main(void) {
         adjustTo1Sec();
         if ((uint8_t) time(NULL) != lastTime) {
             lastTime = time(NULL);
-            printToSerialOutput();
+            printFreeMemoryAmountToSerialOutput();
             printf("Enter 1 to run tests\n");
             //do it with stdio function
             int menu;
@@ -89,12 +87,10 @@ int main(void) {
 
 ISR(TIMER2_OVF_vect) { adjustCounter++; }
 
-
-// every time a new char is received, the interrupt is triggered and the char is put into the queue
 ISR(USART0_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
 
 
-void printToSerialOutput(void) {
+void printFreeMemoryAmountToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
@@ -118,114 +114,87 @@ void adjustTo1Sec(void) {
     }
 }
 
-void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memStrg, char * formatStrg,
              char * timeStamp) {
     free(helper);
     free(pHelper);
-    free(memoryString);
-    free(formatString);
+    free(memStrg);
+    free(formatStrg);
     free(timeStamp);
 }
 
-// StdIn - Buffer outflow
-int get_char(FILE * stream) { return inputQueue->get_char(inputQueue, 1); }
-
 int mockPutSmallBufferCompare(char c, FILE * stream) {
     uartHelper->usartTransmitChar(c, stream);
-
     stdoutCopyBuffer[buffer_index++] = c;
     return 0;
 }
+
 int mockPutLoremIpsumCompare(char c, FILE * stream) {
     uartHelper->usartTransmitChar(c, stream);
-
-    // Read the next character from the far memory string
     char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
-
-    // Assert that the transmitted character is the same as the expected character
     TEST_ASSERT_EQUAL_CHAR(expectedChar, c);
-
-    // Move to the next character in the far memory string
     farMemStringIndex++;
-
     return 0;
 }
+// stdin with sleep mode during waiting for input
+int get_char(FILE * stream) { return inputQueue->get_char(inputQueue, 1); }
 void setup(void) {
     setupMcu(&mcuClock); // general setup DwarfOS
-
     uartHelper = dOS_initUartHelper();
     inputQueue = dOS_initInputQueue();
-
     //setting up stdout and stdin
     fdevopen(uartHelper->usartTransmitChar, get_char);
-
     // Enable receiver and transmitter and Interrupt additionally
     UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 }
 
 void test_puts_PF(void) {
+    // given
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-
-    // Create a far pointer to a string in program memory
     uint32_t farPointerToString = (uint32_t) PSTR("Test string");
-
-    // Call the function to test
+    // when
     puts_PF(farPointerToString);
-    // Add null terminator to the stdoutCopyBuffer
     stdoutCopyBuffer[buffer_index] = '\0';
-
-
-    // Check the output
+    // then
     TEST_ASSERT_EQUAL_STRING("Test string", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) {
-        TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
-    }
+    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
 }
 
 void test_puts_PF_empty_string(void) {
+    // given
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-
-    // Create a far pointer to an empty string in program memory
     uint32_t farPointerToString = (uint32_t) PSTR("");
-
-    // Call the function to test
+    // when
     puts_PF(farPointerToString);
-    // Add null terminator to the stdoutCopyBuffer
     stdoutCopyBuffer[buffer_index] = '\0';
-
-    // Check the output
+    // then
     TEST_ASSERT_EQUAL_STRING("", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) {
-        TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
-    }
+    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
 }
 
 void test_puts_PF_long_string(void) {
+    // given
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-
-    // Create a far pointer to a long string in program memory
     uint32_t farPointerToString = (uint32_t) PSTR("This is a long test string");
-    // Call the function to test
+    // when
     puts_PF(farPointerToString);
-
-    // Check the output
+    // then
     TEST_ASSERT_EQUAL_STRING("This is a long test string", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) {
-        TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
-    }
+    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
 }
 
 void test_puts_PF_loremIpsum(void) {
+    //given
     farProgMemStringUnderInspektion = addressOf(loremIpsum1);
-    stdout->put = mockPutLoremIpsumCompare;
+    stdout->put = mockPutLoremIpsumCompare; // here are the asserts
     farMemStringIndex = 0;
-    // Call the function to test
+    // when
     puts_PF(addressOf(loremIpsum1));
 }
 

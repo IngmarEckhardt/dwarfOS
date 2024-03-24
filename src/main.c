@@ -104,22 +104,22 @@ int16_t putFileStrShortLocation(FlashHelper * helper, uint8_t shortLocationNumbe
 
 void printUserSelectedStringFromFile(void) {
     flashHelper->putString_P(
-            addressOf(*(PSTR("Enter the number of the desired string from file 'short_locations':\n"))));
-    int file;
-    if (scanf("%d", &file) != 1) { file = 0; }
-    if (file) {
-        // A file with an array containing index information will search through this information
+            addressOf(*(PSTR("Enter the number of the desired string from numberOfString 'short_locations':\n"))));
+    uint16_t numberOfString;
+    if (scanf("%d", &numberOfString) != 1) { numberOfString = 0; }
+    if (numberOfString) {
+        // A numberOfString with an array containing index information will search through this information
         // and return the string that matches the given number.
-        putFileStrShortLocation(flashHelper, 121);
+        putFileStrShortLocation(flashHelper, numberOfString - 1);
     }
     sendMemoryAmountSmallModules();
 #ifdef __AVR_HAVE_ELPM__ // With 'actions', program memory would be too full for devices without ELPM support
-    flashHelper->putString_P(addressOf(*(PSTR("Enter the number of the desired string from file 'actions':\n"))));
-    if (scanf("%d", &file) != 1) { file = 0; }
-    if (file) {
-        // A file without an array index will return strings from the first array position in this case.
+    flashHelper->putString_P(addressOf(*(PSTR("Enter the number of the desired string from numberOfString 'actions':\n"))));
+    if (scanf("%d", &numberOfString) != 1) { numberOfString = 0; }
+    if (numberOfString) {
+        // A numberOfString without an array index will return strings from the first array position in this case.
         // For a more intelligent selection, you could enhance the implementation.
-        putFileStrAction(flashHelper, file - 1);
+        putFileStrAction(flashHelper, numberOfString - 1);
     }
 #endif
 }

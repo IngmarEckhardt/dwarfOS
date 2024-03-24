@@ -24,14 +24,14 @@ void test_addString(void) {
 void test_getString(void) {
     StringRepository * stringRepository;
     stringRepository = dOS_initStringRepository(SIZE_OF_INIT_STRING_REPO);
-    FlashHelper * stringStorage = dOS_initFlashHelper();
+    FlashHelper * stringStorage = dOS_initFlashHelper(0);
     // Create a LazyLoadingString object and add it to the repository
     LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
     lazyString->flashString = (const char *) 0xff;
     lazyString->pointerToString = NULL;
     stringRepository->addString(lazyString, stringRepository->lazyStringArray, SIZE_OF_INIT_STRING_REPO);
     // Try to retrieve the string
-    char* retrievedString = stringRepository->getStringFromRamElseLoadFromFlash(lazyString, stringStorage); // Pass NULL for FlashHelper
+    char* retrievedString = stringRepository->getString(lazyString, stringStorage); // Pass NULL for FlashHelper
     // Check if the retrieved string is not NULL
     TEST_ASSERT_NOT_NULL(retrievedString);
     // You might want to add further checks depending on your implementation
@@ -117,7 +117,7 @@ void test_initManagedLazyLoadingStringArray(void) {
     const char * const flashStrings[] = {"string1", "string2", "string3"};
     uint8_t numStrings = sizeof(flashStrings) / sizeof(flashStrings[0]);
 
-    LazyLoadingString ** result = înitLazyStringArray(flashStrings, numStrings);
+    LazyLoadingString ** result = initLazyStringArray(flashStrings, numStrings);
 
     // Check if the returned array is not NULL
     TEST_ASSERT_NOT_NULL(result);

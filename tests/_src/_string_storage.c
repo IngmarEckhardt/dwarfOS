@@ -1,4 +1,4 @@
-#include "dwarf-os/flash_helper.h"
+#include <dwarf-os/flash_helper.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,8 +8,9 @@ char* createNearStringFromFlash(const char* flashString) {
     return flashString;
 }
 
-void loadFromFlash(char * stringBuffer, const char * flashString) {
+char * loadFromFlash(char * stringBuffer, const char * flashString) {
     strcpy(stringBuffer,flashString);
+    return stringBuffer;
 }
 
 uint8_t readProgMemByte(const uint8_t * addressOfByte) {
@@ -17,18 +18,13 @@ uint8_t readProgMemByte(const uint8_t * addressOfByte) {
 }
 
 
-const char initMsgOnFlash[] = " setup complete.";
-LazyLoadingString initMsg = {.flashString = initMsgOnFlash, .pointerToString = NULL};
 
-FlashHelper * dOS_initFlashHelper(void) {
-    FlashHelper * storage = malloc(sizeof(FlashHelper));
-    if (storage == NULL) {
-        return NULL;
-    } else {
-        storage->initMsg=initMsg;
-        storage->createNearStringFromFlash=createNearStringFromFlash;
-        storage->readByte_P=readProgMemByte;
-        storage->loadFromFlash=loadFromFlash;
-        return storage;
+FlashHelper * dOS_initFlashHelper(uint8_t desiredState) {
+    FlashHelper * helper = malloc(sizeof(FlashHelper));
+    if (helper == NULL) { return NULL; }
+    else {
+        helper->createString_P = (char * (*)(uint32_t, FlashHelper *)) createNearStringFromFlash;
+        helper->copyString_P = (char * (*)(char *, uint32_t)) loadFromFlash;
+        return helper;
     }
 }

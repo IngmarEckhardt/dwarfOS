@@ -6,7 +6,7 @@
 #ifndef DWARFOS_FLASH_HELPER_H
 #define DWARFOS_FLASH_HELPER_H
 
-#include <avr/pgmspace.h>
+
 #include <stdint.h>
 
 

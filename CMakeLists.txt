@@ -137,7 +137,6 @@ endif ()
 # test - targets
 
 if (DWARF_TEST)
-
     add_definitions(-DDWARFOS_TEST)
     # get rid of time.h from standard gcc and the time_t definitions of host system
     if (DWARF_TEST_TIME)
@@ -154,11 +153,11 @@ if (DWARF_TEST)
 
     # some reduced libs for tests
     if (DWARF_TEST_TIME)
-        add_library(${PROJECT_NAME}Lib STATIC "${SRC_PATH}/time.c" "${INCL_PATH}/time.h")
+        add_library(${PROJECT_NAME}Lib STATIC "${SRC_PATH}/time.c" "${INCL_SUBDIR}/time.h")
     endif ()
-    add_library(${PROJECT_NAME}LibReduced STATIC "${SRC_PATH}/string_repository.c" "${INCL_PATH}/string_repository.h")
-    add_library(${PROJECT_NAME}LibInputQueueReduced STATIC "${SRC_PATH}/input_queue.c" "${INCL_PATH}/input_queue.h")
-    add_library(${PROJECT_NAME}LibAsciiHelperReduced STATIC "${SRC_PATH}/ascii_helper.c" "${INCL_PATH}/ascii_helper.h")
+    add_library(${PROJECT_NAME}LibReduced STATIC "${SRC_PATH}/string_repository.c" "${INCL_SUBDIR}/string_repository.h")
+    add_library(${PROJECT_NAME}LibInputQueueReduced STATIC "${SRC_PATH}/input_queue.c" "${INCL_SUBDIR}/input_queue.h")
+    add_library(${PROJECT_NAME}LibAsciiHelperReduced STATIC "${SRC_PATH}/ascii_helper.c" "${INCL_SUBDIR}/ascii_helper.h")
 
     if (DWARF_TEST_TIME)
         # time.c

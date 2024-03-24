@@ -175,7 +175,7 @@ if (DWARF_TEST)
         target_link_libraries(${PROJECT_NAME}_AsciiHelper ${PROJECT_NAME}LibAsciiHelperReduced unity)
 
         # string_repository.c
-        add_executable(${PROJECT_NAME}_StringRepo "${TEST_PATH}/_string_repository.c" "${TEST_PATH}/_src/_string_storage.c")
+        add_executable(${PROJECT_NAME}_StringRepo "${TEST_PATH}/_string_repository.c" "${TEST_PATH}/_src/mock_flash_helper.c")
         target_link_libraries(${PROJECT_NAME}_StringRepo ${PROJECT_NAME}LibReduced unity)
     endif ()
     include(CTest)

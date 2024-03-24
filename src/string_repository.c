@@ -140,8 +140,8 @@ getIndex(LazyLoadingString * stringToFetch, LazyLoadingString ** arrayOfManagedL
     if (stringToFetch == NULL) { return -1; }
 
     uint8_t placement = getHash(stringToFetch, size);
-    for (uint8_t i = 0; i < MAX_SIZE_STRING_DB; i++) {
-        placement = (placement + i) % MAX_SIZE_STRING_DB;
+    for (uint8_t i = 0; i < size; i++) {
+        placement = (placement + i) % size;
 
         if (arrayOfManagedLazyStringPointers[placement] == stringToFetch) { return placement; }
     }

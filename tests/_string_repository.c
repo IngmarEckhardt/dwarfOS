@@ -79,7 +79,7 @@ void test_freeMemoryRandom(void) {
     TEST_ASSERT_NOT_NULL(repository);
 
     // Add some strings to the repository for testing
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+    for (int i = 0; i < SIZE_OF_INIT_STRING_REPO; i++) {
         LazyLoadingString* lazyString = malloc(sizeof(LazyLoadingString));
         lazyString->pointerToString = malloc(10 * sizeof(char)); // Allocate memory for pointerToString
         repository->lazyStringArray[i] = lazyString;
@@ -94,17 +94,17 @@ void test_freeMemoryRandom(void) {
 
     // Check if approximately half of the strings are deallocated
     int deallocatedCount = 0;
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+    for (int i = 0; i < SIZE_OF_INIT_STRING_REPO; i++) {
         if (repository->lazyStringArray[i]->pointerToString == NULL) {
             deallocatedCount++;
         }
     }
     // Allow some tolerance due to rounding errors
-    int expectedDeallocatedCount = MAX_SIZE_STRING_DB / 2;
+    int expectedDeallocatedCount = SIZE_OF_INIT_STRING_REPO / 2;
     TEST_ASSERT_TRUE(abs(deallocatedCount - expectedDeallocatedCount) <= 1);
 
     // Free the remaining strings
-    for (int i = 0; i < MAX_SIZE_STRING_DB; i++) {
+    for (int i = 0; i < SIZE_OF_INIT_STRING_REPO; i++) {
         if (repository->lazyStringArray[i] != NULL) {
             free(repository->lazyStringArray[i]->pointerToString);
             free(repository->lazyStringArray[i]);

@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <dwarf-os/flash_helper.h>
 
-#ifndef MAX_SIZE_STRING_DB
-#define MAX_SIZE_STRING_DB 8 // Number of maximum Strings in DB, 2^n is recommended
-#endif
 typedef struct {
     const char * flashString; // Pointer to the string in flash memory
     char * pointerToString; // Pointer to the string in RAM

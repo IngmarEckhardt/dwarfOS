@@ -151,7 +151,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
 
 
     fprintf(file, "#define PUT_FROM(NUM) \\\n");
-    fprintf(file, "\treturn helper->putFileString_P(&(TextFile) { \\\n");
+    fprintf(file, "\tif (helper->putFileString_P(&(TextFile) { \\\n");
     fprintf(file, "\t\t.pointerToArray =  addressOf(%ss_##NUM), \\\n", camelCase);
 
     fprintf(file, "\t\t.maxLengthOfStrings = %s_##NUM##_STRING_LENGTH, \\\n", prefix);
@@ -161,7 +161,7 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
         fprintf(file, "\t\t.sizeOfIndexArray = 0, \\\n");
     }
     fprintf(file, "\t\t.amountOfEntries = AMOUNT_%s_##NUM##_STRINGS, \\\n", prefix);
-    fprintf(file, "\t}, %sNumber, helper); \\\n\n", camelCase);
+    fprintf(file, "\t}, %sNumber, helper) == 0) { return 0;}; \\\n\n", camelCase);
 
 
     fprintf(file, "char * load%s(FlashHelper * helper, uint8_t %sNumber) {\n", pascalCase, camelCase);
@@ -187,14 +187,14 @@ void writeGetterFunction(const char * prefix, const uint8_t datasets, Entry * co
         fprintf(file, "\tif (%sNumber == %d) {\n", camelCase,
                 entries[datasets - 1][j].indices[0]);
 
-        fprintf(file, "\t\thelper->putString_P(addressOf(%s_%d));\n",
+        fprintf(file, "\t\treturn helper->putString_P(addressOf(%s_%d));\n",
                     camelCase, entries[datasets - 1][j].indices[0]);
 
         fprintf(file, "\t}\n");
     }
     for (uint8_t i = 0; i < datasets - 1; i++) { fprintf(file, "\tPUT_FROM(%d)\n", i + 1); }
     fprintf(file, "\n");
-    fprintf(file, "\treturn 0;\n");
+    fprintf(file, "\treturn -1;\n");
     fprintf(file, "}\n\n");
 
 

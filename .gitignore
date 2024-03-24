@@ -6,3 +6,4 @@ Debug
 Release
 /DwarfOS.componentinfo.xml
 /DwarfOS.cproj
+/tests/standard-gcc/cmake-*

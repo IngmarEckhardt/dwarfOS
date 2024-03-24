@@ -87,6 +87,10 @@ set(HEADER_FILES
         "${INCL_SUBDIR}/time.h"
         "${INCL_SUBDIR}/uart_helper.h"
 )
+set(SHOWCASE_TEXTFILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/text-files/actions.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/text-files/short_locations.c"
+)
 
 include_directories(${INCL_PATH})
 
@@ -102,7 +106,7 @@ if (BUILD_DWARFOS_AS_LIBRARY)
     )
 else ()
     # add main.c, produces a elf file that you can burn to a device or use in simavr
-    set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/main.c")
+    set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/main.c" ${SHOWCASE_TEXTFILES} )
     add_executable(${PROJECT_NAME} ${SRC_FILES})
     set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
 

@@ -87,6 +87,7 @@ void testOSMethod(void) {
      * The user can select a string by entering a number. The function will then print the selected string.
      * */
     printUserSelectedStringFromFile();
+    free(flashHelper);
 }
 
 /**

@@ -11,8 +11,9 @@
 #include <dwarf-os/heap_management_helper.h>
 #include <dwarf-os/time.h>
 #include <dwarf-os/flash_helper.h>
-#include <dwarf-os/readme_data.h>
 #include <dwarf-os/input_queue.h>
+// Contents of README.md are stored in Program Memory
+#include <dwarf-os/readme_data.h>
 
 // The clock has states, instantiate it once and maintain a reference if you use it
 McuClock * mcuClock;
@@ -33,7 +34,7 @@ void sendMemoryAmountSmallModules(void);
 
 void setupStdInOut(void);
 
-void testOSMethod(void);
+void testOSFunction(void);
 
 
 int main(void) {
@@ -52,7 +53,7 @@ int main(void) {
         // For this example, we only need to execute an action once every second. Otherwise, we immediately return to sleep mode.
         if ((uint8_t) time(NULL) != lastTime) {
             lastTime = time(NULL);
-            testOSMethod();
+            testOSFunction();
         }
     }
 }
@@ -66,28 +67,28 @@ ISR(TIMER2_OVF_vect) {
 #endif /* DWARFOS_WATCH_QUARTZ */
 }
 
-FlashHelper * flashHelper;
+FlashHelper * flHelperTestOsFct;
 
 void printUserSelectedStringFromFile(void);
 
-void testOSMethod(void) {
+void testOSFunction(void) {
     /** Without a specified state, the helper autonomously determines whether to use near program memory getters for memory less than 64KB
     * or far getters (ELPM). */
-    flashHelper = dOS_initFlashHelper(0);
+    flHelperTestOsFct = dOS_initFlashHelper(0);
     /** The addressOf macro autonomously determines how to retrieve the address. If state 1 is used on devices with ELPM,
     * this macro will still fetch far addresses. Although this will work, it would be slower than using the near address.
     * Therefore, it is recommended to use near addresses without the macro at this point.
     *
     * As it uses stdout, sending the string with putString_p does not consume any memory. DwarfOS has its own
     * puts_PF implementation to facilitate this for devices that support ELPM. */
-    flashHelper->putString_P(addressOf(readme_data));
+    flHelperTestOsFct->putString_P(addressOf(readme_data));
     sendMemoryAmountSmallModules();
     /**
      * The following function will prompt the user to select a string from the file short_locations and actions.
      * The user can select a string by entering a number. The function will then print the selected string.
      * */
     printUserSelectedStringFromFile();
-    free(flashHelper);
+    free(flHelperTestOsFct);
 }
 
 /**
@@ -97,30 +98,35 @@ void testOSMethod(void) {
  * any memory because it utilizes stdout for output.
  * */
 
-// Function declarations are provided here for the functions that will be used in the testOSMethod. Instead of including them in a header file,
+// Function declarations are provided here for the functions that will be used in the testOSFunction. Instead of including them in a header file,
 // the corresponding source files are directly included when DwarfOS is not built as a library along with this main file.
 int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber);
 
 int16_t putFileStrShortLocation(FlashHelper * helper, uint8_t shortLocationNumber);
 
 void printUserSelectedStringFromFile(void) {
-    flashHelper->putString_P(
-            addressOf(*(PSTR("Enter the number of the desired string from numberOfString 'short_locations':\n"))));
     uint16_t numberOfString;
+
+    flHelperTestOsFct->putString_P( // KISS: Placing in Program Memory
+            addressOf(*(PSTR("Enter the number of the desired string from 'short_locations':\n"))));
+
     if (scanf("%d", &numberOfString) != 1) { numberOfString = 0; }
+
     if (numberOfString) {
         // A numberOfString with an array containing index information will search through this information
         // and return the string that matches the given number.
-        putFileStrShortLocation(flashHelper, numberOfString - 1);
+        putFileStrShortLocation(flHelperTestOsFct, numberOfString - 1);
     }
+
     sendMemoryAmountSmallModules();
+
 #ifdef __AVR_HAVE_ELPM__ // With 'actions', program memory would be too full for devices without ELPM support
-    printf("Enter the number of the desired string from numberOfString 'actions':\n");
+    printf("Enter the number of the desired string from numberOfString 'actions':\n");//With 8KB of RAM, we can utilize standard libraries
     if (scanf("%d", &numberOfString) != 1) { numberOfString = 0; }
     if (numberOfString) {
         // A numberOfString without an array index will return strings from the first array position in this case.
         // For a more intelligent selection, you could enhance the implementation.
-        putFileStrAction(flashHelper, numberOfString - 1);
+        putFileStrAction(flHelperTestOsFct, numberOfString - 1);
     }
 #endif
 }
@@ -154,7 +160,9 @@ void sendMemoryAmountSmallModules(void) {
         freeAll(heapHelper, asciiHelper, flHelper, uartHelper, memoryAmountString);
         return;
     }
+    // Every string from this function is stored in arrays within the Program Memory
     char * memoryString = flHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flHelper);
+    // Two compact helper functions to substitute the printf function
     asciiHelper->integerToAscii(memoryAmountString, memoryAmount, 4, 0);
     uartHelper->sendMsgWithTimestamp(2, (char * []) {memoryString, memoryAmountString});
     freeAll(heapHelper, asciiHelper, flHelper, uartHelper, memoryAmountString);

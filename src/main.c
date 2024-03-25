@@ -17,7 +17,7 @@
 
 // The clock has states, instantiate it once and maintain a reference if you use it
 McuClock * mcuClock;
-// The clock has states, instantiate it once and maintain a reference if you use it
+// This byte ensures that we only display an interaction once per second
 uint8_t lastTime;
 
 // We can use the CPU Frequency as a clock with low accuracy for logging purposes
@@ -28,7 +28,6 @@ const uint8_t adjustValue = ADJUST_TO_SECOND_VALUE;
 void adjustTo1Sec(void);
 
 #endif /* DWARFOS_WATCH_QUARTZ */
-
 
 void sendMemoryAmountSmallModules(void);
 

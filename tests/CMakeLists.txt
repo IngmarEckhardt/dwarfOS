@@ -44,6 +44,13 @@ set(INCL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../extern")
 
+
+set(SRC_FILES
+        "${SRC_PATH}/_stdio.c"
+        "${SRC_PATH}/_flash_helper.c"
+)
+
+
 include_directories(${INCL_PATH})
 
 # add Dwarf-OS
@@ -51,15 +58,26 @@ set(BUILD_DWARFOS_AS_LIBRARY ON CACHE BOOL "Build DwarfOS as a library")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. extern_dwarf)
 add_subdirectory(${EXTERN_PATH}/Unity extern_unity)
 
-set(STDIO ${PROJECT_NAME}_stdio)
 
-add_executable(${STDIO} ${SRC_FILES} "${SRC_PATH}/_stdio.c")
-target_include_directories(${STDIO} PUBLIC ${INCL_PATH})
-target_link_libraries(${STDIO} DwarfOS unity)
-set_target_properties(${STDIO} PROPERTIES OUTPUT_NAME "${STDIO}.elf")
 
-add_custom_target(size "${AVR_SIZE}" "${STDIO}.elf")
-add_custom_target(objdump "${AVR_OBJDUMP}" -h -s "${STDIO}.elf" > flash_memory_content.txt)
+add_executable(${PROJECT_NAME} ${SRC_FILES} "mcu_test_runner_elpm.c")
+target_include_directories(${PROJECT_NAME} PUBLIC ${INCL_PATH})
+target_link_libraries(${PROJECT_NAME} DwarfOS unity)
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
+
+add_custom_target(${PROJECT_NAME}_size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
+add_custom_target(${PROJECT_NAME}_objdump "${AVR_OBJDUMP}" -h -s "${PROJECT_NAME}.elf" > flash_memory_content.txt)
+
+
+#set(STDIO ${PROJECT_NAME}_stdio)
+#
+#add_executable(${STDIO} ${SRC_FILES} "${SRC_PATH}/_stdio.c")
+#target_include_directories(${STDIO} PUBLIC ${INCL_PATH})
+#target_link_libraries(${STDIO} DwarfOS unity)
+#set_target_properties(${STDIO} PROPERTIES OUTPUT_NAME "${STDIO}.elf")
+#
+#add_custom_target(${STDIO}_size "${AVR_SIZE}" "${STDIO}.elf")
+#add_custom_target(${STDIO}_objdump "${AVR_OBJDUMP}" -h -s "${STDIO}.elf" > flash_memory_content.txt)
 
 
 

@@ -11,21 +11,21 @@
 #include <dwarf-os/uart_helper.h>
 #include <dwarf-os/flash_helper.h>
 #include <dwarf-os/stdio.h>
+// KISS Workaround to work with 2 given setUp, tearDown functions from unity, but the use case to have different files with test suites
+#include <unity_function_pointers.h>
 // given data
 #include "lorem_ipsum.h"
 
 UartHelper * uartHelper;
-uint8_t verbose = 0;
+static uint8_t verbose = 0;
 
 #define BUFFERSIZE (uint8_t) UINT8_MAX
 uint32_t farProgMemStringUnderInspektion;
 uint16_t farMemStringIndex;
-uint8_t buffer_index = 0;
+static uint8_t buffer_index = 0;
 char * stdoutCopyBuffer;
 
-void setUp(void) {}
-
-void tearDown(void) { stdout->put = uartHelper->usartTransmitChar; }
+void tearDownStdIo(void) { stdout->put = uartHelper->usartTransmitChar; }
 
 
 int mockPutSmallBufferCompare(char c, FILE * stream) {
@@ -47,7 +47,7 @@ void test_puts_PF(void) {
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-    uint32_t farPointerToString = (uint32_t) PSTR("Test string");
+    uint32_t farPointerToString = addressOf(*PSTR("Test string"));
     // when
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
@@ -61,7 +61,7 @@ void test_puts_PF_empty_string(void) {
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-    uint32_t farPointerToString = (uint32_t) PSTR("");
+    uint32_t farPointerToString = addressOf(*PSTR(""));
     // when
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
@@ -75,7 +75,7 @@ void test_puts_PF_long_string(void) {
     stdoutCopyBuffer = calloc(BUFFERSIZE, sizeof(char));
     buffer_index = 0;
     stdout->put = mockPutSmallBufferCompare;
-    uint32_t farPointerToString = (uint32_t) PSTR("This is a long test string");
+    uint32_t farPointerToString = addressOf(*PSTR("This is a long test string"));
     // when
     puts_PF(farPointerToString);
     // then
@@ -94,10 +94,12 @@ void test_puts_PF_loremIpsum(void) {
 
 void runPutsPFTests(uint8_t verboseMode) {
     verbose = verboseMode;
+    tearDownIndividual = tearDownStdIo;
     UNITY_BEGIN();
     RUN_TEST(test_puts_PF);
     RUN_TEST(test_puts_PF_empty_string);
     RUN_TEST(test_puts_PF_long_string);
     RUN_TEST(test_puts_PF_loremIpsum);
     UNITY_END();
+    tearDownIndividual = NULL;
 }

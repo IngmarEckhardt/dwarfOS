@@ -7,11 +7,7 @@
 // given data
 #include "lorem_ipsum.h"
 
-uint8_t verbose = 0;
-
-void setUp(void) {}
-
-void tearDown(void) {}
+static uint8_t verbose = 0;
 
 void test_createString_P(void) {
     // Given

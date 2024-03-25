@@ -48,6 +48,7 @@ set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../extern")
 set(SRC_FILES
         "${SRC_PATH}/_stdio.c"
         "${SRC_PATH}/_flash_helper.c"
+        "${SRC_PATH}/lorem_ipsum.c"
 )
 
 

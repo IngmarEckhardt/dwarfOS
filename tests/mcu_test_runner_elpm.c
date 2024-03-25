@@ -15,8 +15,9 @@
 #include <dwarf-os/time.h>
 #include <dwarf-os/input_queue.h>
 
-#include "_stdio.h"
-#include "_flash_helper.h"
+#include <_stdio.h>
+#include <_flash_helper.h>
+
 
 McuClock * mcuClock;
 UartHelper * uartHelper;

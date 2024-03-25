@@ -70,15 +70,16 @@ add_custom_target(${PROJECT_NAME}_size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
 add_custom_target(${PROJECT_NAME}_objdump "${AVR_OBJDUMP}" -h -s "${PROJECT_NAME}.elf" > flash_memory_content.txt)
 
 
-#set(STDIO ${PROJECT_NAME}_stdio)
-#
-#add_executable(${STDIO} ${SRC_FILES} "${SRC_PATH}/_stdio.c")
-#target_include_directories(${STDIO} PUBLIC ${INCL_PATH})
-#target_link_libraries(${STDIO} DwarfOS unity)
-#set_target_properties(${STDIO} PROPERTIES OUTPUT_NAME "${STDIO}.elf")
-#
-#add_custom_target(${STDIO}_size "${AVR_SIZE}" "${STDIO}.elf")
-#add_custom_target(${STDIO}_objdump "${AVR_OBJDUMP}" -h -s "${STDIO}.elf" > flash_memory_content.txt)
+set(STDIO ${PROJECT_NAME}_stdio)
+
+add_executable(${STDIO} ${SRC_FILES} "${SRC_PATH}/_stdio.c")
+target_include_directories(${STDIO} PUBLIC ${INCL_PATH})
+target_link_libraries(${STDIO} DwarfOS unity)
+target_compile_definitions(${STDIO} PUBLIC DWARF_ISOLATED_TEST)
+set_target_properties(${STDIO} PROPERTIES OUTPUT_NAME "${STDIO}.elf")
+
+add_custom_target(${STDIO}_size "${AVR_SIZE}" "${STDIO}.elf")
+add_custom_target(${STDIO}_objdump "${AVR_OBJDUMP}" -h -s "${STDIO}.elf" > flash_memory_content.txt)
 
 
 

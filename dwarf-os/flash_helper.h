@@ -8,7 +8,7 @@
 
 
 #include <stdint.h>
-
+#include <avr/pgmspace.h>
 
 /**
  * @brief Structure for managing text files in extended program memory.
@@ -162,7 +162,6 @@ FlashHelper * dOS_initFlashHelper(uint8_t desiredState);
 
 // the user need the reference here to get access to the pgm_get_far_address macro, but for easier testing its not included per default
 
-#include <avr/pgmspace.h>
 /**
  * @brief Macro to get the address of a string in program memory.
  *

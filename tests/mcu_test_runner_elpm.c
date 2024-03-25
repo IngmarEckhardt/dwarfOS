@@ -1,4 +1,4 @@
-#ifdef __AVR_HAVE_ELPM__ //test runner using way more than 64kB Program Memory
+#if defined(__AVR_HAVE_ELPM__) && !defined(DWARF_ISOLATED_TEST) //test runner using way more than 64kB Program Memory
 
 #include <string.h>
 #include <avr/sleep.h>
@@ -6,17 +6,17 @@
 #include <avr/io.h>
 #include <stdio.h>
 
-//DwarfOS
-#include <dwarf-os/setup.h>
+#include <dwarf-os/time.h>
 #include <dwarf-os/mcu_clock.h>
 #include <dwarf-os/uart_helper.h>
-#include <dwarf-os/flash_helper.h>
-#include <dwarf-os/heap_management_helper.h>
-#include <dwarf-os/time.h>
 #include <dwarf-os/input_queue.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/flash_helper.h>
 
 #include <_stdio.h>
 #include <_flash_helper.h>
+#include <dwarf-os/stdio.h>
 
 
 McuClock * mcuClock;
@@ -51,11 +51,13 @@ int main(void) {
         if ((uint8_t) time(NULL) != lastTime) {
             lastTime = time(NULL);
             printFreeMemoryAmountToSerialOutput();
-            printf("\t\tRun Tests\n\n"
-                   "Add character v before number for verbose mode.\n\n"
-                    "1.\t_stdio Tests\n"
-                    "2.\t_flash_helper Tests\n"
-                    "0.\tAll\n");
+            puts_PF(addressOf(*PSTR(
+                    "\n              Run Tests\n\n"
+                    "Add character v before number for verbose mode.\n\n"
+                    "1.     stdio Tests\n"
+                    "2.     flash_helper Tests\n"
+                    "0.     All\n\n")));
+
             uint8_t menu = 0;
             char input[5];//v three digits and \n
             if (scanf("%s", input) == 1) {

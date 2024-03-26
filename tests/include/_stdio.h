@@ -3,5 +3,5 @@
 
 #include <stdint.h>
 
-void runPutsPFTests(uint8_t verboseMode);
+void runPutsPFTests(void);
 #endif //DWARF_MCU_TEST__STDIO_H

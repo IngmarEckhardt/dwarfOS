@@ -14,6 +14,14 @@ int16_t puts_PF(uint32_t farPointerToString) {
             }
         }
     }
+    //function automatically appends a newline character
+    while ((stdout->flags & __SWR) != 0) {
+        if ((stdout->put('\n', stdout) != 0)) {
+            return EOF;
+        } else {
+            return 0;
+        }
+    }
 #endif
     return 0;
 }

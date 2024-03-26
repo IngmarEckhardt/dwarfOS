@@ -2,20 +2,13 @@
 #include <stdlib.h>
 //Unity
 #include <unity.h>
-// KISS Workaround to work with 2 given setUp, tearDown functions from unity, but the use case to have different files with test suites
+//
 #include <global_declarations.h>
-// DwarfOS
-#include <dwarf-os/flash_helper.h>
-
-
 // given data
 #include "lorem_ipsum.h"
 
-static FlashHelper * flashHelper;
-static uint8_t verbose = 0;
-
 static uint32_t farProgMemStringUnderInspektion;
-static uint16_t farMemStringIndex;
+static uint16_t farMemStringIndex = 0;
 static uint8_t buffer_index = 0;
 static char * stdoutCopyBuffer;
 
@@ -27,19 +20,25 @@ void individualTearDownFlashHelperTests(void) {
 }
 
 static int mockPutSmallBufferCompare(char c, FILE * stream) {
-    if (verbose) { uartHelper->usartTransmitChar(c, stream); }
+    if (verboseMode) { uartHelper->usartTransmitChar(c, stream); }
     stdoutCopyBuffer[buffer_index++] = c;
     return 0;
 }
 
 static int mockPutLoremIpsumCompare(char c, FILE * stream) {
-    if (verbose) { uartHelper->usartTransmitChar(c, stream); }
+    if (verboseMode) { uartHelper->usartTransmitChar(c, stream); }
+
+    if (farMemStringIndex< LOREM_IPSUM_9_LENGHT) {
 #ifdef __AVR_HAVE_ELPM__
-    char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
+        char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
 #else
-    char expectedChar = pgm_read_byte(farProgMemStringUnderInspektion + farMemStringIndex);
+        char expectedChar = pgm_read_byte(farProgMemStringUnderInspektion + farMemStringIndex);
 #endif
-    TEST_ASSERT_EQUAL_CHAR(expectedChar, c);
+        TEST_ASSERT_EQUAL_CHAR(expectedChar, c);
+    } else if (farMemStringIndex == LOREM_IPSUM_9_LENGHT)  {
+        TEST_ASSERT_EQUAL_CHAR('\n', c);
+    }
+
     farMemStringIndex++;
     return 0;
 }
@@ -70,7 +69,7 @@ void test_createString_P_empty_string(void) {
     // Cleanup
     free(result);
 }
-
+#if defined(__AVR_HAVE_ELPM__)
 void test_createString_P_long_string(void) {
     // Given // When
     char * result = flashHelper->createString_P(addressOf(loremIpsumProgMem1kB), flashHelper);
@@ -80,6 +79,17 @@ void test_createString_P_long_string(void) {
     // Cleanup
     free(result);
 }
+#else
+void test_createString_P_long_string(void) {
+    // Given // When
+    char * result = flashHelper->createString_P(addressOf(loremIpsumProgMemUintMax), flashHelper);
+    // Then
+    TEST_ASSERT_NOT_NULL(result);
+    TEST_ASSERT_EQUAL_STRING(loremIpsumRamUintMax, result);
+    // Cleanup
+    free(result);
+}
+#endif
 
 void test_copyString_P(void) {
     // Given
@@ -111,6 +121,8 @@ void test_copyString_P_empty_string(void) {
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
+#define BUFFERSIZE_FLASHHELPER_TEST (uint8_t) UINT8_MAX
+#if defined(__AVR_HAVE_ELPM__)
 void test_copyString_P_long_string(void) {
     // Given
     char dest[1024];
@@ -120,18 +132,35 @@ void test_copyString_P_long_string(void) {
     TEST_ASSERT_NOT_NULL(dest);
     TEST_ASSERT_EQUAL_STRING(loremIpsumRam1kB, dest);
 }
+#else
+void test_copyString_P_long_string(void) {
+    // Given
+    char * buffer = calloc(BUFFERSIZE_FLASHHELPER_TEST, sizeof(char));
+    TEST_ASSERT_NOT_NULL( buffer);
+    // When
+    flashHelper->copyString_P(buffer , addressOf(loremIpsumProgMemUintMax));
+    // Then
+    TEST_ASSERT_NOT_NULL(buffer );
+    TEST_ASSERT_EQUAL_STRING(loremIpsumRamUintMax, buffer );
+    free(buffer);
+//    HeapManagementHelper * heapManagementHelper = dOS_initHeapManagementHelper();
+//    printf("free Memory is: %d\n",heapManagementHelper->getFreeMemory() );
+//    free(heapManagementHelper);
+}
+#endif
 
-#define BUFFERSIZE_FLASHHELPER_TEST (uint8_t) UINT8_MAX
 
 void test_putString_P(void) {
     // Given
     stdoutCopyBuffer = calloc(BUFFERSIZE_FLASHHELPER_TEST, sizeof(char));
+    TEST_ASSERT_NOT_NULL(stdoutCopyBuffer);
     stdout->put = mockPutSmallBufferCompare;
     // When
     flashHelper->putString_P(addressOf(*PSTR("Test string")));
+    stdout->put = uartHelper->usartTransmitChar;
     stdoutCopyBuffer[buffer_index] = '\0';
     // Then
-    char* testString = "Test string";
+    char * testString = "Test string\n";
     for (uint8_t i = 0; i < BUFFERSIZE_FLASHHELPER_TEST; i++) {
         if (i < buffer_index) {
             TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
@@ -151,7 +180,7 @@ void test_putString_P_empty_string(void) {
     flashHelper->putString_P(addressOf(*PSTR("")));
     stdoutCopyBuffer[buffer_index] = '\0';
     // Then
-    char* testString = "";
+    char * testString = "\n";
     for (uint8_t i = 0; i < BUFFERSIZE_FLASHHELPER_TEST; i++) {
         if (i < buffer_index) {
             TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
@@ -160,13 +189,15 @@ void test_putString_P_empty_string(void) {
         }
     }
 }
-
+//
 void test_putString_P_long_string(void) {
     // Given
     stdout->put = mockPutLoremIpsumCompare;
     farMemStringIndex = 0;
     farProgMemStringUnderInspektion = addressOf(loremIpsum9);
     // When
+    puts_P(loremIpsum9);
+
     flashHelper->putString_P(farProgMemStringUnderInspektion);
 }
 
@@ -194,13 +225,11 @@ void test_getOrPutDosMessage(void) {
     // TODO: Write this test
 }
 
-void runFlashHelperTests(uint8_t verboseMode) {
-    verbose = verboseMode;
+void runFlashHelperTests(void) {
+
 
     setUpIndividual = individualStartUpFlashHelperTests;
     tearDownIndividual = individualTearDownFlashHelperTests;
-
-    flashHelper = dOS_initFlashHelper(0);
 
     UNITY_BEGIN();
     RUN_TEST(test_createString_P);
@@ -223,8 +252,6 @@ void runFlashHelperTests(uint8_t verboseMode) {
     RUN_TEST(test_putString_P_long_string);
 
 
-
-
     RUN_TEST(test_lengthOfString_P);
     RUN_TEST(test_readByte_P);
     RUN_TEST(test_compareString_P);
@@ -232,6 +259,142 @@ void runFlashHelperTests(uint8_t verboseMode) {
     RUN_TEST(test_putFileString_P);
     RUN_TEST(test_getOrPutDosMessage);
     UNITY_END();
-
-    free(flashHelper);
+    setUpIndividual = NULL;
+    tearDownIndividual = NULL;
 }
+
+// running as isolated test for small devices
+#if defined(DWARF_ISOLATED_TEST)
+
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/input_queue.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/time.h>
+#include <avr/interrupt.h>
+#include <avr/sleep.h>
+
+const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
+uint8_t lastTime;
+volatile uint8_t adjustCounter;
+
+McuClock * mcuClock;
+InputQueue * inputQueue;
+HeapManagementHelper * heapHelper;
+
+void setup(void);
+
+void adjustTo1Sec(void);
+
+void printToSerialOutput(void);
+
+void freeAll(char * memoryString, char * formatString, char * timeStamp);
+
+int main(void) {
+
+    setup();
+    sei();
+    printToSerialOutput();
+    while (1) {
+
+        sleep_mode();
+        adjustTo1Sec();
+
+        if ((uint8_t) time(NULL) != lastTime) {
+            lastTime = time(NULL);
+
+
+            puts_P(PSTR(
+                           "\n              Run Tests\n\n"
+                           "Add character v before number for verbose mode.\n\n"
+                           "1. run Test\n"
+                           "2. print Memory again\n"));
+            //do it with stdio function
+            uint8_t menu = 0;
+            char input[5];//v three digits and \n
+            if (scanf("%s", input) == 1) {
+                if (input[0] == 'v') {
+                    verboseMode = 1;
+                    printf("set verbose");
+                    menu = strtol(input + 1, NULL, 10);
+                } else {
+                    verboseMode = 0;
+                    menu = strtol(input, NULL, 10);
+                }
+            }
+            switch (menu) {
+                case 1:
+                    runFlashHelperTests();
+                    break;
+                case 2:{
+                    printToSerialOutput();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+ISR(TIMER2_OVF_vect) { adjustCounter++; }
+
+
+#ifdef __AVR_ATmega328P__
+
+ISR(USART_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+#elif  __AVR_ATmega2560__
+ISR(USART0_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+#endif
+
+
+void printToSerialOutput(void) {
+
+
+    int16_t memoryAmount = heapHelper->getFreeMemory();
+
+    char * timestamp = ctime(NULL);
+    char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
+    char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
+    if (!(memoryString && formatString && timestamp)) {
+        freeAll(memoryString, formatString, timestamp);
+        return;
+    }
+    printf(formatString, timestamp, memoryString, memoryAmount);
+    freeAll(memoryString, formatString, timestamp);
+
+}
+
+void adjustTo1Sec(void) {
+    if (adjustCounter == adjustToSecondValue) {
+        mcuClock->incrementClockOneSec();
+        adjustCounter = 0;
+    }
+}
+
+void freeAll(char * memoryString, char * formatString,
+             char * timeStamp) {
+    free(memoryString);
+    free(formatString);
+    free(timeStamp);
+}
+
+// StdIn - Buffer outflow
+int get_char(FILE * stream) { return inputQueue->get_char(inputQueue, 1); }
+
+void setup(void) {
+    setupMcu(&mcuClock); // general setup DwarfOS
+
+
+    uartHelper = dOS_initUartHelper();
+    inputQueue = dOS_initInputQueue();
+    heapHelper = dOS_initHeapManagementHelper();
+    flashHelper = dOS_initFlashHelper(0);
+
+    //setting up stdout and stdin
+    fdevopen(uartHelper->usartTransmitChar, get_char);
+
+    // Enable receiver and transmitter and Interrupt additionally
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+}
+#endif

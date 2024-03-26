@@ -15,10 +15,7 @@ int16_t getFreeMemory(void) {
 }
 
 HeapManagementHelper * dOS_initHeapManagementHelper(void) {
-    printf("inside init\n");
-    printf("free memory is: %d", getFreeMemory());
     HeapManagementHelper * helper = malloc(sizeof(HeapManagementHelper));
-    printf("inside init after malloc\n");
     if (helper == NULL) { return NULL; }
     else {
         helper->getFreeMemory = getFreeMemory;

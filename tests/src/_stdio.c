@@ -7,20 +7,12 @@
 //Unity
 #include <unity.h>
 //DwarfOS
-#include <dwarf-os/uart_helper.h>
-#include <dwarf-os/flash_helper.h>
 #include <dwarf-os/stdio.h>
 // KISS Workaround to work with 2 given setUp, tearDown functions from unity, but the use case to have different files with test suites
 #include <global_declarations.h>
 
 // given data
 #include "lorem_ipsum.h"
-#if !defined(DWARF_ISOLATED_TEST)
-
-#else
-UartHelper * uartHelper;
-#endif
-static uint8_t verbose = 0;
 
 #define BUFFERSIZE (uint8_t) UINT8_MAX
 static uint32_t farProgMemStringUnderInspektion;
@@ -32,19 +24,24 @@ void tearDownStdIo(void) { stdout->put = uartHelper->usartTransmitChar; }
 
 
 static int mockPutSmallBufferCompare(char c, FILE * stream) {
-    if (verbose) { uartHelper->usartTransmitChar(c, stream); }
+    if (verboseMode) { uartHelper->usartTransmitChar(c, stream); }
     stdoutCopyBuffer[buffer_index++] = c;
     return 0;
 }
 
 static int mockPutLoremIpsumCompare(char c, FILE * stream) {
-    if (verbose) { uartHelper->usartTransmitChar(c, stream); }
+    if (verboseMode) { uartHelper->usartTransmitChar(c, stream); }
+    if (farMemStringIndex< LOREM_IPSUM_9_LENGHT) {
 #ifdef __AVR_HAVE_ELPM__
-    char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
+        char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
 #else
-    char expectedChar = pgm_read_byte(farProgMemStringUnderInspektion + farMemStringIndex);
+        char expectedChar = pgm_read_byte(farProgMemStringUnderInspektion + farMemStringIndex);
 #endif
-    TEST_ASSERT_EQUAL_CHAR(expectedChar, c);
+        TEST_ASSERT_EQUAL_CHAR(expectedChar, c);
+    } else if (farMemStringIndex == LOREM_IPSUM_9_LENGHT)  {
+        TEST_ASSERT_EQUAL_CHAR('\n', c);
+    }
+
     farMemStringIndex++;
     return 0;
 }
@@ -59,7 +56,7 @@ void test_puts_PF(void) {
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
     // then
-    char* testString = "Test string";
+    char* testString = "Test string\n";
     for (uint8_t i = 0; i < BUFFERSIZE; i++) {
         if (i < buffer_index) {
             TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
@@ -79,7 +76,7 @@ void test_puts_PF_empty_string(void) {
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
     // then
-    char* testString = "";
+    char* testString = "\n";
     for (uint8_t i = 0; i < BUFFERSIZE; i++) {
         if (i < buffer_index) {
             TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
@@ -98,7 +95,7 @@ void test_puts_PF_long_string(void) {
     // when
     puts_PF(farPointerToString);
     // then
-    char* testString = "This is a long test string";
+    char* testString = "This is a long test string\n";
     for (uint8_t i = 0; i < BUFFERSIZE; i++) {
         if (i < buffer_index) {
             TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
@@ -117,8 +114,7 @@ void test_puts_PF_loremIpsum(void) {
     puts_PF(farProgMemStringUnderInspektion);
 }
 
-void runPutsPFTests(uint8_t verboseMode) {
-    verbose = verboseMode;
+void runPutsPFTests(void) {
     tearDownIndividual = tearDownStdIo;
     UNITY_BEGIN();
     RUN_TEST(test_puts_PF);
@@ -131,7 +127,7 @@ void runPutsPFTests(uint8_t verboseMode) {
 
 
 // running as isolated test for small devices
-#if defined(DWARF_ISOLATED_TEST) && !defined(__AVR_HAVE_ELPM__)
+#if defined(DWARF_ISOLATED_TEST) && defined(__AVR_HAVE_ELPM__)
 
 #include <dwarf-os/mcu_clock.h>
 #include <dwarf-os/input_queue.h>
@@ -145,18 +141,16 @@ const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
 uint8_t lastTime;
 volatile uint8_t adjustCounter;
 
-uint8_t verboseMode;
-
 McuClock * mcuClock;
-UartHelper * uartHelper;
 InputQueue * inputQueue;
+
 void setup(void);
 
 void adjustTo1Sec(void);
 
 void printToSerialOutput(void);
 
-void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+void freeAll(char * memoryString, char * formatString,
              char * timeStamp);
 
 int main(void) {
@@ -174,7 +168,7 @@ int main(void) {
 
             puts_P(PSTR(
                     "\n              Run Tests\n\n"
-                    "Add character v before number for verbose mode.\n\n")));
+                    "Add character v before number for verbose mode.\n\n"));
             //do it with stdio function
             uint8_t menu = 0;
             char input[5];//v three digits and \n
@@ -189,7 +183,7 @@ int main(void) {
             }
             switch (menu) {
                 case 1:
-                    runPutsPFTests(verboseMode);
+                    runPutsPFTests();
                     break;
                 default:
                     break;
@@ -203,24 +197,25 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 
 #ifdef __AVR_ATmega328P__
 ISR(USART_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
+#elif __AVR_ATmega2560__
+ISR(USART0_RX_vect) { inputQueue->enqueue(UDR0, inputQueue); }
 #endif
 
 
 void printToSerialOutput(void) {
-    HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
-    if (heapHelper) {
+
         int16_t memoryAmount = heapHelper->getFreeMemory();
-        FlashHelper * flashHelper = dOS_initFlashHelper(0);
+
         char * timestamp = ctime(NULL);
         char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
         char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
         if (!(memoryString && formatString && flashHelper && timestamp)) {
-            freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
+            freeAll(memoryString, formatString, timestamp);
             return;
         }
         printf(formatString, timestamp, memoryString, memoryAmount);
-        freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
-    }
+        freeAll(memoryString, formatString, timestamp);
+
 }
 
 void adjustTo1Sec(void) {
@@ -230,10 +225,8 @@ void adjustTo1Sec(void) {
     }
 }
 
-void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+void freeAll( char * memoryString, char * formatString,
              char * timeStamp) {
-    free(helper);
-    free(pHelper);
     free(memoryString);
     free(formatString);
     free(timeStamp);
@@ -246,6 +239,8 @@ void setup(void) {
 
     uartHelper = dOS_initUartHelper();
     inputQueue = dOS_initInputQueue();
+    heapHelper = dOS_initHeapManagementHelper();
+    flashHelper = dOS_initFlashHelper(0);
 
     //setting up stdout and stdin
     fdevopen(uartHelper->usartTransmitChar, get_char);
@@ -253,6 +248,6 @@ void setup(void) {
     // Enable receiver and transmitter and Interrupt additionally
     UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 }
-#elif defined(DWARF_ISOLATED_TEST) && defined(__AVR_HAVE_ELPM__)
-int main(void){}; // is there a need to implement tests for isolated ELPM tests, it is done in the test runner?
+#elif defined(DWARF_ISOLATED_TEST) && !defined(__AVR_HAVE_ELPM__)
+int main(void) {}
 #endif

@@ -46,8 +46,6 @@ set(EXTERN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../extern")
 
 
 set(SRC_FILES
-        "${SRC_PATH}/_stdio.c"
-        "${SRC_PATH}/_flash_helper.c"
         "${SRC_PATH}/lorem_ipsum.c"
         "${SRC_PATH}/unity_function_pointers.c"
 )
@@ -62,7 +60,7 @@ add_subdirectory(${EXTERN_PATH}/Unity extern_unity)
 
 
 
-add_executable(${PROJECT_NAME} ${SRC_FILES} "mcu_test_runner_elpm.c")
+add_executable(${PROJECT_NAME} ${SRC_FILES} "mcu_test_runner_elpm.c" "${SRC_PATH}/_flash_helper.c" "${SRC_PATH}/_stdio.c")
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCL_PATH})
 target_link_libraries(${PROJECT_NAME} DwarfOS unity)
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
@@ -83,7 +81,16 @@ add_custom_target(${STDIO}_size "${AVR_SIZE}" "${STDIO}.elf")
 add_custom_target(${STDIO}_objdump "${AVR_OBJDUMP}" -h -s "${STDIO}.elf" > flash_memory_content.txt)
 
 
+set(FLASH_HELPER ${PROJECT_NAME}_flashHelper)
 
+add_executable(${FLASH_HELPER} ${SRC_FILES} "${SRC_PATH}/_flash_helper.c")
+target_include_directories(${FLASH_HELPER} PUBLIC ${INCL_PATH})
+target_link_libraries(${FLASH_HELPER} DwarfOS unity)
+target_compile_definitions(${FLASH_HELPER} PUBLIC DWARF_ISOLATED_TEST)
+set_target_properties(${FLASH_HELPER} PROPERTIES OUTPUT_NAME "${FLASH_HELPER}.elf")
+
+add_custom_target(${FLASH_HELPER}_size "${AVR_SIZE}" "${FLASH_HELPER}.elf")
+add_custom_target(${FLASH_HELPER}_objdump "${AVR_OBJDUMP}" -h -s "${FLASH_HELPER}.elf" > flash_memory_content.txt)
 
 
 ## build a hex file if needed

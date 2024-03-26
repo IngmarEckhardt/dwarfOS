@@ -11,30 +11,33 @@
 #include <dwarf-os/flash_helper.h>
 #include <dwarf-os/stdio.h>
 // KISS Workaround to work with 2 given setUp, tearDown functions from unity, but the use case to have different files with test suites
-#include <unity_function_pointers.h>
+#include <global_declarations.h>
 
 // given data
 #include "lorem_ipsum.h"
+#if !defined(DWARF_ISOLATED_TEST)
 
+#else
 UartHelper * uartHelper;
+#endif
 static uint8_t verbose = 0;
 
 #define BUFFERSIZE (uint8_t) UINT8_MAX
-uint32_t farProgMemStringUnderInspektion;
-uint16_t farMemStringIndex;
+static uint32_t farProgMemStringUnderInspektion;
+static uint16_t farMemStringIndex;
 static uint8_t buffer_index = 0;
-char * stdoutCopyBuffer;
+static char * stdoutCopyBuffer;
 
 void tearDownStdIo(void) { stdout->put = uartHelper->usartTransmitChar; }
 
 
-int mockPutSmallBufferCompare(char c, FILE * stream) {
+static int mockPutSmallBufferCompare(char c, FILE * stream) {
     if (verbose) { uartHelper->usartTransmitChar(c, stream); }
     stdoutCopyBuffer[buffer_index++] = c;
     return 0;
 }
 
-int mockPutLoremIpsumCompare(char c, FILE * stream) {
+static int mockPutLoremIpsumCompare(char c, FILE * stream) {
     if (verbose) { uartHelper->usartTransmitChar(c, stream); }
 #ifdef __AVR_HAVE_ELPM__
     char expectedChar = pgm_read_byte_far(farProgMemStringUnderInspektion + farMemStringIndex);
@@ -56,8 +59,14 @@ void test_puts_PF(void) {
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
     // then
-    TEST_ASSERT_EQUAL_STRING("Test string", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
+    char* testString = "Test string";
+    for (uint8_t i = 0; i < BUFFERSIZE; i++) {
+        if (i < buffer_index) {
+            TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
+        } else {
+            TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
+        }
+    }
 }
 
 void test_puts_PF_empty_string(void) {
@@ -70,8 +79,14 @@ void test_puts_PF_empty_string(void) {
     puts_PF(farPointerToString);
     stdoutCopyBuffer[buffer_index] = '\0';
     // then
-    TEST_ASSERT_EQUAL_STRING("", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
+    char* testString = "";
+    for (uint8_t i = 0; i < BUFFERSIZE; i++) {
+        if (i < buffer_index) {
+            TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
+        } else {
+            TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
+        }
+    }
 }
 
 void test_puts_PF_long_string(void) {
@@ -83,8 +98,14 @@ void test_puts_PF_long_string(void) {
     // when
     puts_PF(farPointerToString);
     // then
-    TEST_ASSERT_EQUAL_STRING("This is a long test string", stdoutCopyBuffer);
-    for (uint8_t i = buffer_index; i < BUFFERSIZE; i++) { TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]); }
+    char* testString = "This is a long test string";
+    for (uint8_t i = 0; i < BUFFERSIZE; i++) {
+        if (i < buffer_index) {
+            TEST_ASSERT_EQUAL_CHAR(testString[i], stdoutCopyBuffer[i]);
+        } else {
+            TEST_ASSERT_EQUAL_CHAR('\0', stdoutCopyBuffer[i]);
+        }
+    }
 }
 
 void test_puts_PF_loremIpsum(void) {

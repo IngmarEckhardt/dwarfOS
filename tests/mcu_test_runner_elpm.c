@@ -8,7 +8,7 @@
 
 #include <dwarf-os/time.h>
 #include <dwarf-os/mcu_clock.h>
-#include <dwarf-os/uart_helper.h>
+
 #include <dwarf-os/input_queue.h>
 #include <dwarf-os/setup.h>
 #include <dwarf-os/heap_management_helper.h>
@@ -17,10 +17,10 @@
 #include <_stdio.h>
 #include <_flash_helper.h>
 #include <dwarf-os/stdio.h>
+#include <global_declarations.h>
 
 
 McuClock * mcuClock;
-UartHelper * uartHelper;
 InputQueue * inputQueue;
 
 const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
@@ -50,6 +50,7 @@ int main(void) {
         adjustTo1Sec();
         if ((uint8_t) time(NULL) != lastTime) {
             lastTime = time(NULL);
+
             printFreeMemoryAmountToSerialOutput();
             puts_PF(addressOf(*PSTR(
                     "\n              Run Tests\n\n"
@@ -117,20 +118,29 @@ void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memStr
 
 
 void printFreeMemoryAmountToSerialOutput(void) {
+    char * timestamp = NULL;
+    char * memoryString = NULL;
+    char * formatString = NULL;
+    FlashHelper * flashHelper = NULL;
+    printf("beforeInit\n");
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
+    printf("afterInit\n");
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
-        FlashHelper * flashHelper = dOS_initFlashHelper(0);
-        char * timestamp = ctime(NULL);
-        char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
-        char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
+        flashHelper = dOS_initFlashHelper(0);
+        timestamp = ctime(NULL);
+        memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
+        formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
         if (!(memoryString && formatString && flashHelper && timestamp)) {
             freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
             return;
         }
         printf(formatString, timestamp, memoryString, memoryAmount);
-        freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
+    } else {
+        printf("ERROR: heapHelper was NULL\n");
+        return;
     }
+    freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
 }
 
 

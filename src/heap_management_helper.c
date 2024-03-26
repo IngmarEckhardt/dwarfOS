@@ -1,6 +1,7 @@
 #include <dwarf-os/heap_management_helper.h>
 #include <avr/io.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // value is NULL until the first malloc happens, then it points to the address of the last allocated memory byte
 extern char * __brkval;
@@ -14,7 +15,10 @@ int16_t getFreeMemory(void) {
 }
 
 HeapManagementHelper * dOS_initHeapManagementHelper(void) {
+    printf("inside init\n");
+    printf("free memory is: %d", getFreeMemory());
     HeapManagementHelper * helper = malloc(sizeof(HeapManagementHelper));
+    printf("inside init after malloc\n");
     if (helper == NULL) { return NULL; }
     else {
         helper->getFreeMemory = getFreeMemory;

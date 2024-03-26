@@ -15,15 +15,19 @@ static uint8_t farProgmemIsUsed(void) { return 1; }
 
 #endif
 
-static char * copyNear(char * strBuf, uint32_t flashStrgPtr) {return strcpy_P(strBuf, (const char *)(uintptr_t)flashStrgPtr);}
+static char * copyNear(char * strBuf, uint32_t flashStrgPtr) {
+    return strcpy_P(strBuf, (const char *) (uintptr_t) flashStrgPtr);
+}
 
-static int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *)(uintptr_t) flashString); }
+static int putStringToStdOutNear(uint32_t flashString) { return puts_P((const char *) (uintptr_t) flashString); }
 
-static int compareNear(const char * string, uint32_t flashStrg) { return strcmp_P(string, (const char *)(uintptr_t) flashStrg); }
+static int compareNear(const char * string, uint32_t flashStrg) {
+    return strcmp_P(string, (const char *) (uintptr_t) flashStrg);
+}
 
-static uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *)(uintptr_t) flashString); }
+static uint16_t lengthOfNear(uint32_t flashString) { return strlen_P((const char *) (uintptr_t) flashString); }
 
-static uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *)(uintptr_t) address); }
+static uint8_t readProgMemByteNear(uint32_t address) { return pgm_read_byte((uint8_t *) (uintptr_t) address); }
 
 #define isEqual(index, pointerToByte) index == helper->readByte_P(pointerToByte)
 
@@ -35,7 +39,7 @@ const __attribute__((__progmem__)) char dOS_messages[3][MAXLENGTH_DOS_STRINGS + 
 };
 
 #define MAXLENGTH__SHORT_DOS_STRINGS 8
-const __attribute__((__progmem__)) char dOS_shortMessages[1][MAXLENGTH__SHORT_DOS_STRINGS+1] = {
+const __attribute__((__progmem__)) char dOS_shortMessages[1][MAXLENGTH__SHORT_DOS_STRINGS + 1] = {
         "%s:%s%d\n",
 };
 
@@ -74,10 +78,12 @@ int16_t putFileString_P(TextFile * textFile, const uint8_t index, FlashHelper * 
 }
 
 char * createString_P(uint32_t flashString, FlashHelper * helper) {
-    char * result = (char *) malloc((helper->lengthOfString_P(flashString) + 1) * sizeof(char));
-    if (result == NULL) { return NULL; }
-    helper->copyString_P(result, flashString);
-    return result;
+    char * result = NULL;
+    if (helper == NULL ||
+        (result = (char *) malloc((helper->lengthOfString_P(flashString) + 1) * sizeof(char))) == NULL) {
+        return NULL;
+    }
+    return helper->copyString_P(result, flashString);
 }
 
 //if desired String in Ram is 1 the function returns the string, otherwise it puts the string into stdout

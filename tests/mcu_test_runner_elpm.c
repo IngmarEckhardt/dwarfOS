@@ -80,6 +80,7 @@ int main(void) {
                 }
                 default: {
                     runPutsPFTests(0);
+                    runFlashHelperTests(0);
                     break;
                 }
 

@@ -110,7 +110,6 @@ void runPutsPFTests(uint8_t verboseMode) {
 
 
 // running as isolated test for small devices
-
 #if defined(DWARF_ISOLATED_TEST) && !defined(__AVR_HAVE_ELPM__)
 
 #include <dwarf-os/mcu_clock.h>
@@ -233,4 +232,6 @@ void setup(void) {
     // Enable receiver and transmitter and Interrupt additionally
     UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 }
+#elif defined(DWARF_ISOLATED_TEST) && defined(__AVR_HAVE_ELPM__)
+int main(void){}; // is there a need to implement tests for isolated ELPM tests, it is done in the test runner?
 #endif
